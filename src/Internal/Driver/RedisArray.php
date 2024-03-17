@@ -20,8 +20,6 @@ namespace danog\AsyncOrm\Internal\Driver;
 
 use Amp\Redis\Connection\ReconnectingRedisLink;
 use Amp\Redis\RedisClient;
-use Amp\Redis\RedisConfig;
-use Amp\Serialization\PassthroughSerializer;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\FieldConfig;
@@ -62,14 +60,11 @@ final class RedisArray extends DriverArray
         \assert($config->settings instanceof Redis);
         $dbKey = $config->settings->getDbIdentifier();
         $lock = self::$mutex->acquire($dbKey);
+        \assert($config->settings instanceof Redis);
 
         try {
             if (!isset(self::$connections[$dbKey])) {
-                $config = RedisConfig::fromUri($config->settings->uri)
-                    ->withPassword($config->settings->password)
-                    ->withDatabase($config->settings->database);
-
-                self::$connections[$dbKey] = new RedisClient(new ReconnectingRedisLink(createRedisConnector($config)));
+                self::$connections[$dbKey] = new RedisClient(new ReconnectingRedisLink(createRedisConnector($config->settings->config)));
                 self::$connections[$dbKey]->ping();
             }
         } finally {

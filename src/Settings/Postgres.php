@@ -22,6 +22,7 @@ use danog\AsyncOrm\Internal\Driver\PostgresArray;
 
 /**
  * Postgres backend settings.
+ * @extends SqlSettings<PostgresConfig>
  */
 final readonly class Postgres extends SqlSettings
 {

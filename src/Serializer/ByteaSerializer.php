@@ -26,8 +26,7 @@ final class ByteaSerializer implements Serializer
 {
     public function __construct(
         private readonly Serializer $inner
-    )
-    {
+    ) {
     }
     public function serialize(mixed $value): mixed
     {

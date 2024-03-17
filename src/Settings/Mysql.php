@@ -24,6 +24,8 @@ use danog\AsyncOrm\Serializer;
  * MySQL backend settings.
  *
  * MariaDb 10.2+ or Mysql 5.6+ required.
+ *
+ * @extends SqlSettings<MysqlConfig>
  */
 final readonly class Mysql extends SqlSettings
 {
@@ -53,7 +55,7 @@ final readonly class Mysql extends SqlSettings
     ) {
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }
-    
+
     public function getDriverClass(): string
     {
         return MysqlArray::class;

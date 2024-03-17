@@ -35,7 +35,7 @@ enum ValueType: string
     case OBJECT = 'object';
     /**
      * Values of any type, serialized as specified in the settings.
-     * 
+     *
      * Using MIXED worsens performances, please use STRING, INT or OBJECT whenever possible.
      */
     case MIXED = 'object';

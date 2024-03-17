@@ -21,10 +21,7 @@ namespace danog\AsyncOrm\Driver;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Serializer;
-use danog\AsyncOrm\Serializer\Igbinary;
-use danog\AsyncOrm\Serializer\Native;
-use danog\AsyncOrm\Serializer\Passthrough;
-use danog\AsyncOrm\ValueType;
+use danog\AsyncOrm\Settings\DriverSettings;
 
 use function Amp\async;
 use function Amp\Future\await;
@@ -52,13 +49,9 @@ abstract class DriverArray extends DbArray
         ) {
             return $previous;
         }
+        \assert($config->settings instanceof DriverSettings);
 
-        $instance = new static($config, match ($config->annotation->valueType) {
-            ValueType::BEST => \extension_loaded('igbinary') ? new Igbinary : new Native,
-            ValueType::IGBINARY => new Igbinary,
-            ValueType::SERIALIZE => new Native,
-            default => new Passthrough
-        });
+        $instance = new static($config, $config->settings->serializer);
 
         if ($previous === null) {
             return $instance;

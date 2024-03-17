@@ -21,6 +21,8 @@ use danog\AsyncOrm\Serializer;
 
 /**
  * Generic SQL db backend settings.
+ *
+ * @template T as SqlConfig
  */
 abstract readonly class SqlSettings extends DriverSettings
 {
@@ -58,6 +60,7 @@ abstract readonly class SqlSettings extends DriverSettings
      * @param int<1, max> $idleTimeout Idle timeout
      */
     public function __construct(
+        /** @var T */
         public readonly SqlConfig $config,
         Serializer $serializer,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,

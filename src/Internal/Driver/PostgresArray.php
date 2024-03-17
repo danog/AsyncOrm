@@ -18,7 +18,6 @@
 
 namespace danog\AsyncOrm\Internal\Driver;
 
-use Amp\Postgres\PostgresConfig;
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\SqlArray;
@@ -55,29 +54,9 @@ class PostgresArray extends SqlArray
 
         try {
             if (!isset(self::$connections[$dbKey])) {
-                $host = \str_replace(['tcp://', 'unix://'], '', $settings->uri);
-                if ($host[0] === '/') {
-                    $port = 0;
-                } else {
-                    $host = \explode(':', $host, 2);
-                    if (\count($host) === 2) {
-                        [$host, $port] = $host;
-                    } else {
-                        $host = $host[0];
-                        $port = PostgresConfig::DEFAULT_PORT;
-                    }
-                }
-                $config = new PostgresConfig(
-                    host: $host,
-                    port: (int) $port,
-                    user: $settings->username,
-                    password: $settings->password,
-                    database: $settings->database
-                );
-
-                $db = $config->getDatabase();
-                $user = $config->getUser();
-                $connection =  new PostgresConnectionPool($config->withDatabase(null));
+                $db = $settings->config->getDatabase();
+                $user = $settings->config->getUser();
+                $connection =  new PostgresConnectionPool($settings->config->withDatabase(null));
 
                 $result = $connection->query("SELECT * FROM pg_database WHERE datname = '{$db}'");
 
@@ -91,7 +70,7 @@ class PostgresArray extends SqlArray
                 }
                 $connection->close();
 
-                self::$connections[$dbKey] = new PostgresConnectionPool($config, $settings->maxConnections, $settings->idleTimeoutgetIdleTimeout());
+                self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeoutgetIdleTimeout());
             }
         } finally {
             EventLoop::queue($lock->release(...));
@@ -121,6 +100,25 @@ class PostgresArray extends SqlArray
                 \"value\" $valueType NOT NULL
             );            
         ");
+
+        $result = $this->db->query("DESCRIBE \"bytea_{$config->table}\"");
+        while ($column = $result->fetchRow()) {
+            ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
+            $type = \strtoupper($type);
+            if (\str_starts_with($type, 'BIGINT')) {
+                $type = 'BIGINT';
+            }
+            if ($key === 'key') {
+                $expected = $keyType;
+            } elseif ($key === 'value') {
+                $expected = $valueType;
+            } else {
+                $this->db->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
+            }
+            if ($expected !== $type || $null !== 'NO') {
+                $this->db->query("ALTER TABLE \"bytea_{$config->table}\" MODIFY \"$key\" $expected NOT NULL");
+            }
+        }
 
         parent::__construct(
             $config,
