@@ -81,13 +81,17 @@ final class CacheContainer
     public function get(string|int $index): mixed
     {
         if (isset($this->ttl[$index])) {
-            $this->ttl[$index] = \time() + $this->cacheTtl;
+            if ($this->ttl[$index] !== true) {
+                $this->ttl[$index] = \time() + $this->cacheTtl;
+            }
             return $this->cache[$index];
         }
 
         $result = $this->inner->offsetGet($index);
         if (isset($this->ttl[$index])) {
-            $this->ttl[$index] = \time() + $this->cacheTtl;
+            if ($this->ttl[$index] !== true) {
+                $this->ttl[$index] = \time() + $this->cacheTtl;
+            }
             return $this->cache[$index];
         }
 
