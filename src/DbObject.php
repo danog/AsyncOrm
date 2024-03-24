@@ -19,29 +19,22 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
-use danog\AsyncOrm\Internal\DbPropertiesFactory;
+use danog\AsyncOrm\Settings\DriverSettings;
+use danog\AsyncOrm\Settings\Mysql;
 use ReflectionClass;
 
 use function Amp\async;
 use function Amp\Future\await;
 
-/**
- * Include this trait and call DbPropertiesTrait::initDb to use AsyncOrm's database backend for properties marked by the OrmMappedArray property.
- */
-trait DbPropertiesTrait
+abstract class DbObject
 {
     /**
      * Initialize database instance.
      *
      * @internal
      */
-    public function initDb(Settings $dbSettings): void
+    final public function __initDb(string $table, Settings $settings): void
     {
-        $prefix = $this->getDbPrefix();
-
-        $className = \explode('\\', static::class);
-        $className = \end($className);
-
         $promises = [];
         foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
             $attr = $property->getAttributes(OrmMappedArray::class);
@@ -49,21 +42,34 @@ trait DbPropertiesTrait
                 continue;
             }
             $attr = $attr[0]->newInstance();
-            $table = $prefix.'_';
-            $table .= $attr->table ?? "{$className}_{$property}";
-            $promises[$property] = async(DbPropertiesFactory::get(...), $dbSettings, $table, $attr, $this->{$property} ?? null);
+
+            $ttl = $attr->cacheTtl;
+            $optimize = $attr->optimizeIfWastedGtMb;
+            if ($settings instanceof DriverSettings) {
+                $ttl ??= $settings->cacheTtl;
+
+                if ($settings instanceof Mysql) {
+                    $optimize ??= $settings->optimizeIfWastedGtMb;
+                }
+            }
+
+            $config = new FieldConfig(
+                $table.'_'.$property->getName(),
+                $settings,
+                $attr->keyType,
+                $attr->valueType,
+                $ttl,
+                $optimize,
+            );
+
+            $promises[$property] = async(
+                $config->get(...),
+                $this->{$property} ?? null
+            );
         }
         $promises = await($promises);
         foreach ($promises as $key => $data) {
             $this->{$key} = $data;
         }
-    }
-
-    /**
-     * Returns the prefix to use for table names.
-     */
-    protected function getTablePrefix(): string
-    {
-        return '';
     }
 }
