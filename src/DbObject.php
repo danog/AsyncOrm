@@ -73,7 +73,7 @@ abstract class DbObject
             }
 
             $config = new FieldConfig(
-                $config->table.'_'.$property->getName(),
+                $config->table.'_'.($attr->tablePostfix ?? $property->getName()),
                 $settings,
                 $attr->keyType,
                 $attr->valueType,

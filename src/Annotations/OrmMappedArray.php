@@ -48,6 +48,10 @@ final class OrmMappedArray
          * @var int<1, max>|null
          */
         public readonly ?int $optimizeIfWastedGtMb = null,
+        /**
+         * Table name postfix, if null defaults to the property name.
+         */
+        public readonly ?string $tablePostfix = null
     ) {
     }
 }
