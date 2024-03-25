@@ -19,6 +19,7 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
+use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Mysql;
 use ReflectionClass;
@@ -28,13 +29,20 @@ use function Amp\Future\await;
 
 abstract class DbObject
 {
+    /** @var list<CachedArray> */
+    private array $properties;
+    private DbArray $mapper;
+    private string|int $key;
+
     /**
      * Initialize database instance.
      *
      * @internal
      */
-    final public function __initDb(string $table, Settings $settings): void
+    final public function initDb(DbArray $mapper, string|int $key, FieldConfig $config): void
     {
+        $this->mapper = $mapper;
+        $this->key = $key;
         $promises = [];
         foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
             $attr = $property->getAttributes(OrmMappedArray::class);
@@ -45,31 +53,43 @@ abstract class DbObject
 
             $ttl = $attr->cacheTtl;
             $optimize = $attr->optimizeIfWastedGtMb;
-            if ($settings instanceof DriverSettings) {
-                $ttl ??= $settings->cacheTtl;
+            if ($config->settings instanceof DriverSettings) {
+                $ttl ??= $config->settings->cacheTtl;
 
-                if ($settings instanceof Mysql) {
-                    $optimize ??= $settings->optimizeIfWastedGtMb;
+                if ($config->settings instanceof Mysql) {
+                    $optimize ??= $config->settings->optimizeIfWastedGtMb;
                 }
             }
 
             $config = new FieldConfig(
-                $table.'_'.$property->getName(),
-                $settings,
+                $config->table.'_'.$property->getName(),
+                $config->settings,
                 $attr->keyType,
                 $attr->valueType,
                 $ttl,
                 $optimize,
             );
 
-            $promises[$property] = async(
-                $config->get(...),
-                $this->{$property} ?? null
-            );
+            $promises[] = async(function () use ($config, $property) {
+                $v = $config->get($property->getValue());
+                $property->setValue($v);
+                if ($v instanceof CachedArray) {
+                    $this->properties []= $v;
+                }
+            });
         }
-        $promises = await($promises);
-        foreach ($promises as $key => $data) {
-            $this->{$key} = $data;
+        await($promises);
+    }
+
+    /**
+     * Save object to database.
+     */
+    public function save(): void
+    {
+        $promises = [async($this->mapper->set(...), $this->key, $this)];
+        foreach ($this->properties as $v) {
+            $promises []= async($v->flushCache(...));
         }
+        await($promises);
     }
 }

@@ -16,7 +16,7 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Internal\Driver;
+namespace danog\AsyncOrm\Internal\Containers;
 
 use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
@@ -51,8 +51,7 @@ final class CacheContainer
     }
     public function __sleep()
     {
-        $this->flushCache();
-        return ['cache', 'ttl', 'inner'];
+        return ['inner'];
     }
     public function __wakeup(): void
     {

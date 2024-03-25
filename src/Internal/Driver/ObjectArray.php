@@ -21,11 +21,11 @@ namespace danog\AsyncOrm\Internal\Driver;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Internal\Containers\CacheContainer;
+use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use Traversable;
 
 /**
- * Array caching proxy.
+ * Object caching proxy.
  *
  * @internal
  *
@@ -34,9 +34,9 @@ use Traversable;
  *
  * @extends DbArray<TKey, TValue>
  */
-final class CachedArray extends DbArray
+final class ObjectArray extends DbArray
 {
-    private readonly CacheContainer $cache;
+    private readonly ObjectContainer $cache;
 
     /**
      * Get instance.
@@ -45,11 +45,12 @@ final class CachedArray extends DbArray
     {
         $new = $config->settings->getDriverClass();
         if ($previous === null) {
-            $previous = new self($new::getInstance($config, null));
+            $previous = new self($new::getInstance($config, null), $config);
         } elseif ($previous instanceof self) {
             $previous->cache->inner = $new::getInstance($config, $previous->cache->inner);
+            $previous->cache->config = $config;
         } else {
-            $previous = new self($new::getInstance($config, $previous));
+            $previous = new self($new::getInstance($config, $previous), $config);
         }
         if ($previous->cache->inner instanceof MemoryArray) {
             $previous->cache->flushCache();
@@ -59,19 +60,14 @@ final class CachedArray extends DbArray
         return $previous;
     }
 
-    public function __construct(DbArray $inner)
+    public function __construct(DbArray $inner, FieldConfig $config)
     {
-        $this->cache = new CacheContainer($inner);
+        $this->cache = new ObjectContainer($inner, $config);
     }
 
     public function __destruct()
     {
         $this->cache->stopCacheCleanupLoop();
-    }
-
-    public function flushCache(): void
-    {
-        $this->cache->flushCache();
     }
 
     public function count(): int
@@ -96,7 +92,7 @@ final class CachedArray extends DbArray
 
     public function unset(string|int $key): void
     {
-        $this->cache->set($key, null);
+        $this->cache->unset($key);
     }
 
     public function getIterator(): Traversable

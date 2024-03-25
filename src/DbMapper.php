@@ -16,9 +16,10 @@
 
 namespace danog\AsyncOrm;
 
+use Amp\ForbidCloning;
+use Amp\ForbidSerialization;
 use Amp\Sync\LocalKeyedMutex;
 use AssertionError;
-use WeakMap;
 
 /**
  * Async DB mapper.
@@ -28,9 +29,12 @@ use WeakMap;
  */
 final readonly class DbMapper
 {
+    use ForbidCloning;
+    use ForbidSerialization;
+
+    /** @var DbArray<string|int, T> */
     private readonly DbArray $arr;
     private readonly LocalKeyedMutex $mutex;
-    private readonly WeakMap $inited;
     /**
      * Constructor.
      *
@@ -43,7 +47,7 @@ final readonly class DbMapper
      * @param ?self $previous Previous instance, used for migrations.
      */
     public function __construct(
-        private readonly string $table,
+        public readonly string $table,
         private readonly string $class,
         private readonly Settings $settings,
         KeyType $keyType,
@@ -54,7 +58,6 @@ final readonly class DbMapper
         if (\is_subclass_of($class, DbArray::class)) {
             throw new AssertionError("$class must extend DbArray!");
         }
-        $this->inited = new WeakMap;
         $this->mutex = new LocalKeyedMutex;
         $config = new FieldConfig(
             $table,
@@ -65,12 +68,6 @@ final readonly class DbMapper
             $optimizeIfWastedGtMb
         );
         $this->arr = $config->get($previous?->arr);
-        if ($previous !== null) {
-            foreach ($previous->inited as $key => $obj) {
-                $obj->__initDb($this->table, $this->settings);
-                $this->inited[$key] = $obj;
-            }
-        }
     }
 
     /**
@@ -82,13 +79,12 @@ final readonly class DbMapper
     {
         $lock = $this->mutex->acquire((string) $key);
         try {
-            if (isset($this->inited[$key])) {
+            if (isset($this->arr[$key])) {
                 throw new AssertionError("An object under the key $key already exists!");
             }
             $obj = new $this->class;
             $obj->__initDb($this->table, $this->settings);
             $this->arr[$key] = $obj;
-            $this->inited[$key] = $obj;
             return $obj;
         } finally {
             $lock->release();
@@ -106,13 +102,12 @@ final readonly class DbMapper
     {
         $lock = $this->mutex->acquire((string) $key);
         try {
-            if (isset($this->inited[$key])) {
-                return $this->inited[$key];
-            }
             $obj = $this->arr[$key];
             if ($obj !== null) {
-                $obj->__initDb($this->table, $this->settings);
-                $this->inited[$key] = $obj;
+                $obj->__initDb(
+                    $this->table,
+                    $this->settings,
+                );
             }
             return $obj;
         } finally {

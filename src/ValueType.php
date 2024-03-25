@@ -30,13 +30,13 @@ enum ValueType: string
      */
     case INT = 'int';
     /**
-     * Objects, serialized as specified in the settings.
+     * Objects extending DbObject, serialized as specified in the settings.
      */
     case OBJECT = 'object';
     /**
-     * Values of any type, serialized as specified in the settings.
+     * Values of any scalar type, serialized as specified in the settings.
      *
-     * Using MIXED worsens performances, please use STRING, INT or OBJECT whenever possible.
+     * Using SCALAR worsens performances, please use STRING, INT or OBJECT whenever possible.
      */
-    case MIXED = 'object';
+    case SCALAR = 'scalar';
 }
