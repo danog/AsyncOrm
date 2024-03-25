@@ -51,27 +51,36 @@ abstract class DbObject
             }
             $attr = $attr[0]->newInstance();
 
-            $ttl = $attr->cacheTtl;
-            $optimize = $attr->optimizeIfWastedGtMb;
-            if ($config->settings instanceof DriverSettings) {
-                $ttl ??= $config->settings->cacheTtl;
+            $settings = $config->settings;
+            if ($settings instanceof DriverSettings) {
+                $ttl = $attr->cacheTtl ?? $settings->cacheTtl;
+                if ($ttl !== $settings->cacheTtl) {
+                    $settings = new $settings(\array_merge(
+                        (array) $settings,
+                        ['cacheTtl' => $ttl]
+                    ));
+                }
+                if ($settings instanceof Mysql) {
+                    $optimize = $attr->optimizeIfWastedGtMb ?? $settings->optimizeIfWastedGtMb;
 
-                if ($config->settings instanceof Mysql) {
-                    $optimize ??= $config->settings->optimizeIfWastedGtMb;
+                    if ($optimize !== $settings->optimizeIfWastedGtMb) {
+                        $settings = new $settings(\array_merge(
+                            (array) $settings,
+                            ['optimizeIfWastedGtMb' => $optimize]
+                        ));
+                    }
                 }
             }
 
             $config = new FieldConfig(
                 $config->table.'_'.$property->getName(),
-                $config->settings,
+                $settings,
                 $attr->keyType,
                 $attr->valueType,
-                $ttl,
-                $optimize,
             );
 
             $promises[] = async(function () use ($config, $property) {
-                $v = $config->get($property->getValue());
+                $v = $config->build($property->getValue());
                 $property->setValue($v);
                 if ($v instanceof CachedArray) {
                     $this->properties []= $v;

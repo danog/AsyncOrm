@@ -3,6 +3,8 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Settings\DriverSettings;
+use danog\AsyncOrm\Settings\Memory;
 
 /**
  * Contains configuration for a single ORM field.
@@ -26,25 +28,19 @@ final readonly class FieldConfig
          * Value type.
          */
         public readonly ValueType $valueType,
-        /**
-         * TTL of the cache, if zero disables caching.
-         *
-         * @var int<0, max>
-         */
-        public readonly int $cacheTtl,
-        /**
-         * Optimize table if more than this many megabytes are wasted, if null disables optimization.
-         *
-         * @var int<1, max>|null
-         */
-        public readonly ?int $optimizeIfWastedGtMb,
     ) {
     }
 
-    /** @internal */
-    public function get(?DbArray $previous = null): DbArray
+    /**
+     * Build database array.
+     */
+    public function build(?DbArray $previous = null): DbArray
     {
-        if ($this->cacheTtl === 0) {
+        if ($this->settings instanceof Memory
+            || (
+                $this->settings instanceof DriverSettings
+                && $this->settings->cacheTtl === 0
+            )) {
             return $this->settings->getDriverClass()::getInstance($this, $previous);
         }
 
