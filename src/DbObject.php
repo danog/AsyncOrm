@@ -33,6 +33,7 @@ abstract class DbObject
     {
         $this->mapper = $mapper;
         $this->key = $key;
+        $this->onLoaded();
     }
 
     /**
@@ -45,6 +46,13 @@ abstract class DbObject
         $this->onAfterSave();
     }
 
+    /**
+     * Method invoked after loading the object.
+     */
+    protected function onLoaded(): void
+    {
+
+    }
     /**
      * Method invoked before saving the object.
      */
