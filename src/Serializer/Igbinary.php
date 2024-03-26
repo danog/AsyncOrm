@@ -24,6 +24,9 @@ use danog\AsyncOrm\Serializer;
  * Igbinary serializer.
  *
  * @api
+ *
+ * @template TValue
+ * @implements Serializer<TValue>
  */
 final class Igbinary implements Serializer
 {
@@ -34,6 +37,7 @@ final class Igbinary implements Serializer
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));
+        /** @var TValue */
         return \igbinary_unserialize($value);
     }
 }

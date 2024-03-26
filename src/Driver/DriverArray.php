@@ -32,7 +32,7 @@ use function Amp\Future\await;
  * @template TKey as array-key
  * @template TValue
  *
- * @consistent-constructor
+ * @psalm-consistent-constructor
  *
  * @extends DbArray<TKey, TValue>
  *
@@ -40,8 +40,13 @@ use function Amp\Future\await;
  */
 abstract class DriverArray extends DbArray
 {
-    protected function __construct(protected readonly FieldConfig $config, protected readonly Serializer $serializer)
-    {
+    /**
+     * @param Serializer<TValue> $serializer
+     */
+    protected function __construct(
+        protected readonly FieldConfig $config,
+        protected readonly Serializer $serializer
+    ) {
     }
 
     public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray

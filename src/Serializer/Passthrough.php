@@ -24,13 +24,21 @@ use danog\AsyncOrm\Serializer;
  * Passthrough serializer.
  *
  * @api
+ *
+ * @template TValue
+ * @implements Serializer<TValue>
  */
 final class Passthrough implements Serializer
 {
+    /**
+     * @param TValue $value
+     * @return TValue
+     */
     public function serialize(mixed $value): mixed
     {
         return $value;
     }
+    /** @param TValue $value */
     public function deserialize(mixed $value): mixed
     {
         return $value;

@@ -49,6 +49,9 @@ final class RedisArray extends DriverArray
 
     private readonly RedisClient $db;
 
+    /**
+     * @param Serializer<TValue> $serializer
+     */
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
         if ($serializer instanceof Passthrough && $config->valueType === ValueType::INT) {
@@ -118,6 +121,7 @@ final class RedisArray extends DriverArray
         $value = $this->db->get($this->rKey($key));
 
         if ($value !== null) {
+            /** @var TValue */
             $value = $this->serializer->deserialize($value);
         }
 

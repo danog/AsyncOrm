@@ -22,6 +22,7 @@ use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
+use danog\AsyncOrm\Settings\DriverSettings;
 use Traversable;
 
 /**
@@ -56,6 +57,7 @@ final class ObjectArray extends DbArray
             $previous->cache->flushCache();
             return $previous->cache->inner;
         }
+        \assert($config->settings instanceof DriverSettings);
         $previous->cache->startCacheCleanupLoop($config->settings->cacheTtl);
         return $previous;
     }

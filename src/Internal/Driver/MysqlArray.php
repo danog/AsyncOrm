@@ -51,6 +51,9 @@ final class MysqlArray extends SqlArray
     // We're forced to use quoting (just like PDO does internally when using prepares) because native MySQL prepares are extremely slow.
     protected PDO $pdo;
 
+    /**
+     * @param Serializer<TValue> $serializer
+     */
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
         $settings = $config->settings;

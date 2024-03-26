@@ -43,6 +43,9 @@ class PostgresArray extends SqlArray
     private static array $connections = [];
 
     private static ?LocalKeyedMutex $mutex = null;
+    /**
+     * @param Serializer<TValue> $serializer
+     */
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
         self::$mutex ??= new LocalKeyedMutex;

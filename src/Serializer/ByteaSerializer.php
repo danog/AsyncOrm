@@ -21,9 +21,17 @@ namespace danog\AsyncOrm\Serializer;
 use Amp\Postgres\PostgresByteA;
 use danog\AsyncOrm\Serializer;
 
-/** @internal BYTEA serializer */
+/**
+ * @internal BYTEA serializer
+ *
+ * @template TValue
+ * @implements Serializer<TValue>
+ */
 final class ByteaSerializer implements Serializer
 {
+    /**
+     * @param Serializer<TValue> $inner
+     */
     public function __construct(
         private readonly Serializer $inner
     ) {

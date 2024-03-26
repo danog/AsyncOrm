@@ -20,9 +20,17 @@ namespace danog\AsyncOrm;
 
 /**
  * Serializer interface.
+ *
+ * @template TValue
  */
 interface Serializer
 {
+    /**
+     * @param TValue $value
+     */
     public function serialize(mixed $value): mixed;
+    /**
+     * @return TValue
+     */
     public function deserialize(mixed $value): mixed;
 }

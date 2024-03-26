@@ -33,6 +33,9 @@ use danog\AsyncOrm\Serializer;
  */
 abstract class SqlArray extends DriverArray
 {
+    /**
+     * @param Serializer<TValue> $serializer
+     */
     protected function __construct(
         FieldConfig $config,
         Serializer $serializer,

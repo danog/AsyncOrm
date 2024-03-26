@@ -24,6 +24,8 @@ use danog\AsyncOrm\Serializer;
  * Integer casting serializer.
  *
  * @api
+ *
+ * @implements Serializer<int>
  */
 final class IntString implements Serializer
 {

@@ -24,6 +24,9 @@ use danog\AsyncOrm\Serializer;
  * JSON serializer.
  *
  * @api
+ *
+ * @template TValue
+ * @implements Serializer<TValue>
  */
 final class Json implements Serializer
 {
@@ -34,6 +37,7 @@ final class Json implements Serializer
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));
+        /** @var TValue */
         return \json_decode($value, true, flags: JSON_THROW_ON_ERROR);
     }
 }

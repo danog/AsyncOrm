@@ -45,21 +45,35 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
         return $this->get($key) !== null;
     }
 
+    /**
+     * @param TKey $offset
+     * @return TValue
+     */
     final public function offsetGet(mixed $offset): mixed
     {
         return $this->get($offset);
     }
 
+    /**
+     * @param TKey $offset
+     */
     final public function offsetExists(mixed $offset): bool
     {
         return $this->isset($offset);
     }
 
+    /**
+     * @param TKey $offset
+     * @param TValue $value
+     */
     final public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->set($offset, $value);
     }
 
+    /**
+     * @param TKey $offset
+     */
     final public function offsetUnset(mixed $offset): void
     {
         $this->unset($offset);

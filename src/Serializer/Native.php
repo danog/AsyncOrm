@@ -24,6 +24,9 @@ use danog\AsyncOrm\Serializer;
  * Native serializer.
  *
  * @api
+ *
+ * @template TValue
+ * @implements Serializer<TValue>
  */
 final class Native implements Serializer
 {
@@ -34,6 +37,7 @@ final class Native implements Serializer
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));
+        /** @var TValue */
         return \unserialize($value);
     }
 }
