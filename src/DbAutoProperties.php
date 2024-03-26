@@ -36,7 +36,7 @@ trait DbAutoProperties
     /**
      * Initialize database properties.
      */
-    public function initDbProperties(FieldConfig $config): void
+    public function initDbProperties(Settings $settings, string $tablePrefix): void
     {
         $this->properties = [];
         $promises = [];
@@ -47,7 +47,6 @@ trait DbAutoProperties
             }
             $attr = $attr[0]->newInstance();
 
-            $settings = $config->settings;
             if ($settings instanceof DriverSettings) {
                 $ttl = $attr->cacheTtl ?? $settings->cacheTtl;
                 if ($ttl !== $settings->cacheTtl) {
@@ -69,7 +68,7 @@ trait DbAutoProperties
             }
 
             $config = new FieldConfig(
-                $config->table.'_'.($attr->tablePostfix ?? $property->getName()),
+                $tablePrefix.($attr->tablePostfix ?? $property->getName()),
                 $settings,
                 $attr->keyType,
                 $attr->valueType,
