@@ -79,7 +79,7 @@ trait DbAutoProperties
                 $v = $config->build($property->getValue());
                 $property->setValue($v);
                 if ($v instanceof CachedArray) {
-                    $this->properties []= $v->flushCache();
+                    $this->properties []= $v;
                 }
             });
         }
