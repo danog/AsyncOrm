@@ -22,6 +22,7 @@ use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use Revolt\EventLoop;
 use Traversable;
 
@@ -61,7 +62,7 @@ final class ObjectContainer
     public function startCacheCleanupLoop(int $cacheTtl): void
     {
         $this->cacheTtl = $cacheTtl;
-        if ($this->cacheCleanupId) {
+        if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
         }
         $this->cacheCleanupId = EventLoop::repeat(
@@ -71,7 +72,7 @@ final class ObjectContainer
     }
     public function stopCacheCleanupLoop(): void
     {
-        if ($this->cacheCleanupId) {
+        if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
             $this->cacheCleanupId = null;
         }
@@ -84,7 +85,7 @@ final class ObjectContainer
             $ref = $obj->reference->get();
             if ($ref !== null) {
                 $obj->ttl = \time() + $this->cacheTtl;
-                return $obj;
+                return $ref;
             }
             unset($this->cache[$index]);
         }
@@ -95,7 +96,7 @@ final class ObjectContainer
         }
 
         \assert($result instanceof DbObject);
-        $result->initDb($this->inner, $index, $this->config);
+        $result->initDb($this, $index, $this->config);
 
         $this->cache[$index] = new ObjectReference($result, \time() + $this->cacheTtl);
 
@@ -107,9 +108,9 @@ final class ObjectContainer
         if (isset($this->cache[$key]) && $this->cache[$key]->reference->get() === $value) {
             return;
         }
-        $value->initDb($this->inner, $key, $this->config);
+        $value->initDb($this, $key, $this->config);
         $this->cache[$key] = new ObjectReference($value, \time() + $this->cacheTtl);
-        $this->inner->set($key, $value);
+        $value->save();
     }
 
     public function unset(string|int $key): void
@@ -122,6 +123,7 @@ final class ObjectContainer
     {
         $this->flushCache();
         foreach ($this->inner->getIterator() as $key => $value) {
+            assert($value instanceof DbObject);
             if (isset($this->cache[$key])) {
                 $obj = $this->cache[$key];
                 $ref = $obj->reference->get();
@@ -131,7 +133,7 @@ final class ObjectContainer
                     continue;
                 }
             }
-            $value->initDb($this->inner, $key, $this->config);
+            $value->initDb($this, $key, $this->config);
             $this->cache[$key] = new ObjectReference($value, \time() + $this->cacheTtl);
             yield $value;
         }

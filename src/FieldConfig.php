@@ -3,6 +3,7 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Memory;
 
@@ -40,8 +41,12 @@ final readonly class FieldConfig
             || (
                 $this->settings instanceof DriverSettings
                 && $this->settings->cacheTtl === 0
-            )) {
+            )
+        ) {
             return $this->settings->getDriverClass()::getInstance($this, $previous);
+        }
+        if ($this->valueType === ValueType::OBJECT) {
+            return ObjectArray::getInstance($this, $previous);
         }
 
         return CachedArray::getInstance($this, $previous);

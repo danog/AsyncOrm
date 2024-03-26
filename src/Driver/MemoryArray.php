@@ -28,7 +28,8 @@ use danog\AsyncOrm\Settings\Database\Memory;
  *
  * @template TKey as array-key
  * @template TValue
- * @DbArray DbArray<TKey, TValue>
+ * @extends DbArray<TKey, TValue>
+ * @api
  */
 final class MemoryArray extends DbArray
 {
@@ -37,7 +38,7 @@ final class MemoryArray extends DbArray
     ) {
     }
 
-    public static function getInstance(FieldConfig $settings, DbArray|null $previous): DbArray
+    public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
     {
         if ($previous instanceof self) {
             return $previous;

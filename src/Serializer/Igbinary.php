@@ -20,7 +20,11 @@ namespace danog\AsyncOrm\Serializer;
 
 use danog\AsyncOrm\Serializer;
 
-/** Igbinary serializer. */
+/** 
+ * Igbinary serializer. 
+ * 
+ * @api
+ */
 final class Igbinary implements Serializer
 {
     public function serialize(mixed $value): mixed
@@ -29,6 +33,7 @@ final class Igbinary implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
+        assert(is_string($value));
         return \igbinary_unserialize($value);
     }
 }

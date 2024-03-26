@@ -29,18 +29,6 @@ abstract readonly class SqlSettings extends DriverSettings
     final public const DEFAULT_SQL_MAX_CONNECTIONS = 100;
     final public const DEFAULT_SQL_IDLE_TIMEOUT = 60;
     /**
-     * Database password.
-     */
-    public string $database;
-    /**
-     * Database username.
-     */
-    public string $username;
-    /**
-     * Database password.
-     */
-    public string $password;
-    /**
      * Maximum connection limit.
      *
      * @var positive-int
@@ -76,6 +64,6 @@ abstract readonly class SqlSettings extends DriverSettings
     {
         $host = $this->config->getHost();
         $port = $this->config->getPort();
-        return "$host:$port:".$this->config->getDatabase();
+        return "$host:$port:".(string)$this->config->getDatabase();
     }
 }

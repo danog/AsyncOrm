@@ -30,9 +30,16 @@ use Traversable;
  * @implements ArrayAccess<TKey, TValue>
  * @implements Traversable<TKey, TValue>
  * @implements IteratorAggregate<TKey, TValue>
+ * 
+ * @api
  */
 abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorAggregate
 {
+    /**
+     * Check if element exists.
+     * 
+     * @param TKey $key
+     */
     final public function isset(string|int $key): bool
     {
         return $this->get($key) !== null;
@@ -43,19 +50,19 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
         return $this->get($offset);
     }
 
-    final public function offsetExists(mixed $index): bool
+    final public function offsetExists(mixed $offset): bool
     {
-        return $this->isset($index);
+        return $this->isset($offset);
     }
 
-    final public function offsetSet(mixed $index, mixed $value): void
+    final public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->set($index, $value);
+        $this->set($offset, $value);
     }
 
-    final public function offsetUnset(mixed $index): void
+    final public function offsetUnset(mixed $offset): void
     {
-        $this->unset($index);
+        $this->unset($offset);
     }
 
     public function getArrayCopy(): array

@@ -20,7 +20,11 @@ namespace danog\AsyncOrm\Serializer;
 
 use danog\AsyncOrm\Serializer;
 
-/** Passthrough serializer */
+/** 
+ * Passthrough serializer 
+ * 
+ * @api
+ */
 final class Passthrough implements Serializer
 {
     public function serialize(mixed $value): mixed

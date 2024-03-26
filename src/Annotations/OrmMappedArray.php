@@ -22,6 +22,7 @@ use Attribute;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\ValueType;
 
+/** @api */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class OrmMappedArray
 {

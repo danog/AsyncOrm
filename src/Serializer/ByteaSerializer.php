@@ -30,6 +30,7 @@ final class ByteaSerializer implements Serializer
     }
     public function serialize(mixed $value): mixed
     {
+        /** @psalm-suppress MixedArgument */
         return new PostgresByteA($this->inner->serialize($value));
     }
     public function deserialize(mixed $value): mixed

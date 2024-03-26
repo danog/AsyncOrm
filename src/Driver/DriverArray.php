@@ -35,6 +35,8 @@ use function Amp\Future\await;
  * @consistent-constructor
  *
  * @extends DbArray<TKey, TValue>
+ * 
+ * @api
  */
 abstract class DriverArray extends DbArray
 {
@@ -44,7 +46,8 @@ abstract class DriverArray extends DbArray
 
     public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
     {
-        if ($previous::class === static::class
+        if ($previous !== null
+            && $previous::class === static::class
             && $previous->config == $config
         ) {
             return $previous;

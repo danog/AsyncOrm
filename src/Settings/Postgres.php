@@ -17,8 +17,8 @@
 namespace danog\AsyncOrm\Settings;
 
 use Amp\Postgres\PostgresConfig;
-use Amp\Serialization\Serializer;
 use danog\AsyncOrm\Internal\Driver\PostgresArray;
+use danog\AsyncOrm\Serializer;
 
 /**
  * Postgres backend settings.
@@ -27,6 +27,7 @@ use danog\AsyncOrm\Internal\Driver\PostgresArray;
 final readonly class Postgres extends SqlSettings
 {
     /**
+     * @api
      * @param Serializer $serializer to use for object and mixed type values.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      * @param int<1, max> $maxConnections Maximum connection limit

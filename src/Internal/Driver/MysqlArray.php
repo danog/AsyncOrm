@@ -128,12 +128,12 @@ final class MysqlArray extends SqlArray
             "
         );
 
-        $keyType = match ($config->annotation->keyType) {
+        $keyType = match ($config->keyType) {
             KeyType::STRING_OR_INT => "VARCHAR(255)",
             KeyType::STRING => "VARCHAR(255)",
             KeyType::INT => "BIGINT",
         };
-        $valueType = match ($config->annotation->valueType) {
+        $valueType = match ($config->valueType) {
             ValueType::INT => "BIGINT",
             ValueType::STRING => "VARCHAR(255)",
             default => "MEDIUMBLOB",
@@ -143,7 +143,7 @@ final class MysqlArray extends SqlArray
             CREATE TABLE IF NOT EXISTS `{$config->table}`
             (
                 `key` $keyType PRIMARY KEY NOT NULL,
-                `value` $valueType NOT NULL,
+                `value` $valueType NOT NULL
             )
             ENGINE = InnoDB
             CHARACTER SET 'utf8mb4' 
@@ -163,6 +163,7 @@ final class MysqlArray extends SqlArray
                 $expected = $valueType;
             } else {
                 $this->db->query("ALTER TABLE `{$config->table}` DROP `$key`");
+                continue;
             }
             if ($expected !== $type || $null !== 'NO') {
                 $this->db->query("ALTER TABLE `{$config->table}` MODIFY `$key` $expected NOT NULL");

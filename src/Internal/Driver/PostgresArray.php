@@ -70,7 +70,7 @@ class PostgresArray extends SqlArray
                 }
                 $connection->close();
 
-                self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeoutgetIdleTimeout());
+                self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout);
             }
         } finally {
             EventLoop::queue($lock->release(...));
@@ -78,17 +78,17 @@ class PostgresArray extends SqlArray
 
         $connection = self::$connections[$dbKey];
 
-        $keyType = match ($config->annotation->keyType) {
+        $keyType = match ($config->keyType) {
             KeyType::STRING_OR_INT => "VARCHAR(255)",
             KeyType::STRING => "VARCHAR(255)",
             KeyType::INT => "BIGINT",
         };
-        $valueType = match ($config->annotation->valueType) {
+        $valueType = match ($config->valueType) {
             ValueType::INT => "BIGINT",
             ValueType::STRING => "VARCHAR(255)",
             default => "BYTEA",
         };
-        $serializer = match ($config->annotation->valueType) {
+        $serializer = match ($config->valueType) {
             ValueType::INT, ValueType::STRING => $serializer,
             default => new ByteaSerializer($serializer)
         };
@@ -114,6 +114,7 @@ class PostgresArray extends SqlArray
                 $expected = $valueType;
             } else {
                 $this->db->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
+                continue;
             }
             if ($expected !== $type || $null !== 'NO') {
                 $this->db->query("ALTER TABLE \"bytea_{$config->table}\" MODIFY \"$key\" $expected NOT NULL");

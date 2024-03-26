@@ -30,6 +30,7 @@ use danog\AsyncOrm\Serializer;
 final readonly class Mysql extends SqlSettings
 {
     /**
+     * @api
      * @param Serializer $serializer to use for object and mixed type values.
      * @param int<0, max> $cacheTtl Cache TTL in seconds, if 0 disables caching.
      * @param int<1, max> $maxConnections Maximum connection limit

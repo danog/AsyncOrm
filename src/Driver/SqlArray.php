@@ -29,6 +29,7 @@ use danog\AsyncOrm\Serializer;
  * @template TKey as array-key
  * @template TValue
  * @extends DriverArray<TKey, TValue>
+ * @api
  */
 abstract class SqlArray extends DriverArray
 {

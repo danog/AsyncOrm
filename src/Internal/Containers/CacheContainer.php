@@ -61,7 +61,7 @@ final class CacheContainer
     public function startCacheCleanupLoop(int $cacheTtl): void
     {
         $this->cacheTtl = $cacheTtl;
-        if ($this->cacheCleanupId) {
+        if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
         }
         $this->cacheCleanupId = EventLoop::repeat(
@@ -71,7 +71,7 @@ final class CacheContainer
     }
     public function stopCacheCleanupLoop(): void
     {
-        if ($this->cacheCleanupId) {
+        if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
             $this->cacheCleanupId = null;
         }
@@ -87,6 +87,7 @@ final class CacheContainer
         }
 
         $result = $this->inner->offsetGet($index);
+        /** @psalm-suppress ParadoxicalCondition Concurrency */
         if (isset($this->ttl[$index])) {
             if ($this->ttl[$index] !== true) {
                 $this->ttl[$index] = \time() + $this->cacheTtl;

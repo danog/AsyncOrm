@@ -56,7 +56,7 @@ final class ObjectArray extends DbArray
             $previous->cache->flushCache();
             return $previous->cache->inner;
         }
-        $previous->cache->startCacheCleanupLoop($config->cacheTtl);
+        $previous->cache->startCacheCleanupLoop($config->settings->cacheTtl);
         return $previous;
     }
 
@@ -80,9 +80,9 @@ final class ObjectArray extends DbArray
         $this->cache->clear();
     }
 
-    public function get(mixed $index): mixed
+    public function get(mixed $key): mixed
     {
-        return $this->cache->get($index);
+        return $this->cache->get($key);
     }
 
     public function set(string|int $key, mixed $value): void

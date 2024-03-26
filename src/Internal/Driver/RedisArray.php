@@ -51,7 +51,7 @@ final class RedisArray extends DriverArray
 
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
-        if ($serializer instanceof Passthrough && $config->annotation->valueType === ValueType::INT) {
+        if ($serializer instanceof Passthrough && $config->valueType === ValueType::INT) {
             $serializer = new IntString;
         }
         parent::__construct($config, $serializer);
@@ -60,7 +60,6 @@ final class RedisArray extends DriverArray
         \assert($config->settings instanceof Redis);
         $dbKey = $config->settings->getDbIdentifier();
         $lock = self::$mutex->acquire($dbKey);
-        \assert($config->settings instanceof Redis);
 
         try {
             if (!isset(self::$connections[$dbKey])) {
@@ -84,8 +83,10 @@ final class RedisArray extends DriverArray
         foreach ($request as $oldKey) {
             $newKey = $to.\substr($oldKey, $lenK);
             $value = $this->db->get($oldKey);
-            $this->db->set($newKey, $value);
-            $this->db->delete($oldKey);
+            if ($value !== null) {
+                $this->db->set($newKey, $value);
+                $this->db->delete($oldKey);
+            }
         }
     }
 
@@ -110,11 +111,11 @@ final class RedisArray extends DriverArray
         $this->db->set($this->rKey((string) $key), $this->serializer->serialize($value));
     }
 
-    public function get(mixed $offset): mixed
+    public function get(mixed $key): mixed
     {
-        $offset = (string) $offset;
+        $key = (string) $key;
 
-        $value = $this->db->get($this->rKey($offset));
+        $value = $this->db->get($this->rKey($key));
 
         if ($value !== null) {
             $value = $this->serializer->deserialize($value);

@@ -26,6 +26,8 @@ use danog\AsyncOrm\Serializer;
 final readonly class Redis extends DriverSettings
 {
     /**
+     * @api
+     * 
      * @param Serializer $serializer to use for object and mixed type values.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      */
@@ -34,7 +36,7 @@ final readonly class Redis extends DriverSettings
         Serializer $serializer,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
     ) {
-        parent::__construct($cacheTtl, $serializer);
+        parent::__construct($serializer, $cacheTtl);
     }
     /** @internal */
     public function getDbIdentifier(): string

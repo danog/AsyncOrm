@@ -19,7 +19,9 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
+use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Mysql;
 use ReflectionClass;
@@ -27,11 +29,10 @@ use ReflectionClass;
 use function Amp\async;
 use function Amp\Future\await;
 
+/** @api */
 abstract class DbObject
 {
-    /** @var list<CachedArray> */
-    private array $properties;
-    private DbArray $mapper;
+    private ObjectContainer $mapper;
     private string|int $key;
 
     /**
@@ -39,55 +40,10 @@ abstract class DbObject
      *
      * @internal
      */
-    final public function initDb(DbArray $mapper, string|int $key, FieldConfig $config): void
+    final public function initDb(ObjectContainer $mapper, string|int $key, FieldConfig $config): void
     {
         $this->mapper = $mapper;
         $this->key = $key;
-        $promises = [];
-        foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
-            $attr = $property->getAttributes(OrmMappedArray::class);
-            if (!$attr) {
-                continue;
-            }
-            $attr = $attr[0]->newInstance();
-
-            $settings = $config->settings;
-            if ($settings instanceof DriverSettings) {
-                $ttl = $attr->cacheTtl ?? $settings->cacheTtl;
-                if ($ttl !== $settings->cacheTtl) {
-                    $settings = new $settings(\array_merge(
-                        (array) $settings,
-                        ['cacheTtl' => $ttl]
-                    ));
-                }
-                if ($settings instanceof Mysql) {
-                    $optimize = $attr->optimizeIfWastedGtMb ?? $settings->optimizeIfWastedGtMb;
-
-                    if ($optimize !== $settings->optimizeIfWastedGtMb) {
-                        $settings = new $settings(\array_merge(
-                            (array) $settings,
-                            ['optimizeIfWastedGtMb' => $optimize]
-                        ));
-                    }
-                }
-            }
-
-            $config = new FieldConfig(
-                $config->table.'_'.($attr->tablePostfix ?? $property->getName()),
-                $settings,
-                $attr->keyType,
-                $attr->valueType,
-            );
-
-            $promises[] = async(function () use ($config, $property) {
-                $v = $config->build($property->getValue());
-                $property->setValue($v);
-                if ($v instanceof CachedArray) {
-                    $this->properties []= $v;
-                }
-            });
-        }
-        await($promises);
     }
 
     /**
@@ -95,10 +51,21 @@ abstract class DbObject
      */
     public function save(): void
     {
-        $promises = [async($this->mapper->set(...), $this->key, $this)];
-        foreach ($this->properties as $v) {
-            $promises []= async($v->flushCache(...));
-        }
-        await($promises);
+        $this->onBeforeSave();
+        $this->mapper->inner->set($this->key, $this);
+        $this->onAfterSave();
+    }
+
+    /**
+     * Method invoked before saving the object.
+     */
+    protected function onBeforeSave(): void {
+        
+    }
+    /**
+     * Method invoked after saving the object.
+     */
+    protected function onAfterSave(): void {
+        
     }
 }
