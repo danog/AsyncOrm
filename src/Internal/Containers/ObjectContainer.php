@@ -123,7 +123,6 @@ final class ObjectContainer
     {
         $this->flushCache();
         foreach ($this->inner->getIterator() as $key => $value) {
-            assert($value instanceof DbObject);
             if (isset($this->cache[$key])) {
                 $obj = $this->cache[$key];
                 $ref = $obj->reference->get();
