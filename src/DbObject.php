@@ -18,16 +18,7 @@
 
 namespace danog\AsyncOrm;
 
-use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
-use danog\AsyncOrm\Internal\Driver\CachedArray;
-use danog\AsyncOrm\Internal\Driver\ObjectArray;
-use danog\AsyncOrm\Settings\DriverSettings;
-use danog\AsyncOrm\Settings\Mysql;
-use ReflectionClass;
-
-use function Amp\async;
-use function Amp\Future\await;
 
 /** @api */
 abstract class DbObject
@@ -59,13 +50,15 @@ abstract class DbObject
     /**
      * Method invoked before saving the object.
      */
-    protected function onBeforeSave(): void {
-        
+    protected function onBeforeSave(): void
+    {
+
     }
     /**
      * Method invoked after saving the object.
      */
-    protected function onAfterSave(): void {
-        
+    protected function onAfterSave(): void
+    {
+
     }
 }

@@ -30,14 +30,14 @@ use Traversable;
  * @implements ArrayAccess<TKey, TValue>
  * @implements Traversable<TKey, TValue>
  * @implements IteratorAggregate<TKey, TValue>
- * 
+ *
  * @api
  */
 abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorAggregate
 {
     /**
      * Check if element exists.
-     * 
+     *
      * @param TKey $key
      */
     final public function isset(string|int $key): bool

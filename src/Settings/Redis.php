@@ -27,7 +27,7 @@ final readonly class Redis extends DriverSettings
 {
     /**
      * @api
-     * 
+     *
      * @param Serializer $serializer to use for object and mixed type values.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      */

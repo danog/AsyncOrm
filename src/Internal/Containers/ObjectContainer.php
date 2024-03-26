@@ -22,7 +22,6 @@ use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use Revolt\EventLoop;
 use Traversable;
 

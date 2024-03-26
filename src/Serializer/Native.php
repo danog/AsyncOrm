@@ -20,9 +20,9 @@ namespace danog\AsyncOrm\Serializer;
 
 use danog\AsyncOrm\Serializer;
 
-/** 
- * Native serializer 
- * 
+/**
+ * Native serializer.
+ *
  * @api
  */
 final class Native implements Serializer
@@ -33,7 +33,7 @@ final class Native implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
-        assert(is_string($value));
+        \assert(\is_string($value));
         return \unserialize($value);
     }
 }

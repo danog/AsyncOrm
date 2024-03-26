@@ -35,7 +35,7 @@ use function Amp\Future\await;
  * @consistent-constructor
  *
  * @extends DbArray<TKey, TValue>
- * 
+ *
  * @api
  */
 abstract class DriverArray extends DbArray

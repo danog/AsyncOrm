@@ -64,6 +64,6 @@ abstract readonly class SqlSettings extends DriverSettings
     {
         $host = $this->config->getHost();
         $port = $this->config->getPort();
-        return "$host:$port:".(string)$this->config->getDatabase();
+        return "$host:$port:".(string) $this->config->getDatabase();
     }
 }

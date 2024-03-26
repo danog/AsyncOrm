@@ -20,9 +20,9 @@ namespace danog\AsyncOrm\Serializer;
 
 use danog\AsyncOrm\Serializer;
 
-/** 
- * Integer casting serializer 
- * 
+/**
+ * Integer casting serializer.
+ *
  * @api
  */
 final class IntString implements Serializer

@@ -21,8 +21,8 @@ namespace danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Serializer;
 
 /**
- * JSON serializer 
- * 
+ * JSON serializer.
+ *
  * @api
  */
 final class Json implements Serializer
@@ -33,7 +33,7 @@ final class Json implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
-        assert(is_string($value));
+        \assert(\is_string($value));
         return \json_decode($value, true, flags: JSON_THROW_ON_ERROR);
     }
 }
