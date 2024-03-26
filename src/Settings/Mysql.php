@@ -31,14 +31,14 @@ final readonly class Mysql extends SqlSettings
 {
     /**
      * @api
-     * @param Serializer $serializer to use for object and mixed type values.
+     * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
      * @param int<0, max> $cacheTtl Cache TTL in seconds, if 0 disables caching.
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout
      */
     public function __construct(
         MysqlConfig $config,
-        Serializer $serializer,
+        ?Serializer $serializer = null,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
         int $maxConnections = self::DEFAULT_SQL_MAX_CONNECTIONS,
         int $idleTimeout = self::DEFAULT_SQL_IDLE_TIMEOUT,
@@ -48,7 +48,7 @@ final readonly class Mysql extends SqlSettings
          *
          * Be careful when tweaking this setting as it may lead to slowdowns on startup.
          *
-         * A good setting is 10mb.
+         * If null disables optimization.
          *
          * @var int<1, max>|null $optimizeIfWastedGtMb
          */

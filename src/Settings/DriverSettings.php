@@ -17,6 +17,8 @@
 namespace danog\AsyncOrm\Settings;
 
 use danog\AsyncOrm\Serializer;
+use danog\AsyncOrm\Serializer\Igbinary;
+use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
 
 /**
@@ -25,14 +27,18 @@ use danog\AsyncOrm\Settings;
 abstract readonly class DriverSettings implements Settings
 {
     final public const DEFAULT_CACHE_TTL = 5*60;
+    public readonly Serializer $serializer;
+    /**
+     * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
+     */
     public function __construct(
-        /** Serializer to use for object and mixed type values. */
-        public Serializer $serializer,
+        ?Serializer $serializer = null,
         /**
          * @var int<0, max> $cacheTtl For how long to keep records in memory after last read.
          */
         public int $cacheTtl = self::DEFAULT_CACHE_TTL,
     ) {
+        $this->serializer = $serializer ?? (\extension_loaded('igbinary') ? new Igbinary : new Native);
     }
 
     /**

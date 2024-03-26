@@ -28,14 +28,13 @@ final readonly class Postgres extends SqlSettings
 {
     /**
      * @api
-     * @param Serializer $serializer to use for object and mixed type values.
-     * @param int<0, max> $cacheTtl Cache TTL in seconds
+     * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.     * @param int<0, max> $cacheTtl Cache TTL in seconds
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout
      */
     public function __construct(
         PostgresConfig $config,
-        Serializer $serializer,
+        ?Serializer $serializer = null,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
         int $maxConnections = self::DEFAULT_SQL_MAX_CONNECTIONS,
         int $idleTimeout = self::DEFAULT_SQL_IDLE_TIMEOUT,

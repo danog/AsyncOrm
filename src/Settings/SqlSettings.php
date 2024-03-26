@@ -42,7 +42,7 @@ abstract readonly class SqlSettings extends DriverSettings
     public int $idleTimeout;
 
     /**
-     * @param Serializer $serializer to use for object and mixed type values.
+     * @param ?Serializer $serializer to use for object and mixed type values.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout

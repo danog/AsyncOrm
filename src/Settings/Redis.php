@@ -28,12 +28,12 @@ final readonly class Redis extends DriverSettings
     /**
      * @api
      *
-     * @param Serializer $serializer to use for object and mixed type values.
+     * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      */
     public function __construct(
         public readonly RedisConfig $config,
-        Serializer $serializer,
+        ?Serializer $serializer = null,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
     ) {
         parent::__construct($serializer, $cacheTtl);
