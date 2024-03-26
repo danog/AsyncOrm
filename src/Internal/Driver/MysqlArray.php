@@ -180,6 +180,7 @@ final class MysqlArray extends SqlArray
                 ->fetchRow();
             Assert::notNull($result);
             $result = $result['data_free'] ?? $result['DATA_FREE'];
+            Assert::integer($result, "Could not optimize table!");
             if (($result >> 20) > $settings->optimizeIfWastedGtMb) {
                 $this->db->query("OPTIMIZE TABLE `{$config->table}`");
             }

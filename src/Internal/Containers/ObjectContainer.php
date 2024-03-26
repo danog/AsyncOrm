@@ -94,7 +94,6 @@ final class ObjectContainer
             return $this->cache[$index]->reference->get();
         }
 
-        \assert($result instanceof DbObject);
         $result->initDb($this, $index, $this->config);
 
         $this->cache[$index] = new ObjectReference($result, \time() + $this->cacheTtl);
