@@ -28,10 +28,8 @@ abstract class DbObject
 
     /**
      * Initialize database instance.
-     *
-     * @internal
      */
-    final public function initDb(ObjectContainer $mapper, string|int $key, FieldConfig $config): void
+    public function initDb(ObjectContainer $mapper, string|int $key): void
     {
         $this->mapper = $mapper;
         $this->key = $key;
