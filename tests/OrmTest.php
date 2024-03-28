@@ -22,21 +22,10 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
-use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\Driver\MemoryArray;
-use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
-use danog\AsyncOrm\Internal\Driver\MysqlArray;
-use danog\AsyncOrm\Internal\Driver\PostgresArray;
-use danog\AsyncOrm\Internal\Driver\RedisArray;
-use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
-use danog\AsyncOrm\Internal\Serializer\IntString;
-use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
-use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Serializer\Igbinary;
 use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Serializer\Native;
@@ -45,9 +34,7 @@ use danog\AsyncOrm\Settings\Memory;
 use danog\AsyncOrm\Settings\Mysql;
 use danog\AsyncOrm\Settings\Postgres;
 use danog\AsyncOrm\Settings\Redis;
-use danog\AsyncOrm\Settings\SqlSettings;
 use danog\AsyncOrm\ValueType;
-use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -122,21 +109,21 @@ final class OrmTest extends TestCase
         }
     }
 
-    #[DataProvider('provideSettingsKeys')]
-    public function testBasic(Settings $settings, KeyType $keyType, string|int $key): void
+    #[DataProvider('provideSettingsKeysValues')]
+    public function testBasic(Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
         $field = new FieldConfig(
             'testBasic',
             $settings,
             $keyType,
-            ValueType::INT
+            $valueType
         );
         $orm = $field->build();
-        $orm[$key] = 123;
+        $orm[$key] = $value;
 
-        $this->assertSame(123, $orm[$key]);
+        $this->assertSame($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
-        $this->assertSame([$key => 123], $orm->getArrayCopy());
+        $this->assertSame([$key => $value], $orm->getArrayCopy());
         unset($orm[$key]);
 
         $this->assertNull($orm[$key]);
@@ -163,11 +150,11 @@ final class OrmTest extends TestCase
         }
 
         $orm = $field->build();
-        $orm[$key] = 124;
+        $orm[$key] = $value;
 
         $this->assertCount(1, $orm);
         $this->assertCount(1, $orm);
-        $this->assertSame(124, $orm[$key]);
+        $this->assertSame($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
 
         if ($orm instanceof CachedArray) {
@@ -177,7 +164,7 @@ final class OrmTest extends TestCase
         while (\gc_collect_cycles());
 
         $orm = $field->build();
-        $this->assertSame(124, $orm[$key]);
+        $this->assertSame($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
 
         unset($orm[$key]);
@@ -189,13 +176,13 @@ final class OrmTest extends TestCase
         }
 
         $this->assertCount(0, $orm);
-        $orm[$key] = 123;
+        $orm[$key] = $value;
         $this->assertCount(1, $orm);
         $cnt = 0;
         foreach ($orm as $kk => $vv) {
             $cnt++;
             $this->assertSame($key, $kk);
-            $this->assertSame(123, $vv);
+            $this->assertSame($value, $vv);
         }
         $this->assertEquals(1, $cnt);
 
@@ -288,29 +275,51 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
     }
 
-    public static function provideSettingsKeys(): \Generator
+    public static function provideSettingsKeysValues(): \Generator
     {
         foreach (self::provideSettings() as [$settings]) {
-            yield [
-                $settings,
-                KeyType::INT,
-                1234,
-            ];
-            yield [
-                $settings,
-                KeyType::STRING,
-                'test',
-            ];
-            yield [
-                $settings,
-                KeyType::STRING,
-                '4321',
-            ];
-            yield [
-                $settings,
-                KeyType::STRING_OR_INT,
-                'test_2',
-            ];
+            foreach ([
+                [ValueType::INT, 123],
+                [ValueType::STRING, '123'],
+                [ValueType::STRING, 'test'],
+                [ValueType::FLOAT, 123.321],
+                [ValueType::BOOL, true],
+                [ValueType::BOOL, false],
+
+                [ValueType::SCALAR, 'test'],
+                [ValueType::SCALAR, 123],
+                [ValueType::SCALAR, ['test' => 123]],
+                [ValueType::SCALAR, 123.321],
+            ] as [$valueType, $value]) {
+                yield [
+                    $settings,
+                    KeyType::INT,
+                    1234,
+                    $valueType,
+                    $value
+                ];
+                yield [
+                    $settings,
+                    KeyType::STRING,
+                    'test',
+                    $valueType,
+                    $value
+                ];
+                yield [
+                    $settings,
+                    KeyType::STRING,
+                    '4321',
+                    $valueType,
+                    $value
+                ];
+                yield [
+                    $settings,
+                    KeyType::STRING_OR_INT,
+                    'test_2',
+                    $valueType,
+                    $value
+                ];
+            }
         }
     }
 

@@ -59,8 +59,8 @@ final class RedisArray extends DriverArray
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
             ValueType::INT => new IntString,
-            ValueType::STRING => new Passthrough,
-            default => $serializer
+            ValueType::SCALAR, ValueType::OBJECT => $serializer,
+            default => new Passthrough
         };
         $this->castToInt = $config->keyType === KeyType::INT;
         parent::__construct($config, $serializer);

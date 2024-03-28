@@ -59,8 +59,8 @@ final class MysqlArray extends SqlArray
     {
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
-            ValueType::INT, ValueType::STRING => new Passthrough,
-            default => $serializer
+            ValueType::SCALAR, ValueType::OBJECT => $serializer,
+            default => new Passthrough
         };
         $settings = $config->settings;
         \assert($settings instanceof \danog\AsyncOrm\Settings\Mysql);
@@ -145,7 +145,10 @@ final class MysqlArray extends SqlArray
         $valueType = match ($config->valueType) {
             ValueType::INT => "BIGINT",
             ValueType::STRING => "VARCHAR(255)",
-            default => "MEDIUMBLOB",
+            ValueType::OBJECT => "MEDIUMBLOB",
+            ValueType::FLOAT => "FLOAT(53)",
+            ValueType::BOOL => "BIT(1)",
+            ValueType::SCALAR, ValueType::OBJECT => "MEDIUMBLOB"
         };
 
         $this->db->query("
@@ -200,10 +203,10 @@ final class MysqlArray extends SqlArray
     protected function execute(string $sql, array $params = []): SqlResult
     {
         foreach ($params as $key => $value) {
-            if (\is_int($value)) {
-                $value = (string) $value;
-            } else {
+            if (\is_string($value)) {
                 $value = $this->pdo->quote($value);
+            } else {
+                $value = (string) $value;
             }
             $sql = \str_replace(":$key", $value, $sql);
         }

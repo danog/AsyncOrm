@@ -90,11 +90,15 @@ class PostgresArray extends SqlArray
         $valueType = match ($config->valueType) {
             ValueType::INT => "BIGINT",
             ValueType::STRING => "VARCHAR(255)",
-            default => "BYTEA",
+            ValueType::OBJECT => "MEDIUMBLOB",
+            ValueType::FLOAT => "FLOAT(53)",
+            ValueType::BOOL => "BIT(1)",
+            ValueType::SCALAR, ValueType::OBJECT => "BYTEA",
         };
+        /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
-            ValueType::INT, ValueType::STRING => new Passthrough,
-            default => new ByteaSerializer($serializer)
+            ValueType::SCALAR, ValueType::OBJECT => new ByteaSerializer($serializer),
+            default => new Passthrough
         };
 
         $connection->query("

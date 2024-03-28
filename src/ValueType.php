@@ -30,13 +30,21 @@ enum ValueType: string
      */
     case INT = 'int';
     /**
+     * Direct storage of boolean values.
+     */
+    case BOOL = 'bool';
+    /**
+     * Direct storage of floating point (double precision) values.
+     */
+    case FLOAT = 'float';
+    /**
      * Objects extending DbObject, serialized as specified in the settings.
      */
     case OBJECT = 'object';
     /**
      * Values of any scalar type, serialized as specified in the settings.
      *
-     * Using SCALAR worsens performances, please use STRING, INT or OBJECT whenever possible.
+     * Using SCALAR worsens performances, please use any of the other types possible.
      */
     case SCALAR = 'scalar';
 }
