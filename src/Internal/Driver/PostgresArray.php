@@ -23,6 +23,7 @@ use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
+use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\Postgres;
@@ -92,7 +93,7 @@ class PostgresArray extends SqlArray
             default => "BYTEA",
         };
         $serializer = match ($config->valueType) {
-            ValueType::INT, ValueType::STRING => $serializer,
+            ValueType::INT, ValueType::STRING => new Passthrough,
             default => new ByteaSerializer($serializer)
         };
 

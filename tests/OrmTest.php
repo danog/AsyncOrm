@@ -23,15 +23,28 @@ use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
 use danog\AsyncOrm\DbArray;
+use danog\AsyncOrm\Driver\DriverArray;
+use danog\AsyncOrm\Driver\MemoryArray;
+use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Containers\CacheContainer;
+use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\MysqlArray;
+use danog\AsyncOrm\Internal\Driver\PostgresArray;
+use danog\AsyncOrm\Internal\Driver\RedisArray;
+use danog\AsyncOrm\Internal\Serializer\IntString;
+use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
+use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Serializer\Igbinary;
 use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
+use danog\AsyncOrm\Settings\Memory;
 use danog\AsyncOrm\Settings\Mysql;
 use danog\AsyncOrm\Settings\Postgres;
 use danog\AsyncOrm\Settings\Redis;
+use danog\AsyncOrm\Settings\SqlSettings;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -46,7 +59,27 @@ use function Amp\ByteStream\splitLines;
 use function Amp\Future\await;
 use function Amp\Future\awaitAny;
 
+#[CoversClass(FieldConfig::class)]
+#[CoversClass(KeyType::class)]
+#[CoversClass(ValueType::class)]
+#[CoversClass(Serializer::class)]
+#[CoversClass(Passthrough::class)]
+#[CoversClass(IntString::class)]
+#[CoversClass(CacheContainer::class)]
+#[CoversClass(CachedArray::class)]
 #[CoversClass(DbArray::class)]
+#[CoversClass(DriverArray::class)]
+#[CoversClass(SqlArray::class)]
+#[CoversClass(PostgresArray::class)]
+#[CoversClass(RedisArray::class)]
+#[CoversClass(MemoryArray::class)]
+#[CoversClass(MysqlArray::class)]
+#[CoversClass(Settings::class)]
+#[CoversClass(Memory::class)]
+#[CoversClass(Postgres::class)]
+#[CoversClass(Mysql::class)]
+#[CoversClass(Redis::class)]
+#[CoversClass(SqlSettings::class)]
 final class OrmTest extends TestCase
 {
     /** @var array<string, Process> */
@@ -121,28 +154,68 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = 123;
 
-        $this->assertEquals(123, $orm[$key]);
+        $this->assertSame(123, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
         unset($orm[$key]);
 
         $this->assertNull($orm[$key]);
         $this->assertFalse(isset($orm[$key]));
+
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
+
+        $this->assertCount(0, $orm);
+        $this->assertNull($orm[$key]);
+        $this->assertFalse(isset($orm[$key]));
+
+        if ($orm instanceof MemoryArray) {
+            return;
+        }
 
         $orm = $field->build();
         $orm[$key] = 124;
 
-        $this->assertEquals(124, $orm[$key]);
+        $this->assertCount(1, $orm);
+        $this->assertSame(124, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
+
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
         unset($orm);
         while (\gc_collect_cycles());
 
         $orm = $field->build();
-        $this->assertEquals(124, $orm[$key]);
+        $this->assertSame(124, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
 
         unset($orm[$key]);
         $this->assertNull($orm[$key]);
         $this->assertFalse(isset($orm[$key]));
+
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
+
+        $this->assertCount(0, $orm);
+        $orm[$key] = 123;
+        $this->assertCount(1, $orm);
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame($key, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+        $orm->clear();
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+        }
+        $this->assertEquals(0, $cnt);
+        $this->assertCount(0, $orm);
     }
 
     #[DataProvider('provideSettings')]
@@ -157,8 +230,12 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[321] = 123;
 
-        $this->assertEquals(123, $orm[321]);
+        $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
+
+        if ($orm instanceof MemoryArray) {
+            return;
+        }
 
         $field = new FieldConfig(
             __METHOD__,
@@ -167,7 +244,7 @@ final class OrmTest extends TestCase
             ValueType::INT
         );
         $orm = $field->build();
-        $this->assertEquals(123, $orm[321]);
+        $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
 
         $field = new FieldConfig(
@@ -177,7 +254,7 @@ final class OrmTest extends TestCase
             ValueType::INT
         );
         $orm = $field->build();
-        $this->assertEquals(123, $orm[321]);
+        $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
     }
 
@@ -209,24 +286,27 @@ final class OrmTest extends TestCase
 
     public static function provideSettings(): \Generator
     {
+        yield [new Memory()];
         foreach ([new Native, new Igbinary, new Json] as $serializer) {
-            yield from [
-                [new Redis(
-                    RedisConfig::fromUri('redis://127.0.0.1'),
-                    $serializer,
-                    0,
-                )],
-                [new Postgres(
-                    PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
-                    $serializer,
-                    0,
-                )],
-                [new Mysql(
-                    MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
-                    $serializer,
-                    0,
-                )],
-            ];
+            foreach ([0, 100] as $ttl) {
+                yield from [
+                    [new Redis(
+                        RedisConfig::fromUri('redis://127.0.0.1'),
+                        $serializer,
+                        $ttl,
+                    )],
+                    [new Postgres(
+                        PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
+                        $serializer,
+                        $ttl,
+                    )],
+                    [new Mysql(
+                        MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
+                        $serializer,
+                        $ttl,
+                    )],
+                ];
+            }
         }
     }
 }

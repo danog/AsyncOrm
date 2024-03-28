@@ -25,7 +25,6 @@ use AssertionError;
 use danog\AsyncOrm\Driver\Mysql;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Internal\Serializer\IntString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
@@ -60,8 +59,7 @@ final class MysqlArray extends SqlArray
     {
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
-            ValueType::INT => new IntString,
-            ValueType::STRING => new Passthrough,
+            ValueType::INT, ValueType::STRING => new Passthrough,
             default => $serializer
         };
         $settings = $config->settings;
@@ -202,7 +200,11 @@ final class MysqlArray extends SqlArray
     protected function execute(string $sql, array $params = []): SqlResult
     {
         foreach ($params as $key => $value) {
-            $value = $this->pdo->quote($value);
+            if (\is_int($value)) {
+                $value = (string) $value;
+            } else {
+                $value = $this->pdo->quote($value);
+            }
             $sql = \str_replace(":$key", $value, $sql);
         }
 
