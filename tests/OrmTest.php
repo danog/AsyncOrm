@@ -23,9 +23,9 @@ use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
 use danog\AsyncOrm\DbObject;
-use danog\AsyncOrm\Driver\CachedArray;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
@@ -402,7 +402,7 @@ final class OrmTest extends TestCase
                 [ValueType::BOOL, false],
 
                 // Uncomment when segfaults are fixed
-                //[ValueType::OBJECT, new TestObject],
+                [ValueType::OBJECT, new TestObject],
 
                 [ValueType::SCALAR, 'test'],
                 [ValueType::SCALAR, 123],

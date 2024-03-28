@@ -3,7 +3,7 @@
 namespace danog\AsyncOrm;
 
 use AssertionError;
-use danog\AsyncOrm\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Settings\DriverSettings;

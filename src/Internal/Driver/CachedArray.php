@@ -16,11 +16,12 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Driver;
+namespace danog\AsyncOrm\Internal\Driver;
 
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
+use Revolt\EventLoop;
 use Traversable;
 
 /**
@@ -64,6 +65,7 @@ final class CachedArray extends DbArray
     public function __destruct()
     {
         $this->cache->stopCacheCleanupLoop();
+        EventLoop::queue($this->cache->flushCache(...));
     }
 
     public function flushCache(): void
