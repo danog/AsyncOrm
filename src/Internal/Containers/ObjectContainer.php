@@ -122,7 +122,6 @@ final class ObjectContainer
 
     public function getIterator(): Traversable
     {
-        $this->flushCache();
         foreach ($this->inner->getIterator() as $key => $value) {
             if (isset($this->cache[$key])) {
                 $obj = $this->cache[$key];

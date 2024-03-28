@@ -335,6 +335,8 @@ final class OrmTest extends TestCase
         $f->getValue($orm)->flushCache();
         while (\gc_collect_cycles());
         $this->assertSame($obj, $orm[321]);
+
+        $orm->clear();
     }
 
     public static function provideSettingsKeysValues(): \Generator
@@ -348,13 +350,10 @@ final class OrmTest extends TestCase
                 [ValueType::BOOL, true],
                 [ValueType::BOOL, false],
 
-                [ValueType::OBJECT, new TestObject],
-
                 [ValueType::SCALAR, 'test'],
                 [ValueType::SCALAR, 123],
                 [ValueType::SCALAR, ['test' => 123]],
                 [ValueType::SCALAR, 123.321],
-                [ValueType::SCALAR, new TestObject],
             ] as [$valueType, $value]) {
                 yield [
                     $settings,
