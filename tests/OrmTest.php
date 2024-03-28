@@ -23,9 +23,9 @@ use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
 use danog\AsyncOrm\DbObject;
+use danog\AsyncOrm\Driver\CachedArray;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
@@ -66,15 +66,15 @@ final class OrmTest extends TestCase
     private static bool $configured = false;
     public static function setUpBeforeClass(): void
     {
-        touch('/tmp/async-orm-test');
-        $lockFile = fopen('/tmp/async-orm-test', 'r+');
-        flock($lockFile, LOCK_EX);
-        if (fgets($lockFile) === 'done') {
-            flock($lockFile, LOCK_UN);
+        \touch('/tmp/async-orm-test');
+        $lockFile = \fopen('/tmp/async-orm-test', 'r+');
+        \flock($lockFile, LOCK_EX);
+        if (\fgets($lockFile) === 'done') {
+            \flock($lockFile, LOCK_UN);
             return;
         }
         self::$configured = true;
-        fwrite($lockFile, "done\n");
+        \fwrite($lockFile, "done\n");
 
         $f = [];
         foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432] as $image => $port) {
@@ -106,12 +106,12 @@ final class OrmTest extends TestCase
             }
         }
 
-        flock($lockFile, LOCK_UN);
+        \flock($lockFile, LOCK_UN);
     }
     public static function tearDownAfterClass(): void
     {
         if (self::$configured) {
-            unlink('/tmp/async-orm-test');
+            \unlink('/tmp/async-orm-test');
         }
     }
     private static function waitForStartup(ReadableStream $f): bool

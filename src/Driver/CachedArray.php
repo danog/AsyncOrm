@@ -16,18 +16,15 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Internal\Driver;
+namespace danog\AsyncOrm\Driver;
 
 use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use Traversable;
 
 /**
  * Array caching proxy.
- *
- * @internal
  *
  * @template TKey as array-key
  * @template TValue

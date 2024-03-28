@@ -19,7 +19,7 @@
 namespace danog\AsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
-use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Driver\CachedArray;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Mysql;
 use ReflectionClass;
