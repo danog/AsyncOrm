@@ -39,9 +39,10 @@ final class BoolInt implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
-        return match ($value) {
+        return match (\ord($value)) {
             1 => true,
             0 => false,
+            default => throw new AssertionError(\var_export($value, true))
         };
     }
 }

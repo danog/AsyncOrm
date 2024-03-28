@@ -26,7 +26,6 @@ use danog\AsyncOrm\Driver\Mysql;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Serializer\BoolInt;
-use danog\AsyncOrm\Internal\Serializer\BoolString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
@@ -59,12 +58,6 @@ final class MysqlArray extends SqlArray
      */
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
-        /** @var Serializer<TValue> */
-        $serializer = match ($config->valueType) {
-            ValueType::SCALAR, ValueType::OBJECT => $serializer,
-            ValueType::BOOL => new BoolInt,
-            default => new Passthrough
-        };
         $settings = $config->settings;
         \assert($settings instanceof \danog\AsyncOrm\Settings\Mysql);
 
@@ -116,6 +109,70 @@ final class MysqlArray extends SqlArray
         [$db, $pdo] = self::$connections[$dbKey];
         $this->pdo = $pdo;
 
+        $keyType = match ($config->keyType) {
+            KeyType::STRING_OR_INT => "VARCHAR(255)",
+            KeyType::STRING => "VARCHAR(255)",
+            KeyType::INT => "BIGINT",
+        };
+        $valueType = match ($config->valueType) {
+            ValueType::INT => "BIGINT",
+            ValueType::STRING => "VARCHAR(255)",
+            ValueType::OBJECT => "MEDIUMBLOB",
+            ValueType::FLOAT => "FLOAT(53)",
+            ValueType::BOOL => "BIT(1)",
+            ValueType::SCALAR, ValueType::OBJECT => "MEDIUMBLOB"
+        };
+        /** @var Serializer<TValue> */
+        $serializer = match ($config->valueType) {
+            ValueType::SCALAR, ValueType::OBJECT => $serializer,
+            ValueType::BOOL => new BoolInt,
+            default => new Passthrough
+        };
+
+        $db->query("
+            CREATE TABLE IF NOT EXISTS `{$config->table}`
+            (
+                `key` $keyType PRIMARY KEY NOT NULL,
+                `value` $valueType NOT NULL
+            )
+            ENGINE = InnoDB
+            CHARACTER SET 'utf8mb4' 
+            COLLATE 'utf8mb4_general_ci'
+        ");
+
+        $result = $db->query("DESCRIBE `{$config->table}`");
+        while ($column = $result->fetchRow()) {
+            ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
+            $type = \strtoupper($type);
+            if (\str_starts_with($type, 'BIGINT')) {
+                $type = 'BIGINT';
+            }
+            if ($key === 'key') {
+                $expected = $keyType;
+            } elseif ($key === 'value') {
+                $expected = $valueType;
+            } else {
+                $db->query("ALTER TABLE `{$config->table}` DROP `$key`");
+                continue;
+            }
+            if ($expected !== $type || $null !== 'NO') {
+                $db->query("ALTER TABLE `{$config->table}` MODIFY `$key` $expected NOT NULL");
+            }
+        }
+
+        if ($settings->optimizeIfWastedGtMb !== null) {
+            $database = $settings->config->getDatabase();
+            $result = $db->prepare("SELECT data_free FROM information_schema.tables WHERE table_schema=? AND table_name=?")
+                ->execute([$database, $config->table])
+                ->fetchRow();
+            Assert::notNull($result);
+            $result = $result['data_free'] ?? $result['DATA_FREE'];
+            Assert::integer($result, "Could not optimize table!");
+            if (($result >> 20) > $settings->optimizeIfWastedGtMb) {
+                $db->query("OPTIMIZE TABLE `{$config->table}`");
+            }
+        }
+
         parent::__construct(
             $config,
             $serializer,
@@ -139,64 +196,6 @@ final class MysqlArray extends SqlArray
                 DELETE FROM `{$config->table}`
             "
         );
-
-        $keyType = match ($config->keyType) {
-            KeyType::STRING_OR_INT => "VARCHAR(255)",
-            KeyType::STRING => "VARCHAR(255)",
-            KeyType::INT => "BIGINT",
-        };
-        $valueType = match ($config->valueType) {
-            ValueType::INT => "BIGINT",
-            ValueType::STRING => "VARCHAR(255)",
-            ValueType::OBJECT => "MEDIUMBLOB",
-            ValueType::FLOAT => "FLOAT(53)",
-            ValueType::BOOL => "BIT(1)",
-            ValueType::SCALAR, ValueType::OBJECT => "MEDIUMBLOB"
-        };
-
-        $this->db->query("
-            CREATE TABLE IF NOT EXISTS `{$config->table}`
-            (
-                `key` $keyType PRIMARY KEY NOT NULL,
-                `value` $valueType NOT NULL
-            )
-            ENGINE = InnoDB
-            CHARACTER SET 'utf8mb4' 
-            COLLATE 'utf8mb4_general_ci'
-        ");
-
-        $result = $this->db->query("DESCRIBE `{$config->table}`");
-        while ($column = $result->fetchRow()) {
-            ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
-            $type = \strtoupper($type);
-            if (\str_starts_with($type, 'BIGINT')) {
-                $type = 'BIGINT';
-            }
-            if ($key === 'key') {
-                $expected = $keyType;
-            } elseif ($key === 'value') {
-                $expected = $valueType;
-            } else {
-                $this->db->query("ALTER TABLE `{$config->table}` DROP `$key`");
-                continue;
-            }
-            if ($expected !== $type || $null !== 'NO') {
-                $this->db->query("ALTER TABLE `{$config->table}` MODIFY `$key` $expected NOT NULL");
-            }
-        }
-
-        if ($settings->optimizeIfWastedGtMb !== null) {
-            $database = $settings->config->getDatabase();
-            $result = $this->db->prepare("SELECT data_free FROM information_schema.tables WHERE table_schema=? AND table_name=?")
-                ->execute([$database, $config->table])
-                ->fetchRow();
-            Assert::notNull($result);
-            $result = $result['data_free'] ?? $result['DATA_FREE'];
-            Assert::integer($result, "Could not optimize table!");
-            if (($result >> 20) > $settings->optimizeIfWastedGtMb) {
-                $this->db->query("OPTIMIZE TABLE `{$config->table}`");
-            }
-        }
     }
 
     /**
