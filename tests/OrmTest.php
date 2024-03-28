@@ -241,7 +241,7 @@ final class OrmTest extends TestCase
         }
 
         $field = new FieldConfig(
-            'testMigration',
+            'testKeyMigration',
             $settings,
             KeyType::INT,
             ValueType::INT
@@ -258,7 +258,7 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
 
         $field = new FieldConfig(
-            'testMigration',
+            'testKeyMigration',
             $settings,
             KeyType::STRING,
             ValueType::INT
@@ -276,7 +276,7 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
 
         $field = new FieldConfig(
-            'testMigration',
+            'testKeyMigration',
             $settings,
             KeyType::INT,
             ValueType::INT
@@ -304,7 +304,7 @@ final class OrmTest extends TestCase
             $this->expectExceptionMessage("The JSON backend cannot be used when serializing objects!");
         }
         $field = new FieldConfig(
-            'testKeyMigration',
+            'testObject',
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::OBJECT
