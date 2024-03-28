@@ -32,6 +32,7 @@ use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\MysqlArray;
 use danog\AsyncOrm\Internal\Driver\PostgresArray;
 use danog\AsyncOrm\Internal\Driver\RedisArray;
+use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
 use danog\AsyncOrm\Internal\Serializer\IntString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
@@ -64,6 +65,10 @@ use function Amp\Future\awaitAny;
 #[CoversClass(ValueType::class)]
 #[CoversClass(Serializer::class)]
 #[CoversClass(Passthrough::class)]
+#[CoversClass(Native::class)]
+#[CoversClass(Json::class)]
+#[CoversClass(Igbinary::class)]
+#[CoversClass(ByteaSerializer::class)]
 #[CoversClass(IntString::class)]
 #[CoversClass(CacheContainer::class)]
 #[CoversClass(CachedArray::class)]
@@ -156,6 +161,7 @@ final class OrmTest extends TestCase
 
         $this->assertSame(123, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
+        $this->assertSame([$key => 123], $orm->getArrayCopy());
         unset($orm[$key]);
 
         $this->assertNull($orm[$key]);
@@ -168,8 +174,16 @@ final class OrmTest extends TestCase
         $this->assertCount(0, $orm);
         $this->assertNull($orm[$key]);
         $this->assertFalse(isset($orm[$key]));
+        $this->assertSame([], $orm->getArrayCopy());
 
         if ($orm instanceof MemoryArray) {
+            $orm->clear();
+            $cnt = 0;
+            foreach ($orm as $kk => $vv) {
+                $cnt++;
+            }
+            $this->assertEquals(0, $cnt);
+            $this->assertCount(0, $orm);
             return;
         }
 
