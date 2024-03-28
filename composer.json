@@ -8,6 +8,11 @@
             "danog\\AsyncOrm\\": "src/"
         }
     },
+    "autoload-dev": {
+        "psr-4": {
+            "danog\\AsyncOrm\\Test\\": "tests/"
+        }
+    },
     "authors": [
 	{
 		"name": "Alexander Pankratov",
@@ -29,7 +34,8 @@
         "vimeo/psalm": "dev-master",
         "phpunit/phpunit": "^11.0.6",
         "amphp/php-cs-fixer-config": "^2.0.1",
-        "friendsofphp/php-cs-fixer": "^3.51"
+        "friendsofphp/php-cs-fixer": "^3.51",
+        "amphp/process": "^2.0"
     },
     "scripts": {
         "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php -d pcre.jit=0 vendor/bin/php-cs-fixer fix -v"

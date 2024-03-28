@@ -16,14 +16,14 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Serializer;
+namespace danog\AsyncOrm\Internal\Serializer;
 
 use danog\AsyncOrm\Serializer;
 
 /**
  * Integer casting serializer.
  *
- * @api
+ * @internal
  *
  * @implements Serializer<int>
  */

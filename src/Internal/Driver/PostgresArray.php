@@ -22,9 +22,9 @@ use Amp\Postgres\PostgresConnectionPool;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
-use danog\AsyncOrm\Serializer\ByteaSerializer;
 use danog\AsyncOrm\Settings\Postgres;
 use danog\AsyncOrm\ValueType;
 use Revolt\EventLoop;
@@ -104,7 +104,7 @@ class PostgresArray extends SqlArray
             );            
         ");
 
-        $result = $this->db->query("DESCRIBE \"bytea_{$config->table}\"");
+        $result = $connection->query("DESCRIBE \"bytea_{$config->table}\"");
         while ($column = $result->fetchRow()) {
             ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
             $type = \strtoupper($type);
@@ -116,11 +116,11 @@ class PostgresArray extends SqlArray
             } elseif ($key === 'value') {
                 $expected = $valueType;
             } else {
-                $this->db->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
+                $connection->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
                 continue;
             }
             if ($expected !== $type || $null !== 'NO') {
-                $this->db->query("ALTER TABLE \"bytea_{$config->table}\" MODIFY \"$key\" $expected NOT NULL");
+                $connection->query("ALTER TABLE \"bytea_{$config->table}\" MODIFY \"$key\" $expected NOT NULL");
             }
         }
 

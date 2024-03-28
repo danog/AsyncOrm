@@ -23,9 +23,9 @@ use Amp\Redis\RedisClient;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Serializer\IntString;
+use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\Serializer;
-use danog\AsyncOrm\Serializer\IntString;
-use danog\AsyncOrm\Serializer\Passthrough;
 use danog\AsyncOrm\Settings\Redis;
 use danog\AsyncOrm\ValueType;
 use Revolt\EventLoop;
@@ -54,9 +54,12 @@ final class RedisArray extends DriverArray
      */
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
-        if ($serializer instanceof Passthrough && $config->valueType === ValueType::INT) {
-            $serializer = new IntString;
-        }
+        /** @var Serializer<TValue> */
+        $serializer = match ($config->valueType) {
+            ValueType::INT => new IntString,
+            ValueType::STRING => new Passthrough,
+            default => $serializer
+        };
         parent::__construct($config, $serializer);
 
         self::$mutex ??= new LocalKeyedMutex;

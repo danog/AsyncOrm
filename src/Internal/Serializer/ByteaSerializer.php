@@ -16,7 +16,7 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Serializer;
+namespace danog\AsyncOrm\Internal\Serializer;
 
 use Amp\Postgres\PostgresByteA;
 use danog\AsyncOrm\Serializer;

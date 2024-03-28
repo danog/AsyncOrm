@@ -50,7 +50,7 @@ abstract readonly class SqlSettings extends DriverSettings
     public function __construct(
         /** @var T */
         public readonly SqlConfig $config,
-        Serializer $serializer,
+        ?Serializer $serializer,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
         int $maxConnections = self::DEFAULT_SQL_MAX_CONNECTIONS,
         int $idleTimeout = self::DEFAULT_SQL_IDLE_TIMEOUT,
