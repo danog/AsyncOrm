@@ -63,8 +63,19 @@ final class OrmTest extends TestCase
         async(pipe(...), $process->getStdout(), getStdout());
         $process->join();
     }
+    private static bool $configured = false;
     public static function setUpBeforeClass(): void
     {
+        touch('/tmp/async-orm-test');
+        $lockFile = fopen('/tmp/async-orm-test', 'r+');
+        flock($lockFile, LOCK_EX);
+        if (fgets($lockFile) === 'done') {
+            flock($lockFile, LOCK_UN);
+            return;
+        }
+        self::$configured = true;
+        fwrite($lockFile, "done\n");
+
         $f = [];
         foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432] as $image => $port) {
             $f []= async(function () use ($image, $port) {
@@ -94,6 +105,14 @@ final class OrmTest extends TestCase
                 throw new AssertionError("Could not start $name!");
             }
         }
+
+        flock($lockFile, LOCK_UN);
+    }
+    public static function tearDownAfterClass(): void
+    {
+        if (self::$configured) {
+            unlink('/tmp/async-orm-test');
+        }
     }
     private static function waitForStartup(ReadableStream $f): bool
     {
@@ -107,12 +126,6 @@ final class OrmTest extends TestCase
         }
         return false;
     }
-    public static function tearDownAfterClass(): void
-    {
-        foreach (self::$processes as $process) {
-            $process->signal(15);
-        }
-    }
 
     public function assertSameNotObject(mixed $a, mixed $b): void
     {
@@ -122,14 +135,12 @@ final class OrmTest extends TestCase
             $this->assertSame($a, $b);
         }
     }
-    private static int $cnt = 0;
 
     #[DataProvider('provideSettingsKeysValues')]
-    public function testBasic(Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
+    public function testBasic(int $tablePostfix, Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
-        $cnt = self::$cnt++;
         $field = new FieldConfig(
-            "testBasic_$cnt",
+            "testBasic_$tablePostfix",
             $settings,
             $keyType,
             $valueType
@@ -215,10 +226,10 @@ final class OrmTest extends TestCase
     }
 
     #[DataProvider('provideSettings')]
-    public function testKeyMigration(Settings $settings): void
+    public function testKeyMigration(int $tablePostfix, Settings $settings): void
     {
         $field = new FieldConfig(
-            'testKeyMigration',
+            $table = 'testKeyMigration_'.$tablePostfix,
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::INT
@@ -241,7 +252,7 @@ final class OrmTest extends TestCase
         }
 
         $field = new FieldConfig(
-            'testKeyMigration',
+            $table,
             $settings,
             KeyType::INT,
             ValueType::INT
@@ -258,7 +269,7 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
 
         $field = new FieldConfig(
-            'testKeyMigration',
+            $table,
             $settings,
             KeyType::STRING,
             ValueType::INT
@@ -276,7 +287,7 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
 
         $field = new FieldConfig(
-            'testKeyMigration',
+            $table,
             $settings,
             KeyType::INT,
             ValueType::INT
@@ -295,7 +306,7 @@ final class OrmTest extends TestCase
     }
 
     #[DataProvider('provideSettings')]
-    public function testObject(Settings $settings): void
+    public function testObject(int $tablePostfix, Settings $settings): void
     {
         if (!$settings instanceof DriverSettings) {
             $this->expectExceptionMessage("Objects can only be saved to a database backend!");
@@ -304,7 +315,7 @@ final class OrmTest extends TestCase
             $this->expectExceptionMessage("The JSON backend cannot be used when serializing objects!");
         }
         $field = new FieldConfig(
-            'testObject',
+            'testObject_'.$tablePostfix,
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::OBJECT
@@ -380,7 +391,8 @@ final class OrmTest extends TestCase
 
     public static function provideSettingsKeysValues(): \Generator
     {
-        foreach (self::provideSettings() as [$settings]) {
+        $key = 0;
+        foreach (self::provideSettings() as [, $settings]) {
             foreach ([
                 [ValueType::INT, 123],
                 [ValueType::STRING, '123'],
@@ -404,6 +416,7 @@ final class OrmTest extends TestCase
                     continue;
                 }
                 yield [
+                    $key++,
                     $settings,
                     KeyType::INT,
                     1234,
@@ -411,6 +424,7 @@ final class OrmTest extends TestCase
                     $value
                 ];
                 yield [
+                    $key++,
                     $settings,
                     KeyType::STRING,
                     'test',
@@ -418,6 +432,7 @@ final class OrmTest extends TestCase
                     $value
                 ];
                 yield [
+                    $key++,
                     $settings,
                     KeyType::STRING,
                     '4321',
@@ -425,6 +440,7 @@ final class OrmTest extends TestCase
                     $value
                 ];
                 yield [
+                    $key++,
                     $settings,
                     KeyType::STRING_OR_INT,
                     'test_2',
@@ -437,21 +453,22 @@ final class OrmTest extends TestCase
 
     public static function provideSettings(): \Generator
     {
-        yield [new Memory()];
+        $key = 0;
+        yield [$key++, new Memory()];
         foreach ([new Native, new Igbinary, new Json] as $serializer) {
             foreach ([0, 100] as $ttl) {
                 yield from [
-                    [new Redis(
+                    [$key++, new Redis(
                         RedisConfig::fromUri('redis://127.0.0.1'),
                         $serializer,
                         $ttl,
                     )],
-                    [new Postgres(
+                    [$key++, new Postgres(
                         PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
                         $serializer,
                         $ttl,
                     )],
-                    [new Mysql(
+                    [$key++, new Mysql(
                         MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
                         $serializer,
                         $ttl,
