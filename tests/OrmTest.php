@@ -60,31 +60,6 @@ use function Amp\ByteStream\splitLines;
 use function Amp\Future\await;
 use function Amp\Future\awaitAny;
 
-#[CoversClass(FieldConfig::class)]
-#[CoversClass(KeyType::class)]
-#[CoversClass(ValueType::class)]
-#[CoversClass(Serializer::class)]
-#[CoversClass(Passthrough::class)]
-#[CoversClass(Native::class)]
-#[CoversClass(Json::class)]
-#[CoversClass(Igbinary::class)]
-#[CoversClass(ByteaSerializer::class)]
-#[CoversClass(IntString::class)]
-#[CoversClass(CacheContainer::class)]
-#[CoversClass(CachedArray::class)]
-#[CoversClass(DbArray::class)]
-#[CoversClass(DriverArray::class)]
-#[CoversClass(SqlArray::class)]
-#[CoversClass(PostgresArray::class)]
-#[CoversClass(RedisArray::class)]
-#[CoversClass(MemoryArray::class)]
-#[CoversClass(MysqlArray::class)]
-#[CoversClass(Settings::class)]
-#[CoversClass(Memory::class)]
-#[CoversClass(Postgres::class)]
-#[CoversClass(Mysql::class)]
-#[CoversClass(Redis::class)]
-#[CoversClass(SqlSettings::class)]
 final class OrmTest extends TestCase
 {
     /** @var array<string, Process> */
