@@ -31,6 +31,7 @@ use danog\AsyncOrm\Serializer\Igbinary;
 use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
+use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Memory;
 use danog\AsyncOrm\Settings\Mysql;
 use danog\AsyncOrm\Settings\Postgres;
@@ -38,6 +39,7 @@ use danog\AsyncOrm\Settings\Redis;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
+use ReflectionProperty;
 
 use function Amp\async;
 use function Amp\ByteStream\buffer;
@@ -282,15 +284,18 @@ final class OrmTest extends TestCase
     #[DataProvider('provideSettings')]
     public function testObject(Settings $settings): void
     {
+        if (!$settings instanceof DriverSettings) {
+            $this->expectExceptionMessage("Objects can only be saved to a database backend!");
+        }
+        if ($settings->serializer instanceof Json) {
+            $this->expectExceptionMessage("The JSON backend cannot be used when serializing objects!");
+        }
         $field = new FieldConfig(
             'testKeyMigration',
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::OBJECT
         );
-        if ($settings instanceof Memory) {
-            $this->expectExceptionMessage("Objects can only be saved to a database backend!");
-        }
         $orm = $field->build();
         $this->assertSame(ObjectArray::class, $orm::class);
 
@@ -316,15 +321,20 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $obj = $orm[321];
 
-        $this->assertSame(0, $obj->loadedCnt);
+        $this->assertSame(1, $obj->loadedCnt);
         $this->assertSame(0, $obj->saveAfterCnt);
         $this->assertSame(0, $obj->saveBeforeCnt);
 
         $orm[321] = $obj;
 
         $this->assertSame(1, $obj->loadedCnt);
-        $this->assertSame(1, $obj->saveAfterCnt);
-        $this->assertSame(1, $obj->saveBeforeCnt);
+        $this->assertSame(0, $obj->saveAfterCnt);
+        $this->assertSame(0, $obj->saveBeforeCnt);
+
+        $f = new ReflectionProperty(ObjectArray::class, 'cache');
+        $f->getValue($orm)->flushCache();
+        while (\gc_collect_cycles());
+        $this->assertSame($obj, $orm[321]);
     }
 
     public static function provideSettingsKeysValues(): \Generator

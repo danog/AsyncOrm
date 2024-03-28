@@ -96,7 +96,6 @@ final class ObjectContainer
         if ($result === null) {
             return null;
         }
-        \var_dump($result);
 
         $result->initDb($this, $index, $this->config);
 
@@ -165,7 +164,7 @@ final class ObjectContainer
             $now = \time();
             $new = [];
             foreach ($this->cache as $key => $value) {
-                if ($value->ttl > $now) {
+                if ($value->ttl <= $now) {
                     $value->obj = null;
                 }
                 if ($value->reference->get() !== null) {

@@ -24,7 +24,7 @@ use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 abstract class DbObject
 {
     private ObjectContainer $mapper;
-    private string|int $key;
+    private string|int|null $key;
 
     /**
      * Initialize database instance.
@@ -33,6 +33,9 @@ abstract class DbObject
      */
     final public function initDb(ObjectContainer $mapper, string|int $key): void
     {
+        if (isset($this->key)) {
+            return;
+        }
         $this->mapper = $mapper;
         $this->key = $key;
         $this->onLoaded();

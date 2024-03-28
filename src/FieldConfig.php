@@ -5,6 +5,7 @@ namespace danog\AsyncOrm;
 use AssertionError;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
+use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\Memory;
 
@@ -41,6 +42,9 @@ final readonly class FieldConfig
         if ($this->valueType === ValueType::OBJECT) {
             if (!$this->settings instanceof DriverSettings) {
                 throw new AssertionError("Objects can only be saved to a database backend!");
+            }
+            if ($this->settings->serializer instanceof Json) {
+                throw new AssertionError("The JSON backend cannot be used when serializing objects!");
             }
             return ObjectArray::getInstance($this, $previous);
         }
