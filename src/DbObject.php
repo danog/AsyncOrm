@@ -34,6 +34,8 @@ abstract class DbObject
     final public function initDb(ObjectContainer $mapper, string|int $key): void
     {
         if (isset($this->key)) {
+            $this->mapper = $mapper;
+            $this->key = $key;
             return;
         }
         $this->mapper = $mapper;
