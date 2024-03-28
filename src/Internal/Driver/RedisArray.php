@@ -23,6 +23,8 @@ use Amp\Redis\RedisClient;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Serializer\BoolString;
+use danog\AsyncOrm\Internal\Serializer\FloatString;
 use danog\AsyncOrm\Internal\Serializer\IntString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
@@ -59,6 +61,8 @@ final class RedisArray extends DriverArray
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
             ValueType::INT => new IntString,
+            ValueType::FLOAT => new FloatString,
+            ValueType::BOOL => new BoolString,
             ValueType::SCALAR, ValueType::OBJECT => $serializer,
             default => new Passthrough
         };

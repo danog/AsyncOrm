@@ -109,11 +109,14 @@ final class OrmTest extends TestCase
         }
     }
 
+    private static int $cnt = 0;
+
     #[DataProvider('provideSettingsKeysValues')]
     public function testBasic(Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
+        $cnt = self::$cnt++;
         $field = new FieldConfig(
-            'testBasic',
+            "testBasic_$cnt",
             $settings,
             $keyType,
             $valueType

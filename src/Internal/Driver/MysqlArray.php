@@ -25,6 +25,8 @@ use AssertionError;
 use danog\AsyncOrm\Driver\Mysql;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\Internal\Serializer\BoolInt;
+use danog\AsyncOrm\Internal\Serializer\BoolString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
@@ -60,6 +62,7 @@ final class MysqlArray extends SqlArray
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
             ValueType::SCALAR, ValueType::OBJECT => $serializer,
+            ValueType::BOOL => new BoolInt,
             default => new Passthrough
         };
         $settings = $config->settings;
