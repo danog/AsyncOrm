@@ -79,15 +79,19 @@ final class MysqlArray extends SqlArray
                     if ($max < 100000) {
                         $connection->query("SET GLOBAL max_connections = 100000");
                     }
+                    // @codeCoverageIgnoreStart
                 } catch (\Throwable) {
                 }
+                // @codeCoverageIgnoreEnd
                 $connection->close();
 
                 $host = $settings->config->getHost();
                 $port = $settings->config->getPort();
+                // @codeCoverageIgnoreStart
                 if (!\extension_loaded('pdo_mysql')) {
                     throw new AssertionError("PDO is needed for the mysql backend!");
                 }
+                // @codeCoverageIgnoreEnd
 
                 $pdo = new PDO(
                     $host[0] === '/'
