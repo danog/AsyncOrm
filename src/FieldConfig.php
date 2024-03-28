@@ -2,6 +2,7 @@
 
 namespace danog\AsyncOrm;
 
+use AssertionError;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Settings\DriverSettings;
@@ -37,6 +38,12 @@ final readonly class FieldConfig
      */
     public function build(?DbArray $previous = null): DbArray
     {
+        if ($this->valueType === ValueType::OBJECT) {
+            if (!$this->settings instanceof DriverSettings) {
+                throw new AssertionError("Objects can only be saved to a database backend!");
+            }
+            return ObjectArray::getInstance($this, $previous);
+        }
         if ($this->settings instanceof Memory
             || (
                 $this->settings instanceof DriverSettings
@@ -44,9 +51,6 @@ final readonly class FieldConfig
             )
         ) {
             return $this->settings->getDriverClass()::getInstance($this, $previous);
-        }
-        if ($this->valueType === ValueType::OBJECT) {
-            return ObjectArray::getInstance($this, $previous);
         }
 
         return CachedArray::getInstance($this, $previous);

@@ -89,10 +89,14 @@ final class ObjectContainer
             unset($this->cache[$index]);
         }
 
-        $result = $this->inner->offsetGet($index);
+        $result = $this->inner->get($index);
         if (isset($this->cache[$index])) {
             return $this->cache[$index]->reference->get();
         }
+        if ($result === null) {
+            return null;
+        }
+        \var_dump($result);
 
         $result->initDb($this, $index, $this->config);
 

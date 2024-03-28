@@ -25,6 +25,7 @@ use AssertionError;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
 use danog\AsyncOrm\Serializer\Json;
@@ -199,10 +200,10 @@ final class OrmTest extends TestCase
     }
 
     #[DataProvider('provideSettings')]
-    public function testMigration(Settings $settings): void
+    public function testKeyMigration(Settings $settings): void
     {
         $field = new FieldConfig(
-            'testMigration',
+            'testKeyMigration',
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::INT
@@ -278,6 +279,54 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
     }
 
+    #[DataProvider('provideSettings')]
+    public function testObject(Settings $settings): void
+    {
+        $field = new FieldConfig(
+            'testKeyMigration',
+            $settings,
+            KeyType::STRING_OR_INT,
+            ValueType::OBJECT
+        );
+        if ($settings instanceof Memory) {
+            $this->expectExceptionMessage("Objects can only be saved to a database backend!");
+        }
+        $orm = $field->build();
+        $this->assertSame(ObjectArray::class, $orm::class);
+
+        $obj = new TestObject;
+
+        $this->assertSame(0, $obj->loadedCnt);
+        $this->assertSame(0, $obj->saveAfterCnt);
+        $this->assertSame(0, $obj->saveBeforeCnt);
+
+        $orm[321] = $obj;
+
+        $this->assertSame(1, $obj->loadedCnt);
+        $this->assertSame(1, $obj->saveAfterCnt);
+        $this->assertSame(1, $obj->saveBeforeCnt);
+
+        $obj = $orm[321];
+
+        $this->assertSame(1, $obj->loadedCnt);
+        $this->assertSame(1, $obj->saveAfterCnt);
+        $this->assertSame(1, $obj->saveBeforeCnt);
+
+        unset($obj);
+        $orm = $field->build();
+        $obj = $orm[321];
+
+        $this->assertSame(0, $obj->loadedCnt);
+        $this->assertSame(0, $obj->saveAfterCnt);
+        $this->assertSame(0, $obj->saveBeforeCnt);
+
+        $orm[321] = $obj;
+
+        $this->assertSame(1, $obj->loadedCnt);
+        $this->assertSame(1, $obj->saveAfterCnt);
+        $this->assertSame(1, $obj->saveBeforeCnt);
+    }
+
     public static function provideSettingsKeysValues(): \Generator
     {
         foreach (self::provideSettings() as [$settings]) {
@@ -289,10 +338,13 @@ final class OrmTest extends TestCase
                 [ValueType::BOOL, true],
                 [ValueType::BOOL, false],
 
+                [ValueType::OBJECT, new TestObject],
+
                 [ValueType::SCALAR, 'test'],
                 [ValueType::SCALAR, 123],
                 [ValueType::SCALAR, ['test' => 123]],
                 [ValueType::SCALAR, 123.321],
+                [ValueType::SCALAR, new TestObject],
             ] as [$valueType, $value]) {
                 yield [
                     $settings,

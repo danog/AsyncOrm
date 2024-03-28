@@ -86,7 +86,7 @@ final class CacheContainer
             return $this->cache[$index];
         }
 
-        $result = $this->inner->offsetGet($index);
+        $result = $this->inner->get($index);
         /** @psalm-suppress ParadoxicalCondition Concurrency */
         if (isset($this->ttl[$index])) {
             if ($this->ttl[$index] !== true) {

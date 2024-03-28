@@ -90,7 +90,6 @@ class PostgresArray extends SqlArray
         $valueType = match ($config->valueType) {
             ValueType::INT => "BIGINT",
             ValueType::STRING => "VARCHAR(255)",
-            ValueType::OBJECT => "MEDIUMBLOB",
             ValueType::FLOAT => "FLOAT(53)",
             ValueType::BOOL => "BOOLEAN",
             ValueType::SCALAR, ValueType::OBJECT => "BYTEA",
