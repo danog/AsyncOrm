@@ -22,6 +22,7 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
+use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
@@ -32,7 +33,7 @@ use danog\AsyncOrm\Settings\Mysql;
 use danog\AsyncOrm\Settings\Postgres;
 use danog\AsyncOrm\Settings\Redis;
 use danog\AsyncOrm\ValueType;
-use PHPUnit\Framework\Attributes\CoversNothing;
+use PHPUnit\Framework\Attributes\CoversClass;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 
@@ -45,7 +46,7 @@ use function Amp\ByteStream\splitLines;
 use function Amp\Future\await;
 use function Amp\Future\awaitAny;
 
-#[CoversNothing]
+#[CoversClass(DbArray::class)]
 final class OrmTest extends TestCase
 {
     /** @var array<string, Process> */
@@ -108,11 +109,11 @@ final class OrmTest extends TestCase
         }
     }
 
-    #[DataProvider('provideSettings')]
-    public function testAll(Settings $settings, KeyType $keyType, string|int $key): void
+    #[DataProvider('provideSettingsKeys')]
+    public function testBasic(Settings $settings, KeyType $keyType, string|int $key): void
     {
         $field = new FieldConfig(
-            "test",
+            __METHOD__,
             $settings,
             $keyType,
             ValueType::INT
@@ -126,46 +127,106 @@ final class OrmTest extends TestCase
 
         $this->assertNull($orm[$key]);
         $this->assertFalse(isset($orm[$key]));
+
+        $orm = $field->build();
+        $orm[$key] = 124;
+
+        $this->assertEquals(124, $orm[$key]);
+        $this->assertTrue(isset($orm[$key]));
+        unset($orm);
+        while (\gc_collect_cycles());
+
+        $orm = $field->build();
+        $this->assertEquals(124, $orm[$key]);
+        $this->assertTrue(isset($orm[$key]));
+
+        unset($orm[$key]);
+        $this->assertNull($orm[$key]);
+        $this->assertFalse(isset($orm[$key]));
+    }
+
+    #[DataProvider('provideSettings')]
+    public function testMigration(Settings $settings): void
+    {
+        $field = new FieldConfig(
+            __METHOD__,
+            $settings,
+            KeyType::STRING_OR_INT,
+            ValueType::INT
+        );
+        $orm = $field->build();
+        $orm[321] = 123;
+
+        $this->assertEquals(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $field = new FieldConfig(
+            __METHOD__,
+            $settings,
+            KeyType::INT,
+            ValueType::INT
+        );
+        $orm = $field->build();
+        $this->assertEquals(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $field = new FieldConfig(
+            __METHOD__,
+            $settings,
+            KeyType::STRING,
+            ValueType::INT
+        );
+        $orm = $field->build();
+        $this->assertEquals(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+    }
+
+    public static function provideSettingsKeys(): \Generator
+    {
+        foreach (self::provideSettings() as [$settings]) {
+            yield [
+                $settings,
+                KeyType::INT,
+                1234,
+            ];
+            yield [
+                $settings,
+                KeyType::STRING,
+                'test',
+            ];
+            yield [
+                $settings,
+                KeyType::STRING,
+                4321,
+            ];
+            yield [
+                $settings,
+                KeyType::STRING_OR_INT,
+                'test_2',
+            ];
+        }
     }
 
     public static function provideSettings(): \Generator
     {
         foreach ([new Native, new Igbinary, new Json] as $serializer) {
-            foreach ([
-                new Redis(
+            yield from [
+                [new Redis(
                     RedisConfig::fromUri('redis://127.0.0.1'),
-                    $serializer
-                ),
-                new Postgres(
+                    $serializer,
+                    0,
+                )],
+                [new Postgres(
                     PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
-                    $serializer
-                ),
-                new Mysql(
+                    $serializer,
+                    0,
+                )],
+                [new Mysql(
                     MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
-                    $serializer
-                ),
-            ] as $settings) {
-                yield [
-                    $settings,
-                    KeyType::INT,
-                    123
-                ];
-                yield [
-                    $settings,
-                    KeyType::STRING,
-                    'test'
-                ];
-                yield [
-                    $settings,
-                    KeyType::STRING_OR_INT,
-                    'test'
-                ];
-                yield [
-                    $settings,
-                    KeyType::STRING_OR_INT,
-                    'test'
-                ];
-            }
+                    $serializer,
+                    0,
+                )],
+            ];
         }
     }
 }
