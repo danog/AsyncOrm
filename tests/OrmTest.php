@@ -41,6 +41,7 @@ use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+use WeakReference;
 
 use function Amp\async;
 use function Amp\ByteStream\buffer;
@@ -349,6 +350,32 @@ final class OrmTest extends TestCase
         $this->assertSame($obj, $orm[321]);
 
         $orm->clear();
+        unset($obj);
+
+        $obj = new TestObject;
+        $ref = WeakReference::create($obj);
+        $orm[123] = $obj;
+        unset($obj, $orm[123]);
+
+        $this->assertNull($ref->get());
+
+        $obj = new TestObject;
+        $ref = WeakReference::create($obj);
+        $orm = $field->build();
+        $orm[123] = $obj;
+        unset($obj, $orm);
+
+        while (\gc_collect_cycles());
+        $this->assertNull($ref->get());
+
+        $obj = $field->build()[123];
+        $obj->savedProp = 123;
+        $obj->save();
+        $this->assertSame($obj->savedProp, 123);
+        unset($obj);
+
+        $this->assertSame($field->build()[123]->savedProp, 123);
+        unset($obj, $orm);
     }
 
     public static function provideSettingsKeysValues(): \Generator
