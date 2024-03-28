@@ -148,6 +148,12 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = $value;
 
+        [$a, $b] = await([
+            async($orm->get(...), $key),
+            async($orm->get(...), $key),
+        ]);
+        $this->assertSameNotObject($value, $a);
+        $this->assertSameNotObject($value, $b);
         $this->assertSameNotObject($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
         if (!$value instanceof DbObject) {
@@ -206,6 +212,8 @@ final class OrmTest extends TestCase
         }
 
         $this->assertCount(0, $orm);
+        $orm[$key] = $value;
+        $this->assertCount(1, $orm);
         $orm[$key] = $value;
         $this->assertCount(1, $orm);
         $cnt = 0;
@@ -293,6 +301,25 @@ final class OrmTest extends TestCase
             ValueType::INT
         );
         $orm = $field->build();
+        $this->assertSame(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame(321, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+
+        $field = new FieldConfig(
+            $table.'_new',
+            $settings,
+            KeyType::INT,
+            ValueType::INT
+        );
+        $orm = $field->build($orm);
         $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
 
