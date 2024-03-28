@@ -25,6 +25,7 @@ use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Serializer\IntString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
+use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\Redis;
 use danog\AsyncOrm\ValueType;
@@ -48,6 +49,7 @@ final class RedisArray extends DriverArray
     private static ?LocalKeyedMutex $mutex = null;
 
     private readonly RedisClient $db;
+    private readonly bool $castToInt;
 
     /**
      * @param Serializer<TValue> $serializer
@@ -60,6 +62,7 @@ final class RedisArray extends DriverArray
             ValueType::STRING => new Passthrough,
             default => $serializer
         };
+        $this->castToInt = $config->keyType === KeyType::INT;
         parent::__construct($config, $serializer);
 
         self::$mutex ??= new LocalKeyedMutex;
@@ -147,7 +150,11 @@ final class RedisArray extends DriverArray
 
         $len = \strlen($this->rKey(''));
         foreach ($request as $key) {
-            yield \substr($key, $len) => $this->serializer->deserialize($this->db->get($key));
+            $sub = \substr($key, $len);
+            if ($this->castToInt) {
+                $sub = (int) $sub;
+            }
+            yield $sub => $this->serializer->deserialize($this->db->get($key));
         }
     }
 

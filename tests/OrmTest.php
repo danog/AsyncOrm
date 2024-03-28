@@ -146,7 +146,7 @@ final class OrmTest extends TestCase
     public function testBasic(Settings $settings, KeyType $keyType, string|int $key): void
     {
         $field = new FieldConfig(
-            __METHOD__,
+            'testBasic',
             $settings,
             $keyType,
             ValueType::INT
@@ -176,6 +176,7 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = 124;
 
+        $this->assertCount(1, $orm);
         $this->assertCount(1, $orm);
         $this->assertSame(124, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
@@ -222,7 +223,7 @@ final class OrmTest extends TestCase
     public function testMigration(Settings $settings): void
     {
         $field = new FieldConfig(
-            __METHOD__,
+            'testMigration',
             $settings,
             KeyType::STRING_OR_INT,
             ValueType::INT
@@ -232,13 +233,55 @@ final class OrmTest extends TestCase
 
         $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame($orm instanceof MemoryArray ? 321 : "321", $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
 
         if ($orm instanceof MemoryArray) {
             return;
         }
 
         $field = new FieldConfig(
-            __METHOD__,
+            'testMigration',
+            $settings,
+            KeyType::INT,
+            ValueType::INT
+        );
+        $orm = $field->build();
+        $this->assertSame(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame(321, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+        $field = new FieldConfig(
+            'testMigration',
+            $settings,
+            KeyType::STRING,
+            ValueType::INT
+        );
+        $orm = $field->build();
+        $this->assertSame(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame('321', $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+        $field = new FieldConfig(
+            'testMigration',
             $settings,
             KeyType::INT,
             ValueType::INT
@@ -247,15 +290,13 @@ final class OrmTest extends TestCase
         $this->assertSame(123, $orm[321]);
         $this->assertTrue(isset($orm[321]));
 
-        $field = new FieldConfig(
-            __METHOD__,
-            $settings,
-            KeyType::STRING,
-            ValueType::INT
-        );
-        $orm = $field->build();
-        $this->assertSame(123, $orm[321]);
-        $this->assertTrue(isset($orm[321]));
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame(321, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
     }
 
     public static function provideSettingsKeys(): \Generator
@@ -274,7 +315,7 @@ final class OrmTest extends TestCase
             yield [
                 $settings,
                 KeyType::STRING,
-                4321,
+                '4321',
             ];
             yield [
                 $settings,

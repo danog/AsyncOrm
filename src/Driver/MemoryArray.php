@@ -18,7 +18,7 @@
 
 namespace danog\AsyncOrm\Driver;
 
-use ArrayObject;
+use ArrayIterator;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Settings\Database\Memory;
@@ -78,7 +78,7 @@ final class MemoryArray extends DbArray
 
     public function getIterator(): \Traversable
     {
-        return new ArrayObject($this);
+        return new ArrayIterator($this->data);
     }
 
     public function getArrayCopy(): array
