@@ -22,6 +22,7 @@ use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use AssertionError;
+use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
@@ -112,6 +113,14 @@ final class OrmTest extends TestCase
         }
     }
 
+    public function assertSameNotObject(mixed $a, mixed $b): void
+    {
+        if ($b instanceof DbObject) {
+            $this->assertSame($a::class, $b::class);
+        } else {
+            $this->assertSame($a, $b);
+        }
+    }
     private static int $cnt = 0;
 
     #[DataProvider('provideSettingsKeysValues')]
@@ -127,9 +136,11 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = $value;
 
-        $this->assertSame($value, $orm[$key]);
+        $this->assertSameNotObject($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
-        $this->assertSame([$key => $value], $orm->getArrayCopy());
+        if (!$value instanceof DbObject) {
+            $this->assertSameNotObject([$key => $value], $orm->getArrayCopy());
+        }
         unset($orm[$key]);
 
         $this->assertNull($orm[$key]);
@@ -142,7 +153,9 @@ final class OrmTest extends TestCase
         $this->assertCount(0, $orm);
         $this->assertNull($orm[$key]);
         $this->assertFalse(isset($orm[$key]));
-        $this->assertSame([], $orm->getArrayCopy());
+        if (!$value instanceof DbObject) {
+            $this->assertSameNotObject([], $orm->getArrayCopy());
+        }
 
         if ($orm instanceof MemoryArray) {
             $orm->clear();
@@ -159,8 +172,7 @@ final class OrmTest extends TestCase
         $orm[$key] = $value;
 
         $this->assertCount(1, $orm);
-        $this->assertCount(1, $orm);
-        $this->assertSame($value, $orm[$key]);
+        $this->assertSameNotObject($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
 
         if ($orm instanceof CachedArray) {
@@ -170,7 +182,7 @@ final class OrmTest extends TestCase
         while (\gc_collect_cycles());
 
         $orm = $field->build();
-        $this->assertSame($value, $orm[$key]);
+        $this->assertSameNotObject($value, $orm[$key]);
         $this->assertTrue(isset($orm[$key]));
 
         unset($orm[$key]);
@@ -187,8 +199,8 @@ final class OrmTest extends TestCase
         $cnt = 0;
         foreach ($orm as $kk => $vv) {
             $cnt++;
-            $this->assertSame($key, $kk);
-            $this->assertSame($value, $vv);
+            $this->assertSameNotObject($key, $kk);
+            $this->assertSameNotObject($value, $vv);
         }
         $this->assertEquals(1, $cnt);
 
@@ -350,11 +362,20 @@ final class OrmTest extends TestCase
                 [ValueType::BOOL, true],
                 [ValueType::BOOL, false],
 
+                [ValueType::OBJECT, new TestObject],
+
                 [ValueType::SCALAR, 'test'],
                 [ValueType::SCALAR, 123],
                 [ValueType::SCALAR, ['test' => 123]],
                 [ValueType::SCALAR, 123.321],
+                [ValueType::SCALAR, new TestObject],
             ] as [$valueType, $value]) {
+                if ($valueType === ValueType::OBJECT && (
+                    $settings instanceof Memory
+                    || $settings->serializer instanceof Json
+                )) {
+                    continue;
+                }
                 yield [
                     $settings,
                     KeyType::INT,

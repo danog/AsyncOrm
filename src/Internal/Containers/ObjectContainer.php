@@ -128,7 +128,7 @@ final class ObjectContainer
                 $ref = $obj->reference->get();
                 if ($ref !== null) {
                     $obj->ttl = \time() + $this->cacheTtl;
-                    yield $obj;
+                    yield $key => $ref;
                     continue;
                 }
             }
@@ -140,7 +140,6 @@ final class ObjectContainer
 
     public function count(): int
     {
-        $this->flushCache();
         return $this->inner->count();
     }
 
