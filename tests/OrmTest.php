@@ -408,8 +408,6 @@ final class OrmTest extends TestCase
                 [ValueType::SCALAR, 123],
                 [ValueType::SCALAR, ['test' => 123]],
                 [ValueType::SCALAR, 123.321],
-                // Uncomment when segfaults are fixed
-                //[ValueType::SCALAR, new TestObject],
             ] as [$valueType, $value]) {
                 if ($valueType === ValueType::OBJECT && (
                     $settings instanceof Memory
