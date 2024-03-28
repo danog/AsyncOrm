@@ -104,9 +104,9 @@ class PostgresArray extends SqlArray
             );            
         ");
 
-        $result = $connection->query("DESCRIBE \"bytea_{$config->table}\"");
+        $result = $connection->query("SELECT * FROM information_schema.columns WHERE table_name='bytea_{$config->table}'");
         while ($column = $result->fetchRow()) {
-            ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
+            ['column_name' => $key, 'data_type' => $type, 'is_nullable' => $null] = $column;
             $type = \strtoupper($type);
             if (\str_starts_with($type, 'BIGINT')) {
                 $type = 'BIGINT';
@@ -119,8 +119,14 @@ class PostgresArray extends SqlArray
                 $connection->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
                 continue;
             }
-            if ($expected !== $type || $null !== 'NO') {
-                $connection->query("ALTER TABLE \"bytea_{$config->table}\" MODIFY \"$key\" $expected NOT NULL");
+            if ($expected !== $type) {
+                if ($expected === 'BIGINT') {
+                    $expected .= " USING $key::bigint";
+                }
+                $connection->query("ALTER TABLE \"bytea_{$config->table}\" ALTER COLUMN \"$key\" TYPE $expected");
+            }
+            if ($null !== 'NO') {
+                $connection->query("ALTER TABLE \"bytea_{$config->table}\" ALTER COLUMN \"$key\" SET NOT NULL");
             }
         }
 

@@ -62,10 +62,7 @@ final class OrmTest extends TestCase
         $f = [];
         foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432] as $image => $port) {
             $f []= async(function () use ($image, $port) {
-                await([
-                    async(self::shellExec(...), "docker pull $image"),
-                    async(self::shellExec(...), "docker rm -f test_$image 2>/dev/null")
-                ]);
+                self::shellExec("docker rm -f test_$image 2>/dev/null");
 
                 $args = match ($image) {
                     'postgres' => '-e POSTGRES_HOST_AUTH_METHOD=trust',
