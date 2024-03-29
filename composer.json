@@ -35,8 +35,7 @@
         "phpunit/phpunit": "^11.0.6",
         "amphp/php-cs-fixer-config": "^2.0.1",
         "friendsofphp/php-cs-fixer": "^3.51",
-        "amphp/process": "^2.0",
-        "brianium/paratest": "^7.4"
+        "amphp/process": "^2.0"
     },
     "scripts": {
         "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php -d pcre.jit=0 vendor/bin/php-cs-fixer fix -v"

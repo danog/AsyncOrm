@@ -85,30 +85,12 @@ final class RedisArray extends DriverArray
         $this->db = self::$connections[$dbKey];
     }
 
-    protected function moveDataFromTableToTable(string $from, string $to): void
-    {
-        $from = "va:$from";
-        $to = "va:$to";
-
-        $request = $this->db->scan($from.'*');
-
-        $lenK = \strlen($from);
-        foreach ($request as $oldKey) {
-            $newKey = $to.\substr($oldKey, $lenK);
-            $value = $this->db->get($oldKey);
-            if ($value !== null) {
-                $this->db->set($newKey, $value);
-                $this->db->delete($oldKey);
-            }
-        }
-    }
-
     /**
      * Get redis key name.
      */
     private function rKey(string $key): string
     {
-        return 'va:'.$this->config->table.':'.$key;
+        return $this->config->table.':'.$key;
     }
 
     /**
@@ -116,7 +98,7 @@ final class RedisArray extends DriverArray
      */
     private function itKey(): string
     {
-        return 'va:'.$this->config->table.'*';
+        return $this->config->table.':*';
     }
 
     public function set(string|int $key, mixed $value): void

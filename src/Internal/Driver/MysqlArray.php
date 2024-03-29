@@ -164,7 +164,7 @@ final class MysqlArray extends SqlArray
             }
         }
 
-        if ($settings->optimizeIfWastedGtMb !== null) {
+        if ($settings->optimizeIfWastedMb !== null) {
             $database = $settings->config->getDatabase();
             $result = $db->prepare("SELECT data_free FROM information_schema.tables WHERE table_schema=? AND table_name=?")
                 ->execute([$database, $config->table])
@@ -172,7 +172,7 @@ final class MysqlArray extends SqlArray
             Assert::notNull($result);
             $result = $result['data_free'] ?? $result['DATA_FREE'];
             Assert::integer($result, "Could not optimize table!");
-            if (($result >> 20) > $settings->optimizeIfWastedGtMb) {
+            if (($result >> 20) >= $settings->optimizeIfWastedMb) {
                 $db->query("OPTIMIZE TABLE `{$config->table}`");
             }
         }

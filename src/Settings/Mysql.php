@@ -50,9 +50,9 @@ final readonly class Mysql extends SqlSettings
          *
          * If null disables optimization.
          *
-         * @var int<1, max>|null $optimizeIfWastedGtMb
+         * @var int<1, max>|null $optimizeIfWastedMb
          */
-        public ?int $optimizeIfWastedGtMb = null,
+        public ?int $optimizeIfWastedMb = null,
     ) {
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }

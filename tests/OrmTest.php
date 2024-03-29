@@ -333,7 +333,6 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(1, $cnt);
 
-
         $field = new FieldConfig(
             $table.'_new',
             $settings,
@@ -520,6 +519,12 @@ final class OrmTest extends TestCase
                         MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
                         $serializer,
                         $ttl,
+                    )],
+                    [$key++, new Mysql(
+                        MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
+                        $serializer,
+                        $ttl,
+                        optimizeIfWastedMb: 0,
                     )],
                 ];
             }

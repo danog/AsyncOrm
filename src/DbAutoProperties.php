@@ -56,12 +56,12 @@ trait DbAutoProperties
                     ));
                 }
                 if ($settings instanceof Mysql) {
-                    $optimize = $attr->optimizeIfWastedGtMb ?? $settings->optimizeIfWastedGtMb;
+                    $optimize = $attr->optimizeIfWastedMb ?? $settings->optimizeIfWastedMb;
 
-                    if ($optimize !== $settings->optimizeIfWastedGtMb) {
+                    if ($optimize !== $settings->optimizeIfWastedMb) {
                         $settings = new $settings(\array_merge(
                             (array) $settings,
-                            ['optimizeIfWastedGtMb' => $optimize]
+                            ['optimizeIfWastedMb' => $optimize]
                         ));
                     }
                 }

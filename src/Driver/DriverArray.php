@@ -73,7 +73,8 @@ abstract class DriverArray extends DbArray
         } else {
             $promises = [];
             foreach ($previous->getIterator() as $key => $value) {
-                $promises []= async($instance->set(...), $key, $value);
+                $promises []= async($previous->unset(...), $key)
+                    ->map(static fn () => $instance->set($key, $value));
                 if (\count($promises) % 500 === 0) {
                     await($promises);
                     $promises = [];
@@ -82,7 +83,6 @@ abstract class DriverArray extends DbArray
             if ($promises) {
                 await($promises);
             }
-            $previous->clear();
         }
 
         return $instance;
