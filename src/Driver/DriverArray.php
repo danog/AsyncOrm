@@ -40,6 +40,7 @@ use function Amp\Future\await;
  */
 abstract class DriverArray extends DbArray
 {
+    private bool $inited = false;
     /**
      * @param Serializer<TValue> $serializer
      */
@@ -47,21 +48,26 @@ abstract class DriverArray extends DbArray
         protected readonly FieldConfig $config,
         protected readonly Serializer $serializer
     ) {
+        $this->inited = true;
     }
 
     public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
     {
+        $migrate = true;
         if ($previous !== null
             && $previous::class === static::class
             && $previous->config == $config
         ) {
-            return $previous;
+            if ($previous->inited) {
+                return $previous;
+            }
+            $migrate = false;
         }
         \assert($config->settings instanceof DriverSettings);
 
         $instance = new static($config, $config->settings->serializer);
 
-        if ($previous === null) {
+        if ($previous === null || !$migrate) {
             return $instance;
         }
 

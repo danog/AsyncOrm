@@ -25,6 +25,11 @@ final class TestObject extends DbObject
         ValueType::INT
     )]
     public DbArray $arr;
+    #[OrmMappedArray(
+        KeyType::INT,
+        ValueType::INT
+    )]
+    public DbArray $arr2;
 
     public function __sleep()
     {
