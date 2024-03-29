@@ -17,6 +17,7 @@
 namespace danog\AsyncOrm\Test;
 
 use Amp\ByteStream\ReadableStream;
+use Amp\DeferredFuture;
 use Amp\Mysql\MysqlConfig;
 use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
@@ -41,6 +42,7 @@ use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+use Revolt\EventLoop;
 use WeakReference;
 
 use function Amp\async;
@@ -231,6 +233,25 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(0, $cnt);
         $this->assertCount(0, $orm);
+
+        // Test that db is flushed on __destruct
+        $orm = $field->build();
+        $orm[$key] = $value;
+        unset($orm);
+        $f = new DeferredFuture;
+        EventLoop::queue($f->complete(...));
+        $f->getFuture()->await();
+
+        $orm = $field->build();
+        $this->assertCount(1, $orm);
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSameNotObject($key, $kk);
+            $this->assertSameNotObject($value, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+        $orm->clear();
     }
 
     #[DataProvider('provideSettings')]

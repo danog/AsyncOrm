@@ -134,7 +134,7 @@ final class ObjectContainer
             }
             $value->initDb($this, $key, $this->config);
             $this->cache[$key] = new ObjectReference($value, \time() + $this->cacheTtl);
-            yield $value;
+            yield $key => $value;
         }
     }
 
