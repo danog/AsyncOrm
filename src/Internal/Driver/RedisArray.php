@@ -85,32 +85,16 @@ final class RedisArray extends DriverArray
         $this->db = self::$connections[$dbKey];
     }
 
-    /**
-     * Get redis key name.
-     */
-    private function rKey(string $key): string
-    {
-        return $this->config->table.':'.$key;
-    }
-
-    /**
-     * Get iterator key.
-     */
-    private function itKey(): string
-    {
-        return $this->config->table.':*';
-    }
-
     public function set(string|int $key, mixed $value): void
     {
-        $this->db->set($this->rKey((string) $key), $this->serializer->serialize($value));
+        $this->db->set($this->config->table.':'.(string) $key, $this->serializer->serialize($value));
     }
 
-    public function get(mixed $key): mixed
+    public function get(string|int $key): mixed
     {
         $key = (string) $key;
 
-        $value = $this->db->get($this->rKey($key));
+        $value = $this->db->get($this->config->table.':'.$key);
 
         if ($value !== null) {
             /** @var TValue */
@@ -122,7 +106,7 @@ final class RedisArray extends DriverArray
 
     public function unset(string|int $key): void
     {
-        $this->db->delete($this->rkey((string) $key));
+        $this->db->delete($this->config->table.':'.(string) $key);
     }
 
     /**
@@ -132,9 +116,9 @@ final class RedisArray extends DriverArray
      */
     public function getIterator(): \Traversable
     {
-        $request = $this->db->scan($this->itKey());
+        $request = $this->db->scan($this->config->table.':*');
 
-        $len = \strlen($this->rKey(''));
+        $len = \strlen($this->config->table)+1;
         foreach ($request as $key) {
             $sub = \substr($key, $len);
             if ($this->castToInt) {
@@ -153,7 +137,7 @@ final class RedisArray extends DriverArray
      */
     public function count(): int
     {
-        return \iterator_count($this->db->scan($this->itKey()));
+        return \iterator_count($this->db->scan($this->config->table.':*'));
     }
 
     /**
@@ -161,7 +145,7 @@ final class RedisArray extends DriverArray
      */
     public function clear(): void
     {
-        $request = $this->db->scan($this->itKey());
+        $request = $this->db->scan($this->config->table.':*');
 
         $keys = [];
         foreach ($request as $key) {

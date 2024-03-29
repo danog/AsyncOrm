@@ -53,6 +53,7 @@ abstract class DbObject
         $this->onAfterSave();
     }
 
+    // @codeCoverageIgnoreStart
     /**
      * Method invoked after loading the object.
      */
@@ -74,4 +75,5 @@ abstract class DbObject
     {
 
     }
+    // @codeCoverageIgnoreEnd
 }
