@@ -382,11 +382,15 @@ final class OrmTest extends TestCase
         $this->assertSame(1, $obj->saveAfterCnt);
         $this->assertSame(1, $obj->saveBeforeCnt);
 
+        $obj->arr[12345] = 54321;
+        $this->assertSame(54321, $obj->arr[12345]);
+
         $obj = $orm[321];
 
         $this->assertSame(1, $obj->loadedCnt);
         $this->assertSame(1, $obj->saveAfterCnt);
         $this->assertSame(1, $obj->saveBeforeCnt);
+        $this->assertSame(54321, $obj->arr[12345]);
 
         unset($obj);
         $orm = $field->build();
@@ -395,12 +399,14 @@ final class OrmTest extends TestCase
         $this->assertSame(1, $obj->loadedCnt);
         $this->assertSame(0, $obj->saveAfterCnt);
         $this->assertSame(0, $obj->saveBeforeCnt);
+        $this->assertSame(54321, $obj->arr[12345]);
 
         $orm[321] = $obj;
 
         $this->assertSame(1, $obj->loadedCnt);
         $this->assertSame(0, $obj->saveAfterCnt);
         $this->assertSame(0, $obj->saveBeforeCnt);
+        $this->assertSame(54321, $obj->arr[12345]);
 
         $f = new ReflectionProperty(ObjectArray::class, 'cache');
         $f->getValue($orm)->flushCache();

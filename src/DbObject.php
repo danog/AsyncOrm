@@ -31,16 +31,11 @@ abstract class DbObject
      *
      * @internal Do not invoke manually.
      */
-    final public function initDb(ObjectContainer $mapper, string|int $key): void
+    final public function initDb(ObjectContainer $mapper, string|int $key, FieldConfig $config): void
     {
-        if (isset($this->key)) {
-            $this->mapper = $mapper;
-            $this->key = $key;
-            return;
-        }
         $this->mapper = $mapper;
         $this->key = $key;
-        $this->onLoaded();
+        $this->onLoaded($config);
     }
 
     /**
@@ -57,7 +52,7 @@ abstract class DbObject
     /**
      * Method invoked after loading the object.
      */
-    protected function onLoaded(): void
+    protected function onLoaded(FieldConfig $config): void
     {
 
     }

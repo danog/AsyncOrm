@@ -75,8 +75,12 @@ trait DbAutoProperties
             );
 
             $promises[] = async(function () use ($config, $property) {
-                $v = $config->build($property->getValue());
-                $property->setValue($v);
+                $v = $config->build(
+                    $property->isInitialized($this)
+                        ? $property->getValue($this)
+                        : null
+                );
+                $property->setValue($this, $v);
                 if ($v instanceof CachedArray) {
                     $this->properties []= $v;
                 }
