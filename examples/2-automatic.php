@@ -3,9 +3,12 @@
 use Amp\Mysql\MysqlConfig;
 use Amp\Postgres\PostgresConfig;
 use Amp\Redis\RedisConfig;
-use danog\AsyncOrm\DbObject;
+use danog\AsyncOrm\Annotations\OrmMappedArray;
+use danog\AsyncOrm\DbArray;
+use danog\AsyncOrm\DbAutoProperties;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\KeyType;
+use danog\AsyncOrm\Settings;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
@@ -45,14 +48,40 @@ $fieldConfig = new FieldConfig(
 
 $db = $fieldConfig->build();
 
-class MyObject extends DbObject
+/**
+ * Main class of your application.
+ */
+final class Application
 {
+    use DbAutoProperties;
+
+    /**
+     * This field is automatically connected to the database using the specified Settings.
+     */
+    #[OrmMappedArray(KeyType::STRING, ValueType::INT)]
+    private DbArray $dbProperty;
+
     public function __construct(
-        public readonly string $value
+        Settings $settings,
+        string $tablePrefix
     ) {
+        $this->initDbProperties($settings, $tablePrefix);
+    }
+
+    public function businessLogic(): void
+    {
+        $this->dbProperty['someKey'] = 123;
+        var_dump($this->dbProperty['someKey']);
+    }
+
+    public function shutdown(): void
+    {
+        // Flush all database caches, saving all changes.
+        $this->saveDbProperties();
     }
 }
 
-$db->set("a", new MyObject('v'));
-$obj = $db->get("a");
-var_dump($obj->value);
+
+$app = new Application($settings, 'tablePrefix');
+$app->businessLogic();
+$app->shutdown();

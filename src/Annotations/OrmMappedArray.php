@@ -20,10 +20,10 @@ use Attribute;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\ValueType;
 
-/** 
+/**
  * Attribute use to autoconfigure ORM properties.
- * 
- * @api 
+ *
+ * @api
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class OrmMappedArray
