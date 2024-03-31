@@ -24,7 +24,6 @@
 namespace danog\TestAsyncOrm;
 
 use Amp\ByteStream\ReadableStream;
-use Amp\DeferredFuture;
 use Amp\Mysql\MysqlConfig;
 use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
@@ -50,7 +49,6 @@ use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
-use Revolt\EventLoop;
 use WeakReference;
 
 use function Amp\async;
