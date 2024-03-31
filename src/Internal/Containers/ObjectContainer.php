@@ -25,6 +25,8 @@ use danog\AsyncOrm\DbObject;
 use Revolt\EventLoop;
 use Traversable;
 
+use function Amp\async;
+
 /**
  * @template TKey as array-key
  * @template TValue as DbObject
@@ -87,25 +89,35 @@ final class ObjectContainer
     {
         if (isset($this->cache[$index])) {
             $obj = $this->cache[$index];
-            $ref = $obj->reference->get();
+            $ref = $obj->get();
             if ($ref !== null) {
                 $obj->ttl = \time() + $this->cacheTtl;
                 return $ref;
             }
+            // @codeCoverageIgnoreStart
             unset($this->cache[$index]);
+            // @codeCoverageIgnoreEnd
         }
 
         $result = $this->inner->get($index);
         if (isset($this->cache[$index])) {
-            return $this->cache[$index]->reference->get();
+            return $this->cache[$index]->get();
         }
         if ($result === null) {
             return null;
         }
 
-        $result->initDb($this, $index, $this->config);
-
-        $this->cache[$index] = new ObjectReference($result, \time() + $this->cacheTtl);
+        $this->cache[$index] = new ObjectReference(
+            $result,
+            \time() + $this->cacheTtl,
+            $f = async(
+                $result->initDb(...),
+                $this,
+                $index,
+                $this->config
+            )
+        );
+        $f->await();
 
         return $result;
     }
@@ -116,11 +128,19 @@ final class ObjectContainer
      */
     public function set(string|int $key, DbObject $value): void
     {
-        if (isset($this->cache[$key]) && $this->cache[$key]->reference->get() === $value) {
+        if (isset($this->cache[$key]) && $this->cache[$key]->get() === $value) {
             return;
         }
-        $value->initDb($this, $key, $this->config);
-        $this->cache[$key] = new ObjectReference($value, \time() + $this->cacheTtl);
+        $value->initDb(
+            $this,
+            $key,
+            $this->config
+        );
+        $this->cache[$key] = new ObjectReference(
+            $value,
+            \time() + $this->cacheTtl,
+            null
+        );
         $value->save();
     }
 
@@ -137,15 +157,24 @@ final class ObjectContainer
         foreach ($this->inner->getIterator() as $key => $value) {
             if (isset($this->cache[$key])) {
                 $obj = $this->cache[$key];
-                $ref = $obj->reference->get();
+                $ref = $obj->get();
                 if ($ref !== null) {
                     $obj->ttl = \time() + $this->cacheTtl;
                     yield $key => $ref;
                     continue;
                 }
             }
-            $value->initDb($this, $key, $this->config);
-            $this->cache[$key] = new ObjectReference($value, \time() + $this->cacheTtl);
+            $this->cache[$key] = new ObjectReference(
+                $value,
+                \time() + $this->cacheTtl,
+                $f = async(
+                    $value->initDb(...),
+                    $this,
+                    $key,
+                    $this->config
+                )
+            );
+            $f->await();
             yield $key => $value;
         }
     }
@@ -177,7 +206,7 @@ final class ObjectContainer
                 if ($value->ttl <= $now) {
                     $value->obj = null;
                 }
-                if ($value->reference->get() !== null) {
+                if ($value->get() !== null) {
                     $new[$key] = $value;
                 }
             }

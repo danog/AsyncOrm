@@ -18,6 +18,7 @@
 
 namespace danog\AsyncOrm\Internal\Containers;
 
+use Amp\Future;
 use danog\AsyncOrm\DbObject;
 use WeakReference;
 
@@ -29,14 +30,29 @@ use WeakReference;
 final class ObjectReference
 {
     /** @var WeakReference<TObject> */
-    public readonly WeakReference $reference;
+    private readonly WeakReference $reference;
     public ?DbObject $obj;
     /** @param TObject $object */
     public function __construct(
         DbObject $object,
-        public int $ttl
+        public int $ttl,
+        private ?Future $initFuture
     ) {
         $this->obj = $object;
         $this->reference = WeakReference::create($object);
+    }
+
+    /** @return ?TObject */
+    public function get(): ?DbObject
+    {
+        $ref = $this->reference->get();
+        if ($ref === null) {
+            return $ref;
+        }
+        if ($this->initFuture !== null) {
+            $this->initFuture->await();
+            $this->initFuture = null;
+        }
+        return $ref;
     }
 }
