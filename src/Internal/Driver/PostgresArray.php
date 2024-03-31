@@ -26,7 +26,7 @@ use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
-use danog\AsyncOrm\Settings\Postgres;
+use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\ValueType;
 use Revolt\EventLoop;
 
@@ -52,7 +52,7 @@ class PostgresArray extends SqlArray
     {
         self::$mutex ??= new LocalKeyedMutex;
         $settings = $config->settings;
-        \assert($settings instanceof Postgres);
+        \assert($settings instanceof PostgresSettings);
 
         $dbKey = $settings->getDbIdentifier();
         $lock = self::$mutex->acquire($dbKey);

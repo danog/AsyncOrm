@@ -1,6 +1,6 @@
 <?php declare(strict_types=1);
 
-namespace danog\AsyncOrm\Test;
+namespace danog\TestAsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\DbArray;

@@ -20,9 +20,9 @@ use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\Settings;
 
 /**
- * Memory backend settings.
+ * MemorySettings backend settings.
  */
-final readonly class Memory implements Settings
+final readonly class MemorySettings implements Settings
 {
     public function getDriverClass(): string
     {

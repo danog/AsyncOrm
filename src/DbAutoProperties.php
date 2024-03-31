@@ -21,7 +21,7 @@ namespace danog\AsyncOrm;
 use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Settings\DriverSettings;
-use danog\AsyncOrm\Settings\Mysql;
+use danog\AsyncOrm\Settings\MysqlSettings;
 use ReflectionClass;
 
 use function Amp\async;
@@ -55,7 +55,7 @@ trait DbAutoProperties
                         ['cacheTtl' => $ttl]
                     ));
                 }
-                if ($settings instanceof Mysql) {
+                if ($settings instanceof MysqlSettings) {
                     $optimize = $attr->optimizeIfWastedMb ?? $settings->optimizeIfWastedMb;
 
                     if ($optimize !== $settings->optimizeIfWastedMb) {

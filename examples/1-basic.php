@@ -4,12 +4,12 @@ use Amp\Mysql\MysqlConfig;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\KeyType;
-use danog\AsyncOrm\Settings\Mysql;
+use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\ValueType;
 
 require __DIR__ . '/../vendor/autoload.php';
 
-$settings = new Mysql(
+$settings = new MysqlSettings(
     new MysqlConfig("/var/run/mysqld/mysqld.sock", 0, 'daniil', database: 'test'),
 );
 

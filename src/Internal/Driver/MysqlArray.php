@@ -59,7 +59,7 @@ final class MysqlArray extends SqlArray
     public function __construct(FieldConfig $config, Serializer $serializer)
     {
         $settings = $config->settings;
-        \assert($settings instanceof \danog\AsyncOrm\Settings\Mysql);
+        \assert($settings instanceof \danog\AsyncOrm\Settings\MysqlSettings);
 
         self::$mutex ??= new LocalKeyedMutex;
         $dbKey = $settings->getDbIdentifier();

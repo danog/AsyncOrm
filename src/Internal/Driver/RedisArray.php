@@ -29,7 +29,7 @@ use danog\AsyncOrm\Internal\Serializer\IntString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
-use danog\AsyncOrm\Settings\Redis;
+use danog\AsyncOrm\Settings\RedisSettings;
 use danog\AsyncOrm\ValueType;
 use Revolt\EventLoop;
 
@@ -71,7 +71,7 @@ final class RedisArray extends DriverArray
         parent::__construct($config, $serializer);
 
         self::$mutex ??= new LocalKeyedMutex;
-        \assert($config->settings instanceof Redis);
+        \assert($config->settings instanceof RedisSettings);
         $dbKey = $config->settings->getDbIdentifier();
         $lock = self::$mutex->acquire($dbKey);
 

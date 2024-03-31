@@ -14,7 +14,7 @@
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
 
-namespace danog\AsyncOrm\Test;
+namespace danog\TestAsyncOrm;
 
 use Amp\ByteStream\ReadableStream;
 use Amp\DeferredFuture;
@@ -34,10 +34,10 @@ use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
 use danog\AsyncOrm\Settings\DriverSettings;
-use danog\AsyncOrm\Settings\Memory;
-use danog\AsyncOrm\Settings\Mysql;
-use danog\AsyncOrm\Settings\Postgres;
-use danog\AsyncOrm\Settings\Redis;
+use danog\AsyncOrm\Settings\MemorySettings;
+use danog\AsyncOrm\Settings\MysqlSettings;
+use danog\AsyncOrm\Settings\PostgresSettings;
+use danog\AsyncOrm\Settings\RedisSettings;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -354,7 +354,7 @@ final class OrmTest extends TestCase
 
         $field = new FieldConfig(
             $table.'_new',
-            new Memory,
+            new MemorySettings,
             KeyType::INT,
             ValueType::INT
         );
@@ -566,26 +566,26 @@ final class OrmTest extends TestCase
     public static function provideSettings(): \Generator
     {
         $key = 0;
-        yield [$key++, new Memory()];
+        yield [$key++, new MemorySettings()];
         foreach ([new Native, new Igbinary, new Json] as $serializer) {
             foreach ([0, 100] as $ttl) {
                 yield from [
-                    [$key++, new Redis(
+                    [$key++, new RedisSettings(
                         RedisConfig::fromUri('redis://127.0.0.1'),
                         $serializer,
                         $ttl,
                     )],
-                    [$key++, new Postgres(
+                    [$key++, new PostgresSettings(
                         PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
                         $serializer,
                         $ttl,
                     )],
-                    [$key++, new Mysql(
+                    [$key++, new MysqlSettings(
                         MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
                         $serializer,
                         $ttl,
                     )],
-                    [$key++, new Mysql(
+                    [$key++, new MysqlSettings(
                         MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
                         $serializer,
                         $ttl,

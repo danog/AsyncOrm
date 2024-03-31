@@ -16,35 +16,49 @@
 
 namespace danog\AsyncOrm\Settings;
 
-use Amp\Postgres\PostgresConfig;
-use danog\AsyncOrm\Internal\Driver\PostgresArray;
+use Amp\Mysql\MysqlConfig;
+use danog\AsyncOrm\Internal\Driver\MysqlArray;
 use danog\AsyncOrm\Serializer;
 
 /**
- * Postgres backend settings.
- * @extends SqlSettings<PostgresConfig>
+ * MySQL backend settings.
+ *
+ * MariaDb 10.2+ or Mysql 5.6+ required.
+ *
+ * @extends SqlSettings<MysqlConfig>
  */
-final readonly class Postgres extends SqlSettings
+final readonly class MysqlSettings extends SqlSettings
 {
     /**
      * @api
      * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
-     * @param int<0, max> $cacheTtl Cache TTL in seconds
+     * @param int<0, max> $cacheTtl Cache TTL in seconds, if 0 disables caching.
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout
      */
     public function __construct(
-        PostgresConfig $config,
+        MysqlConfig $config,
         ?Serializer $serializer = null,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
         int $maxConnections = self::DEFAULT_SQL_MAX_CONNECTIONS,
         int $idleTimeout = self::DEFAULT_SQL_IDLE_TIMEOUT,
+        /**
+         *
+         * Whether to optimize MySQL tables automatically if more than the specified amount of megabytes is wasted by the MySQL engine.
+         *
+         * Be careful when tweaking this setting as it may lead to slowdowns on startup.
+         *
+         * If null disables optimization.
+         *
+         * @var int<1, max>|null $optimizeIfWastedMb
+         */
+        public ?int $optimizeIfWastedMb = null,
     ) {
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }
 
     public function getDriverClass(): string
     {
-        return PostgresArray::class;
+        return MysqlArray::class;
     }
 }

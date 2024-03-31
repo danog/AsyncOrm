@@ -22,7 +22,7 @@ use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
 
 /**
- * Base class for database backends.
+ * Base settings class for database backends.
  */
 abstract readonly class DriverSettings implements Settings
 {

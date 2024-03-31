@@ -23,7 +23,7 @@ use danog\AsyncOrm\Serializer;
 /**
  * Redis backend settings.
  */
-final readonly class Redis extends DriverSettings
+final readonly class RedisSettings extends DriverSettings
 {
     /**
      * @api

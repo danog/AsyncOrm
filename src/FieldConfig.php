@@ -7,7 +7,7 @@ use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\Settings\DriverSettings;
-use danog\AsyncOrm\Settings\Memory;
+use danog\AsyncOrm\Settings\MemorySettings;
 
 /**
  * Contains configuration for a single ORM field.
@@ -50,7 +50,7 @@ final readonly class FieldConfig
             }
             return ObjectArray::getInstance($this, $previous);
         }
-        if ($this->settings instanceof Memory
+        if ($this->settings instanceof MemorySettings
             || (
                 $this->settings instanceof DriverSettings
                 && $this->settings->cacheTtl === 0

@@ -21,7 +21,6 @@ namespace danog\AsyncOrm\Driver;
 use ArrayIterator;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
-use danog\AsyncOrm\Settings\Database\Memory;
 
 /**
  * Memory database backend.
