@@ -57,7 +57,7 @@ jobs:
         env:
           STRYKER_DASHBOARD_API_KEY: ${{ secrets.STRYKER_DASHBOARD_API_KEY }}
         run: |
-          infection --show-mutations --threads=$(nproc)
+          infection --show-mutations
 
       - name: Run Psalm analysis
         run: |

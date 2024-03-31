@@ -1,6 +1,6 @@
 # Async ORM
 
-Async ORM based on amphp, created by Daniil Gentili <daniil@daniil.it> and Alexander Pankratov <alexander@i-c-a.su>.  
+Async ORM based on AMPHP v3 and fibers, created by Daniil Gentili <daniil@daniil.it> and Alexander Pankratov <alexander@i-c-a.su>.  
 
 Supports MySQL, Redis, Postgres.  
 
