@@ -247,9 +247,7 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = $value;
         unset($orm);
-        $f = new DeferredFuture;
-        EventLoop::queue($f->complete(...));
-        $f->getFuture()->await();
+        delay(0.1);
 
         $orm = $field->build();
         $this->assertCount(1, $orm);
