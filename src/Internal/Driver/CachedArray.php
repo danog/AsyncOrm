@@ -21,6 +21,7 @@ namespace danog\AsyncOrm\Internal\Driver;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\FieldConfig;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
+use danog\AsyncOrm\Settings\DriverSettings;
 use Revolt\EventLoop;
 use Traversable;
 
@@ -30,10 +31,14 @@ use Traversable;
  * @template TKey as array-key
  * @template TValue
  *
+ * @internal
+ * @api
+ *
  * @extends DbArray<TKey, TValue>
  */
 final class CachedArray extends DbArray
 {
+    /** @var CacheContainer<TKey, TValue> */
     private readonly CacheContainer $cache;
 
     /**
@@ -41,25 +46,23 @@ final class CachedArray extends DbArray
      */
     public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
     {
+        \assert($config->settings instanceof DriverSettings);
         $new = $config->settings->getDriverClass();
         if ($previous === null) {
-            $previous = new self($new::getInstance($config, null));
+            $previous = new self($new::getInstance($config, null), $config->settings->cacheTtl);
         } elseif ($previous instanceof self) {
             $previous->cache->inner = $new::getInstance($config, $previous->cache->inner);
+            $previous->cache->cacheTtl = $config->settings->cacheTtl;
         } else {
-            $previous = new self($new::getInstance($config, $previous));
+            $previous = new self($new::getInstance($config, $previous), $config->settings->cacheTtl);
         }
-        if ($previous->cache->inner instanceof MemoryArray) {
-            $previous->cache->flushCache();
-            return $previous->cache->inner;
-        }
-        $previous->cache->startCacheCleanupLoop($config->settings->cacheTtl);
+        $previous->cache->startCacheCleanupLoop();
         return $previous;
     }
 
-    public function __construct(DbArray $inner)
+    public function __construct(DbArray $inner, int $cacheTtl)
     {
-        $this->cache = new CacheContainer($inner);
+        $this->cache = new CacheContainer($inner, $cacheTtl);
     }
 
     public function __destruct()
@@ -83,21 +86,28 @@ final class CachedArray extends DbArray
         $this->cache->clear();
     }
 
+    /** @param TKey $key */
     public function get(mixed $key): mixed
     {
         return $this->cache->get($key);
     }
 
+    /**
+     * @param TKey $key
+     * @param TValue $value
+     */
     public function set(string|int $key, mixed $value): void
     {
         $this->cache->set($key, $value);
     }
 
+    /** @param TKey $key */
     public function unset(string|int $key): void
     {
         $this->cache->set($key, null);
     }
 
+    /** @return Traversable<TKey, TValue> */
     public function getIterator(): Traversable
     {
         return $this->cache->getIterator();

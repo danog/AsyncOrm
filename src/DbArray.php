@@ -101,7 +101,7 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      * Get element.
      *
      * @param TKey   $key
-     * @return TValue
+     * @return ?TValue
      */
     abstract public function get(string|int $key): mixed;
     /**

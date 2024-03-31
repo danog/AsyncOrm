@@ -78,6 +78,7 @@ abstract class DriverArray extends DbArray
             $instance->importFromTable($previous->config->table);
         } else {
             $promises = [];
+            /** @psalm-suppress MixedAssignment */
             foreach ($previous->getIterator() as $key => $value) {
                 $promises []= async($previous->unset(...), $key)
                     ->map(static fn () => $instance->set($key, $value));

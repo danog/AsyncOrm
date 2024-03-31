@@ -11,6 +11,8 @@ use danog\AsyncOrm\Settings\Memory;
 
 /**
  * Contains configuration for a single ORM field.
+ *
+ * @api
  */
 final readonly class FieldConfig
 {

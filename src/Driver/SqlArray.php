@@ -29,11 +29,13 @@ use danog\AsyncOrm\Serializer;
  * @template TKey as array-key
  * @template TValue
  * @extends DriverArray<TKey, TValue>
+ *
  * @api
  */
 abstract class SqlArray extends DriverArray
 {
     /**
+     * @psalm-suppress ConstructorSignatureMismatch
      * @param Serializer<TValue> $serializer
      */
     protected function __construct(
@@ -114,8 +116,10 @@ abstract class SqlArray extends DriverArray
     public function count(): int
     {
         $row = $this->execute($this->count);
+        $res = $row->fetchRow();
+        \assert($res !== null);
         /** @var int */
-        return $row->fetchRow()['count'];
+        return $res['count'];
     }
 
     /**

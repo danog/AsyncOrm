@@ -38,6 +38,7 @@ final class BoolString implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
+        /** @psalm-suppress UnhandledMatchCondition Intentional */
         return match ($value) {
             '1' => true,
             '0' => false,

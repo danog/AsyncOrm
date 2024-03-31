@@ -34,6 +34,7 @@ use danog\AsyncOrm\Settings\Database\Memory;
 final class MemoryArray extends DbArray
 {
     public function __construct(
+        /** @var array<TKey, TValue> */
         private array $data
     ) {
     }

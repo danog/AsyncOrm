@@ -21,11 +21,17 @@ namespace danog\AsyncOrm\Internal\Containers;
 use danog\AsyncOrm\DbObject;
 use WeakReference;
 
-/** @internal */
+/**
+ * @template TObject as DbObject
+ * @internal
+ * @api
+ */
 final class ObjectReference
 {
+    /** @var WeakReference<TObject> */
     public readonly WeakReference $reference;
     public ?DbObject $obj;
+    /** @param TObject $object */
     public function __construct(
         DbObject $object,
         public int $ttl

@@ -18,13 +18,14 @@
 
 namespace danog\AsyncOrm;
 
+use AssertionError;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 
 /** @api */
 abstract class DbObject
 {
     private ObjectContainer $mapper;
-    private string|int|null $key;
+    private string|int|null $key = null;
 
     /**
      * Initialize database instance.
@@ -43,6 +44,9 @@ abstract class DbObject
      */
     public function save(): void
     {
+        if ($this->key === null) {
+            throw new AssertionError("Cannot save an uninitialized object!");
+        }
         $this->onBeforeSave();
         $this->mapper->inner->set($this->key, $this);
         $this->onAfterSave();
@@ -51,6 +55,8 @@ abstract class DbObject
     // @codeCoverageIgnoreStart
     /**
      * Method invoked after loading the object.
+     *
+     * @psalm-suppress PossiblyUnusedParam
      */
     protected function onLoaded(FieldConfig $config): void
     {

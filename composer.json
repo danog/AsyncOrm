@@ -36,7 +36,8 @@
         "amphp/php-cs-fixer-config": "^2.0.1",
         "friendsofphp/php-cs-fixer": "^3.51",
         "amphp/process": "^2.0",
-        "infection/infection": "^0.28.1"
+        "infection/infection": "^0.28.1",
+        "danog/phpdoc": "^0.1.22"
     },
     "scripts": {
         "cs-fix": "PHP_CS_FIXER_IGNORE_ENV=1 php -d pcre.jit=0 vendor/bin/php-cs-fixer fix -v"

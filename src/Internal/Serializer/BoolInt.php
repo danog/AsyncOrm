@@ -39,6 +39,7 @@ final class BoolInt implements Serializer
     }
     public function deserialize(mixed $value): mixed
     {
+        \assert(\is_string($value));
         return match (\ord($value)) {
             1 => true,
             0 => false,

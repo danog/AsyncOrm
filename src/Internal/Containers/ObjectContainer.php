@@ -25,15 +25,17 @@ use danog\AsyncOrm\FieldConfig;
 use Revolt\EventLoop;
 use Traversable;
 
-/** @internal */
+/**
+ * @template TKey as array-key
+ * @template TValue as DbObject
+ * @internal
+ */
 final class ObjectContainer
 {
     /**
-     * @var array<ObjectReference>
+     * @var array<TKey, ObjectReference<TValue>>
      */
     private array $cache = [];
-
-    private int $cacheTtl;
 
     /**
      * Cache cleanup watcher ID.
@@ -43,9 +45,10 @@ final class ObjectContainer
     private LocalMutex $mutex;
 
     public function __construct(
-        /** @var DbArray<array-key, DbObject> */
+        /** @var DbArray<TKey, TValue> */
         public DbArray $inner,
         public FieldConfig $config,
+        public int $cacheTtl,
     ) {
         $this->mutex = new LocalMutex;
     }
@@ -58,9 +61,8 @@ final class ObjectContainer
         $this->mutex = new LocalMutex;
     }
 
-    public function startCacheCleanupLoop(int $cacheTtl): void
+    public function startCacheCleanupLoop(): void
     {
-        $this->cacheTtl = $cacheTtl;
         if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
         }
@@ -77,6 +79,10 @@ final class ObjectContainer
         }
     }
 
+    /**
+     * @param TKey $index
+     * @return ?TValue
+     */
     public function get(string|int $index): mixed
     {
         if (isset($this->cache[$index])) {
@@ -104,6 +110,10 @@ final class ObjectContainer
         return $result;
     }
 
+    /**
+     * @param TKey $key
+     * @param TValue $value
+     */
     public function set(string|int $key, DbObject $value): void
     {
         if (isset($this->cache[$key]) && $this->cache[$key]->reference->get() === $value) {
@@ -114,12 +124,14 @@ final class ObjectContainer
         $value->save();
     }
 
+    /** @param TKey $key */
     public function unset(string|int $key): void
     {
         unset($this->cache[$key]);
         $this->inner->unset($key);
     }
 
+    /** @return Traversable<TKey, TValue> */
     public function getIterator(): Traversable
     {
         foreach ($this->inner->getIterator() as $key => $value) {

@@ -23,19 +23,21 @@ use danog\AsyncOrm\DbArray;
 use Revolt\EventLoop;
 use Traversable;
 
-/** @internal */
+/**
+ * @template TKey as array-key
+ * @template TValue
+ * @internal
+ */
 final class CacheContainer
 {
     /**
-     * @var array<mixed>
+     * @var array<TKey, TValue>
      */
     private array $cache = [];
     /**
-     * @var array<int|true>
+     * @var array<TKey, int|true>
      */
     private array $ttl = [];
-
-    private int $cacheTtl;
 
     /**
      * Cache cleanup watcher ID.
@@ -45,7 +47,9 @@ final class CacheContainer
     private LocalMutex $mutex;
 
     public function __construct(
-        public DbArray $inner
+        /** @var DbArray<TKey, TValue> */
+        public DbArray $inner,
+        public int $cacheTtl
     ) {
         $this->mutex = new LocalMutex;
     }
@@ -58,9 +62,8 @@ final class CacheContainer
         $this->mutex = new LocalMutex;
     }
 
-    public function startCacheCleanupLoop(int $cacheTtl): void
+    public function startCacheCleanupLoop(): void
     {
-        $this->cacheTtl = $cacheTtl;
         if ($this->cacheCleanupId !== null) {
             EventLoop::cancel($this->cacheCleanupId);
         }
@@ -77,6 +80,10 @@ final class CacheContainer
         }
     }
 
+    /**
+     * @param TKey $index
+     * @return TValue
+     */
     public function get(string|int $index): mixed
     {
         if (isset($this->ttl[$index])) {
@@ -101,6 +108,10 @@ final class CacheContainer
         return $result;
     }
 
+    /**
+     * @param TKey $key
+     * @param ?TValue $value
+     */
     public function set(string|int $key, mixed $value): void
     {
         if (isset($this->ttl[$key]) && $this->cache[$key] === $value) {
@@ -110,6 +121,7 @@ final class CacheContainer
         $this->ttl[$key] = true;
     }
 
+    /** @return Traversable<TKey, TValue> */
     public function getIterator(): Traversable
     {
         $this->flushCache();

@@ -54,6 +54,7 @@ final class RedisArray extends DriverArray
     private readonly bool $castToInt;
 
     /**
+     * @api
      * @param Serializer<TValue> $serializer
      */
     public function __construct(FieldConfig $config, Serializer $serializer)
@@ -87,6 +88,7 @@ final class RedisArray extends DriverArray
 
     public function set(string|int $key, mixed $value): void
     {
+        /** @psalm-suppress MixedArgument The serializer always produces a string */
         $this->db->set($this->config->table.':'.(string) $key, $this->serializer->serialize($value));
     }
 
@@ -130,6 +132,8 @@ final class RedisArray extends DriverArray
 
     /**
      * Count elements.
+     *
+     * @api
      *
      * @link https://php.net/manual/en/arrayiterator.count.php
      * @return int The number of elements or public properties in the associated

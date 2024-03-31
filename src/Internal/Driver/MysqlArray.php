@@ -32,7 +32,6 @@ use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\ValueType;
 use PDO;
 use Revolt\EventLoop;
-use Webmozart\Assert\Assert;
 
 /**
  * MySQL database backend.
@@ -54,6 +53,7 @@ final class MysqlArray extends SqlArray
     protected PDO $pdo;
 
     /**
+     * @psalm-suppress MethodSignatureMismatch
      * @param Serializer<TValue> $serializer
      */
     public function __construct(FieldConfig $config, Serializer $serializer)
@@ -75,6 +75,7 @@ final class MysqlArray extends SqlArray
                     COLLATE 'utf8mb4_general_ci'
                 ");
                 try {
+                    /** @psalm-suppress PossiblyNullArrayAccess */
                     $max = (int) $connection->query("SHOW VARIABLES LIKE 'max_connections'")->fetchRow()['Value'];
                     if ($max < 100000) {
                         $connection->query("SET GLOBAL max_connections = 100000");
@@ -147,6 +148,8 @@ final class MysqlArray extends SqlArray
         $result = $db->query("DESCRIBE `{$config->table}`");
         while ($column = $result->fetchRow()) {
             ['Field' => $key, 'Type' => $type, 'Null' => $null] = $column;
+            \assert(\is_string($key));
+            \assert(\is_string($type));
             $type = \strtoupper($type);
             if (\str_starts_with($type, 'BIGINT')) {
                 $type = 'BIGINT';
@@ -169,14 +172,19 @@ final class MysqlArray extends SqlArray
             $result = $db->prepare("SELECT data_free FROM information_schema.tables WHERE table_schema=? AND table_name=?")
                 ->execute([$database, $config->table])
                 ->fetchRow();
-            Assert::notNull($result);
+            if ($result === null) {
+                throw new AssertionError("Result cannot be null!");
+            }
             $result = $result['data_free'] ?? $result['DATA_FREE'];
-            Assert::integer($result, "Could not optimize table!");
+            if (!\is_int($result)) {
+                throw new AssertionError("data_free must be an integer!");
+            }
             if (($result >> 20) >= $settings->optimizeIfWastedMb) {
                 $db->query("OPTIMIZE TABLE `{$config->table}`");
             }
         }
 
+        /** @psalm-suppress InvalidArgument */
         parent::__construct(
             $config,
             $serializer,
@@ -208,6 +216,7 @@ final class MysqlArray extends SqlArray
      */
     protected function execute(string $sql, array $params = []): SqlResult
     {
+        /** @psalm-suppress MixedAssignment */
         foreach ($params as $key => $value) {
             if (\is_string($value)) {
                 $value = $this->pdo->quote($value);

@@ -51,6 +51,7 @@ use function Amp\ByteStream\getStderr;
 use function Amp\ByteStream\getStdout;
 use function Amp\ByteStream\pipe;
 use function Amp\ByteStream\splitLines;
+use function Amp\delay;
 use function Amp\Future\await;
 use function Amp\Future\awaitAny;
 
@@ -350,6 +351,27 @@ final class OrmTest extends TestCase
             $this->assertSame(123, $vv);
         }
         $this->assertEquals(1, $cnt);
+
+        $field = new FieldConfig(
+            $table.'_new',
+            new Memory,
+            KeyType::INT,
+            ValueType::INT
+        );
+        $old = $orm;
+        $orm = $field->build($old);
+        $this->assertSame(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame(321, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+        $this->assertCount(0, $old);
     }
 
     #[DataProvider('provideSettings')]
@@ -453,6 +475,30 @@ final class OrmTest extends TestCase
 
         $this->assertSame($field->build()[123]->savedProp, 123);
         unset($obj, $orm);
+
+        $field->build()->clear();
+    }
+
+    public function testCache(): void
+    {
+        $field = new FieldConfig("testCache", new Redis(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 1
+        ), KeyType::INT, ValueType::INT);
+        $fieldNoCache = new FieldConfig("testCache", new Redis(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 0
+        ), KeyType::INT, ValueType::INT);
+        $orm = $field->build();
+        $ormUnCached = $fieldNoCache->build();
+
+        $orm->set(0, 1);
+        $this->assertCount(0, $ormUnCached);
+        delay(0.1);
+        $this->assertCount(0, $ormUnCached);
+        delay(0.9);
+        $this->assertCount(1, $ormUnCached);
+        $orm->clear();
     }
 
     public static function provideSettingsKeysValues(): \Generator

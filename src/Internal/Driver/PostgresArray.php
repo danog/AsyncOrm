@@ -45,6 +45,7 @@ class PostgresArray extends SqlArray
 
     private static ?LocalKeyedMutex $mutex = null;
     /**
+     * @psalm-suppress MethodSignatureMismatch
      * @param Serializer<TValue> $serializer
      */
     public function __construct(FieldConfig $config, Serializer $serializer)
@@ -111,6 +112,8 @@ class PostgresArray extends SqlArray
         $result = $connection->query("SELECT * FROM information_schema.columns WHERE table_name='bytea_{$config->table}'");
         while ($column = $result->fetchRow()) {
             ['column_name' => $key, 'data_type' => $type, 'is_nullable' => $null] = $column;
+            \assert(\is_string($key));
+            \assert(\is_string($type));
             $type = \strtoupper($type);
             if (\str_starts_with($type, 'BIGINT')) {
                 $type = 'BIGINT';
@@ -134,6 +137,7 @@ class PostgresArray extends SqlArray
             }
         }
 
+        /** @psalm-suppress InvalidArgument */
         parent::__construct(
             $config,
             $serializer,
