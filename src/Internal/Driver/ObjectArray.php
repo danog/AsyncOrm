@@ -26,9 +26,9 @@
 namespace danog\AsyncOrm\Internal\Driver;
 
 use danog\AsyncOrm\DbArray;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
-use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Settings\DriverSettings;
 use Traversable;

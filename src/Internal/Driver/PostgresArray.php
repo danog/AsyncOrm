@@ -27,8 +27,8 @@ namespace danog\AsyncOrm\Internal\Driver;
 
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Sync\LocalKeyedMutex;
-use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\DbArrayBuilder;
+use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;

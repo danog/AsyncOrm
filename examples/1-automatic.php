@@ -6,7 +6,6 @@ use Amp\Redis\RedisConfig;
 use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbAutoProperties;
-use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Settings;
@@ -70,7 +69,7 @@ final class Application
 
     /**
      * This field is automatically connected to the database using the specified Settings.
-     * 
+     *
      * @var DbArray<string, MyObject>
      */
     #[OrmMappedArray(KeyType::STRING, ValueType::OBJECT)]
@@ -78,7 +77,7 @@ final class Application
 
     /**
      * This field is automatically connected to the database using the specified Settings.
-     * 
+     *
      * @var DbArray<string, int>
      */
     #[OrmMappedArray(KeyType::STRING, ValueType::INT)]
@@ -97,7 +96,7 @@ final class Application
 
         // Can store integers, strings, arrays or objects depending on the specified ValueType
         $this->dbProperty2['someKey'] = 123;
-        var_dump($this->dbProperty2['someKey']);        
+        var_dump($this->dbProperty2['someKey']);
     }
 
     public function businessLogic2(string $value): void

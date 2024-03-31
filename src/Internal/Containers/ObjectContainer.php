@@ -20,8 +20,8 @@ namespace danog\AsyncOrm\Internal\Containers;
 
 use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\DbArrayBuilder;
+use danog\AsyncOrm\DbObject;
 use Revolt\EventLoop;
 use Traversable;
 

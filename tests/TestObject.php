@@ -25,9 +25,9 @@ namespace danog\TestAsyncOrm;
 
 use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\DbArray;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbAutoProperties;
 use danog\AsyncOrm\DbObject;
-use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\ValueType;
 

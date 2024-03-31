@@ -34,10 +34,10 @@ use ReflectionClass;
 use function Amp\async;
 use function Amp\Future\await;
 
-/** 
+/**
  * Trait that provides autoconfiguration of OrmMappedArray properties.
- * 
- * @api 
+ *
+ * @api
  */
 trait DbAutoProperties
 {

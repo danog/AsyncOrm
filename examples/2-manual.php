@@ -3,8 +3,8 @@
 use Amp\Mysql\MysqlConfig;
 use Amp\Postgres\PostgresConfig;
 use Amp\Redis\RedisConfig;
-use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\DbArrayBuilder;
+use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
