@@ -2,7 +2,7 @@
     "name": "danog/async-orm",
     "description": "Async ORM based on AMPHP v3 and fibers.",
     "type": "library",
-    "license": "AGPL-3.0-only",
+    "license": "Apache-2.0",
     "autoload": {
         "psr-4": {
             "danog\\AsyncOrm\\": "src/"

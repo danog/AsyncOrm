@@ -10,7 +10,7 @@
  *
  * @author    Daniil Gentili <daniil@daniil.it>
  * @copyright 2016-2024 Daniil Gentili <daniil@daniil.it>
- * @license   https://opensource.org/licenses/AGPL-3.0 AGPLv3
+ * @license   https://opensource.org/license/apache-2-0 Apache 2.0
  * @link https://docs.AsyncOrm.xyz AsyncOrm documentation
  */
 

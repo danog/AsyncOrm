@@ -81,7 +81,6 @@ final class Application
     }
 }
 
-
 $app = new Application($settings, 'tablePrefix');
 $app->businessLogic();
 $app->shutdown();
