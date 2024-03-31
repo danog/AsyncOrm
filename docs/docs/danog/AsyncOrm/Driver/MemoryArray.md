@@ -17,7 +17,7 @@ Memory database backend.
 
 ## Method list:
 * [`__construct(array $data)`](#__construct-array-data)
-* [`getInstance(\danog\AsyncOrm\FieldConfig $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-fieldconfig-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-dbarraybuilder-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
 * [`set(string|int $key, mixed $value): void`](#set-string-int-key-mixed-value-void)
 * [`get(string|int $key): mixed`](#get-string-int-key-mixed)
 * [`unset(string|int $key): void`](#unset-string-int-key-void)
@@ -43,19 +43,19 @@ Parameters:
 
 
 
-### `getInstance(\danog\AsyncOrm\FieldConfig $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
+### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
 
 
 
 
 Parameters:
 
-* `$config`: `\danog\AsyncOrm\FieldConfig`   
+* `$config`: `\danog\AsyncOrm\DbArrayBuilder`   
 * `$previous`: `?\danog\AsyncOrm\DbArray`   
 
 
 #### See also: 
-* [`\danog\AsyncOrm\FieldConfig`: Contains configuration for a single ORM field.](../../../danog/AsyncOrm/FieldConfig.md)
+* [`\danog\AsyncOrm\DbArrayBuilder`: Contains configuration needed to build a DbArray.](../../../danog/AsyncOrm/DbArrayBuilder.md)
 * [`\danog\AsyncOrm\DbArray`: DB array interface.](../../../danog/AsyncOrm/DbArray.md)
 
 

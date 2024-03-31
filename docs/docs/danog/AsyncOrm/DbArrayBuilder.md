@@ -1,16 +1,16 @@
 ---
-title: "danog\\AsyncOrm\\FieldConfig: Contains configuration for a single ORM field."
+title: "danog\\AsyncOrm\\DbArrayBuilder: Contains configuration needed to build a DbArray."
 description: ""
 
 ---
-# `danog\AsyncOrm\FieldConfig`
+# `danog\AsyncOrm\DbArrayBuilder`
 [Back to index](../../index.md)
 
 > Author: Daniil Gentili <daniil@daniil.it>  
 > Author: Alexander Pankratov <alexander@i-c-a.su>  
   
 
-Contains configuration for a single ORM field.  
+Contains configuration needed to build a DbArray.  
 
 
 

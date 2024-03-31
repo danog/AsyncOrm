@@ -20,7 +20,7 @@ Async ORM based on AMPHP v3 and fibers.
 * [\danog\AsyncOrm\Settings\SqlSettings: Generic SQL db backend settings.](danog/AsyncOrm/Settings/SqlSettings.md)
 
 ## Classes
-* [\danog\AsyncOrm\FieldConfig: Contains configuration for a single ORM field.](danog/AsyncOrm/FieldConfig.md)
+* [\danog\AsyncOrm\DbArrayBuilder: Contains configuration needed to build a DbArray.](danog/AsyncOrm/DbArrayBuilder.md)
 * [\danog\AsyncOrm\KeyType: Specifies the type of keys.](danog/AsyncOrm/KeyType.md)
 * [\danog\AsyncOrm\ValueType: Specifies the serializer to use when saving values.](danog/AsyncOrm/ValueType.md)
 * [\danog\AsyncOrm\Annotations\OrmMappedArray: Attribute use to autoconfigure ORM properties.](danog/AsyncOrm/Annotations/OrmMappedArray.md)

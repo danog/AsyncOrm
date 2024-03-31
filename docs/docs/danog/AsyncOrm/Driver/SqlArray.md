@@ -23,7 +23,7 @@ Generic SQL database backend.
 * [`count(): \int The number of elements or public properties in the associated
 array or object, respectively.`](#count-int-the-number-of-elements-or-public-properties-in-the-associated-array-or-object-respectively)
 * [`clear(): void`](#clear-void)
-* [`getInstance(\danog\AsyncOrm\FieldConfig $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-fieldconfig-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-dbarraybuilder-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
 * [`isset(\TKey $key): bool`](#isset-tkey-key-bool)
 * [`offsetGet(\TKey $offset): \TValue`](#offsetget-tkey-offset-tvalue)
 * [`offsetExists(\TKey $offset): bool`](#offsetexists-tkey-offset-bool)
@@ -93,19 +93,19 @@ Clear all elements.
 
 
 
-### `getInstance(\danog\AsyncOrm\FieldConfig $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
+### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
 
 
 
 
 Parameters:
 
-* `$config`: `\danog\AsyncOrm\FieldConfig`   
+* `$config`: `\danog\AsyncOrm\DbArrayBuilder`   
 * `$previous`: `?\danog\AsyncOrm\DbArray`   
 
 
 #### See also: 
-* [`\danog\AsyncOrm\FieldConfig`: Contains configuration for a single ORM field.](../../../danog/AsyncOrm/FieldConfig.md)
+* [`\danog\AsyncOrm\DbArrayBuilder`: Contains configuration needed to build a DbArray.](../../../danog/AsyncOrm/DbArrayBuilder.md)
 * [`\danog\AsyncOrm\DbArray`: DB array interface.](../../../danog/AsyncOrm/DbArray.md)
 
 

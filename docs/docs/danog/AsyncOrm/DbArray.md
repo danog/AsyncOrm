@@ -26,7 +26,7 @@ DB array interface.
 * [`set(\TKey $key, \TValue $value): void`](#set-tkey-key-tvalue-value-void)
 * [`get(\TKey $key): ?\TValue`](#get-tkey-key-tvalue)
 * [`clear(): void`](#clear-void)
-* [`getInstance(\danog\AsyncOrm\FieldConfig $config, ?self $previous): self`](#getinstance-danog-asyncorm-fieldconfig-config-self-previous-self)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?self $previous): self`](#getinstance-danog-asyncorm-dbarraybuilder-config-self-previous-self)
 * [`count(): mixed`](#count-mixed)
 * [`getIterator(): mixed`](#getiterator-mixed)
 
@@ -177,19 +177,19 @@ Clear all elements.
 
 
 
-### `getInstance(\danog\AsyncOrm\FieldConfig $config, ?self $previous): self`
+### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?self $previous): self`
 
 Get instance.
 
 
 Parameters:
 
-* `$config`: `\danog\AsyncOrm\FieldConfig`   
+* `$config`: `\danog\AsyncOrm\DbArrayBuilder`   
 * `$previous`: `?self`   
 
 
 #### See also: 
-* [`\danog\AsyncOrm\FieldConfig`: Contains configuration for a single ORM field.](../../danog/AsyncOrm/FieldConfig.md)
+* [`\danog\AsyncOrm\DbArrayBuilder`: Contains configuration needed to build a DbArray.](../../danog/AsyncOrm/DbArrayBuilder.md)
 
 
 
