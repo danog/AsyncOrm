@@ -1,9 +1,9 @@
 ---
-title: "danog\\AsyncOrm\\Settings\\Mysql: MySQL backend settings."
+title: "danog\\AsyncOrm\\Settings\\MysqlSettings: MySQL backend settings."
 description: "MariaDb 10.2+ or Mysql 5.6+ required."
 
 ---
-# `danog\AsyncOrm\Settings\Mysql`
+# `danog\AsyncOrm\Settings\MysqlSettings`
 [Back to index](../../../index.md)
 
 > Author: Daniil Gentili <daniil@daniil.it>  
@@ -16,11 +16,11 @@ MariaDb 10.2+ or Mysql 5.6+ required.
 
 
 ## Constants
-* `danog\AsyncOrm\Settings\Mysql::DEFAULT_SQL_MAX_CONNECTIONS`: 
+* `danog\AsyncOrm\Settings\MysqlSettings::DEFAULT_SQL_MAX_CONNECTIONS`: 
 
-* `danog\AsyncOrm\Settings\Mysql::DEFAULT_SQL_IDLE_TIMEOUT`: 
+* `danog\AsyncOrm\Settings\MysqlSettings::DEFAULT_SQL_IDLE_TIMEOUT`: 
 
-* `danog\AsyncOrm\Settings\Mysql::DEFAULT_CACHE_TTL`: 
+* `danog\AsyncOrm\Settings\MysqlSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
 * `$optimizeIfWastedMb`: `int<1, max>|null` 

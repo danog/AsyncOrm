@@ -1,16 +1,16 @@
 ---
-title: "danog\\AsyncOrm\\Settings\\Memory: Memory backend settings."
+title: "danog\\AsyncOrm\\Settings\\MemorySettings: MemorySettings backend settings."
 description: ""
 
 ---
-# `danog\AsyncOrm\Settings\Memory`
+# `danog\AsyncOrm\Settings\MemorySettings`
 [Back to index](../../../index.md)
 
 > Author: Daniil Gentili <daniil@daniil.it>  
 > Author: Alexander Pankratov <alexander@i-c-a.su>  
   
 
-Memory backend settings.  
+MemorySettings backend settings.  
 
 
 

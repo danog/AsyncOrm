@@ -1,5 +1,5 @@
 ---
-title: "danog\\AsyncOrm\\Settings\\DriverSettings: Base class for database backends."
+title: "danog\\AsyncOrm\\Settings\\DriverSettings: Base settings class for database backends."
 description: ""
 
 ---
@@ -10,7 +10,7 @@ description: ""
 > Author: Alexander Pankratov <alexander@i-c-a.su>  
   
 
-Base class for database backends.  
+Base settings class for database backends.  
 
 
 

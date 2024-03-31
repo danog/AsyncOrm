@@ -481,11 +481,11 @@ final class OrmTest extends TestCase
 
     public function testCache(): void
     {
-        $field = new FieldConfig("testCache", new Redis(
+        $field = new FieldConfig("testCache", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 1
         ), KeyType::INT, ValueType::INT);
-        $fieldNoCache = new FieldConfig("testCache", new Redis(
+        $fieldNoCache = new FieldConfig("testCache", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 0
         ), KeyType::INT, ValueType::INT);
@@ -522,7 +522,7 @@ final class OrmTest extends TestCase
                 [ValueType::SCALAR, 123.321],
             ] as [$valueType, $value]) {
                 if ($valueType === ValueType::OBJECT && (
-                    $settings instanceof Memory
+                    $settings instanceof MemorySettings
                     || $settings->serializer instanceof Json
                 )) {
                     continue;

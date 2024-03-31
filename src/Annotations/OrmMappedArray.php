@@ -9,9 +9,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  *
  * @author    Daniil Gentili <daniil@daniil.it>
- * @author    Alexander Pankratov <alexander@i-c-a.su>
  * @copyright 2016-2024 Daniil Gentili <daniil@daniil.it>
- * @copyright 2016-2024 Alexander Pankratov <alexander@i-c-a.su>
  * @license   https://opensource.org/licenses/AGPL-3.0 AGPLv3
  * @link https://docs.AsyncOrm.xyz AsyncOrm documentation
  */
@@ -22,7 +20,11 @@ use Attribute;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\ValueType;
 
-/** @api */
+/** 
+ * Attribute use to autoconfigure ORM properties.
+ * 
+ * @api 
+ */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class OrmMappedArray
 {

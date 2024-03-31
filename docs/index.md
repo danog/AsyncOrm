@@ -16,22 +16,22 @@ Async ORM based on AMPHP v3 and fibers.
 * [\danog\AsyncOrm\Settings: Base interface for ORM settings.](danog/AsyncOrm/Settings.md)
 * [\danog\AsyncOrm\Driver\DriverArray: Base class for driver-based arrays.](danog/AsyncOrm/Driver/DriverArray.md)
 * [\danog\AsyncOrm\Driver\SqlArray: Generic SQL database backend.](danog/AsyncOrm/Driver/SqlArray.md)
-* [\danog\AsyncOrm\Settings\DriverSettings: Base class for database backends.](danog/AsyncOrm/Settings/DriverSettings.md)
+* [\danog\AsyncOrm\Settings\DriverSettings: Base settings class for database backends.](danog/AsyncOrm/Settings/DriverSettings.md)
 * [\danog\AsyncOrm\Settings\SqlSettings: Generic SQL db backend settings.](danog/AsyncOrm/Settings/SqlSettings.md)
 
 ## Classes
 * [\danog\AsyncOrm\FieldConfig: Contains configuration for a single ORM field.](danog/AsyncOrm/FieldConfig.md)
 * [\danog\AsyncOrm\KeyType: Specifies the type of keys.](danog/AsyncOrm/KeyType.md)
 * [\danog\AsyncOrm\ValueType: Specifies the serializer to use when saving values.](danog/AsyncOrm/ValueType.md)
-* [\danog\AsyncOrm\Annotations\OrmMappedArray](danog/AsyncOrm/Annotations/OrmMappedArray.md)
+* [\danog\AsyncOrm\Annotations\OrmMappedArray: Attribute use to autoconfigure ORM properties.](danog/AsyncOrm/Annotations/OrmMappedArray.md)
 * [\danog\AsyncOrm\Driver\MemoryArray: Memory database backend.](danog/AsyncOrm/Driver/MemoryArray.md)
 * [\danog\AsyncOrm\Serializer\Igbinary: Igbinary serializer.](danog/AsyncOrm/Serializer/Igbinary.md)
 * [\danog\AsyncOrm\Serializer\Json: JSON serializer.](danog/AsyncOrm/Serializer/Json.md)
 * [\danog\AsyncOrm\Serializer\Native: Native serializer.](danog/AsyncOrm/Serializer/Native.md)
-* [\danog\AsyncOrm\Settings\Memory: Memory backend settings.](danog/AsyncOrm/Settings/Memory.md)
-* [\danog\AsyncOrm\Settings\Mysql: MySQL backend settings.](danog/AsyncOrm/Settings/Mysql.md)
-* [\danog\AsyncOrm\Settings\Postgres: Postgres backend settings.](danog/AsyncOrm/Settings/Postgres.md)
-* [\danog\AsyncOrm\Settings\Redis: Redis backend settings.](danog/AsyncOrm/Settings/Redis.md)
+* [\danog\AsyncOrm\Settings\MemorySettings: MemorySettings backend settings.](danog/AsyncOrm/Settings/MemorySettings.md)
+* [\danog\AsyncOrm\Settings\MysqlSettings: MySQL backend settings.](danog/AsyncOrm/Settings/MysqlSettings.md)
+* [\danog\AsyncOrm\Settings\PostgresSettings: Postgres backend settings.](danog/AsyncOrm/Settings/PostgresSettings.md)
+* [\danog\AsyncOrm\Settings\RedisSettings: Redis backend settings.](danog/AsyncOrm/Settings/RedisSettings.md)
 
 ## Traits
 * [\danog\AsyncOrm\DbAutoProperties](danog/AsyncOrm/DbAutoProperties.md)

@@ -1,9 +1,9 @@
 ---
-title: "danog\\AsyncOrm\\Settings\\Redis: Redis backend settings."
+title: "danog\\AsyncOrm\\Settings\\RedisSettings: Redis backend settings."
 description: ""
 
 ---
-# `danog\AsyncOrm\Settings\Redis`
+# `danog\AsyncOrm\Settings\RedisSettings`
 [Back to index](../../../index.md)
 
 > Author: Daniil Gentili <daniil@daniil.it>  
@@ -16,7 +16,7 @@ Redis backend settings.
 
 
 ## Constants
-* `danog\AsyncOrm\Settings\Redis::DEFAULT_CACHE_TTL`: 
+* `danog\AsyncOrm\Settings\RedisSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
 * `$config`: `\Amp\Redis\RedisConfig` 

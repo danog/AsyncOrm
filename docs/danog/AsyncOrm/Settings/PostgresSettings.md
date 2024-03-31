@@ -1,9 +1,9 @@
 ---
-title: "danog\\AsyncOrm\\Settings\\Postgres: Postgres backend settings."
+title: "danog\\AsyncOrm\\Settings\\PostgresSettings: Postgres backend settings."
 description: ""
 
 ---
-# `danog\AsyncOrm\Settings\Postgres`
+# `danog\AsyncOrm\Settings\PostgresSettings`
 [Back to index](../../../index.md)
 
 > Author: Daniil Gentili <daniil@daniil.it>  
@@ -16,11 +16,11 @@ Postgres backend settings.
 
 
 ## Constants
-* `danog\AsyncOrm\Settings\Postgres::DEFAULT_SQL_MAX_CONNECTIONS`: 
+* `danog\AsyncOrm\Settings\PostgresSettings::DEFAULT_SQL_MAX_CONNECTIONS`: 
 
-* `danog\AsyncOrm\Settings\Postgres::DEFAULT_SQL_IDLE_TIMEOUT`: 
+* `danog\AsyncOrm\Settings\PostgresSettings::DEFAULT_SQL_IDLE_TIMEOUT`: 
 
-* `danog\AsyncOrm\Settings\Postgres::DEFAULT_CACHE_TTL`: 
+* `danog\AsyncOrm\Settings\PostgresSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
 * `$maxConnections`: `positive-int` 

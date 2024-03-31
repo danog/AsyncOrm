@@ -1,5 +1,5 @@
 ---
-title: "danog\\AsyncOrm\\Annotations\\OrmMappedArray: "
+title: "danog\\AsyncOrm\\Annotations\\OrmMappedArray: Attribute use to autoconfigure ORM properties."
 description: ""
 
 ---
@@ -10,7 +10,7 @@ description: ""
 > Author: Alexander Pankratov <alexander@i-c-a.su>  
   
 
-  
+Attribute use to autoconfigure ORM properties.  
 
 
 
