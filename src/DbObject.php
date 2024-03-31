@@ -39,7 +39,7 @@ abstract class DbObject
      *
      * @internal Do not invoke manually.
      */
-    final public function initDb(ObjectContainer $mapper, string|int $key, FieldConfig $config): void
+    final public function initDb(ObjectContainer $mapper, string|int $key, DbArrayBuilder $config): void
     {
         $this->mapper = $mapper;
         $this->key = $key;
@@ -65,7 +65,7 @@ abstract class DbObject
      *
      * @psalm-suppress PossiblyUnusedParam
      */
-    protected function onLoaded(FieldConfig $config): void
+    protected function onLoaded(DbArrayBuilder $config): void
     {
 
     }

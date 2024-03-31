@@ -29,7 +29,7 @@ use Amp\Redis\Connection\ReconnectingRedisLink;
 use Amp\Redis\RedisClient;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\DriverArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Serializer\BoolString;
 use danog\AsyncOrm\Internal\Serializer\FloatString;
 use danog\AsyncOrm\Internal\Serializer\IntString;
@@ -64,7 +64,7 @@ final class RedisArray extends DriverArray
      * @api
      * @param Serializer<TValue> $serializer
      */
-    public function __construct(FieldConfig $config, Serializer $serializer)
+    public function __construct(DbArrayBuilder $config, Serializer $serializer)
     {
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {

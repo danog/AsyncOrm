@@ -31,7 +31,7 @@ use Amp\Sync\LocalKeyedMutex;
 use AssertionError;
 use danog\AsyncOrm\Driver\Mysql;
 use danog\AsyncOrm\Driver\SqlArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Serializer\BoolInt;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
@@ -63,7 +63,7 @@ final class MysqlArray extends SqlArray
      * @psalm-suppress MethodSignatureMismatch
      * @param Serializer<TValue> $serializer
      */
-    public function __construct(FieldConfig $config, Serializer $serializer)
+    public function __construct(DbArrayBuilder $config, Serializer $serializer)
     {
         $settings = $config->settings;
         \assert($settings instanceof \danog\AsyncOrm\Settings\MysqlSettings);

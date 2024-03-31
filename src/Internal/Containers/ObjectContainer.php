@@ -21,7 +21,7 @@ namespace danog\AsyncOrm\Internal\Containers;
 use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbObject;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use Revolt\EventLoop;
 use Traversable;
 
@@ -47,7 +47,7 @@ final class ObjectContainer
     public function __construct(
         /** @var DbArray<TKey, TValue> */
         public DbArray $inner,
-        public FieldConfig $config,
+        public DbArrayBuilder $config,
         public int $cacheTtl,
     ) {
         $this->mutex = new LocalMutex;

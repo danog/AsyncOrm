@@ -26,7 +26,7 @@
 namespace danog\AsyncOrm\Driver;
 
 use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\DriverSettings;
 
@@ -52,13 +52,13 @@ abstract class DriverArray extends DbArray
      * @param Serializer<TValue> $serializer
      */
     protected function __construct(
-        protected readonly FieldConfig $config,
+        protected readonly DbArrayBuilder $config,
         protected readonly Serializer $serializer
     ) {
         $this->inited = true;
     }
 
-    public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
+    public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $migrate = true;
         if ($previous !== null

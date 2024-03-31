@@ -1,5 +1,5 @@
 ---
-title: "danog\\AsyncOrm\\DbAutoProperties: "
+title: "danog\\AsyncOrm\\DbAutoProperties: Trait that provides autoconfiguration of OrmMappedArray properties."
 description: ""
 
 ---
@@ -10,7 +10,7 @@ description: ""
 > Author: Alexander Pankratov <alexander@i-c-a.su>  
   
 
-  
+Trait that provides autoconfiguration of OrmMappedArray properties.  
 
 
 

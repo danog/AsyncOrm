@@ -27,7 +27,7 @@ namespace danog\AsyncOrm\Driver;
 
 use ArrayIterator;
 use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 
 /**
  * Memory database backend.
@@ -45,7 +45,7 @@ final class MemoryArray extends DbArray
     ) {
     }
 
-    public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
+    public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         if ($previous instanceof self) {
             return $previous;

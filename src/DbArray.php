@@ -119,5 +119,5 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
     /**
      * Get instance.
      */
-    abstract public static function getInstance(FieldConfig $config, self|null $previous): self;
+    abstract public static function getInstance(DbArrayBuilder $config, self|null $previous): self;
 }

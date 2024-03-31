@@ -28,7 +28,7 @@ namespace danog\AsyncOrm\Internal\Driver;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Settings\DriverSettings;
 use Traversable;
@@ -51,7 +51,7 @@ final class ObjectArray extends DbArray
     /**
      * Get instance.
      */
-    public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
+    public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $new = $config->settings->getDriverClass();
         \assert($config->settings instanceof DriverSettings);
@@ -76,7 +76,7 @@ final class ObjectArray extends DbArray
     }
 
     /** @param DbArray<TKey, TValue> $inner */
-    public function __construct(DbArray $inner, FieldConfig $config, int $cacheTtl)
+    public function __construct(DbArray $inner, DbArrayBuilder $config, int $cacheTtl)
     {
         $this->cache = new ObjectContainer($inner, $config, $cacheTtl);
     }

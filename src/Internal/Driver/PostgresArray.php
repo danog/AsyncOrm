@@ -28,7 +28,7 @@ namespace danog\AsyncOrm\Internal\Driver;
 use Amp\Postgres\PostgresConnectionPool;
 use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\Driver\SqlArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
@@ -55,7 +55,7 @@ class PostgresArray extends SqlArray
      * @psalm-suppress MethodSignatureMismatch
      * @param Serializer<TValue> $serializer
      */
-    public function __construct(FieldConfig $config, Serializer $serializer)
+    public function __construct(DbArrayBuilder $config, Serializer $serializer)
     {
         self::$mutex ??= new LocalKeyedMutex;
         $settings = $config->settings;

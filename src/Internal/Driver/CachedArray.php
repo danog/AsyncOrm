@@ -26,7 +26,7 @@
 namespace danog\AsyncOrm\Internal\Driver;
 
 use danog\AsyncOrm\DbArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Settings\DriverSettings;
 use Revolt\EventLoop;
@@ -51,7 +51,7 @@ final class CachedArray extends DbArray
     /**
      * Get instance.
      */
-    public static function getInstance(FieldConfig $config, DbArray|null $previous): DbArray
+    public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         \assert($config->settings instanceof DriverSettings);
         $new = $config->settings->getDriverClass();

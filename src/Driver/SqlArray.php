@@ -27,7 +27,7 @@ namespace danog\AsyncOrm\Driver;
 
 use Amp\Sql\SqlConnectionPool;
 use Amp\Sql\SqlResult;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Serializer;
 
 /**
@@ -46,7 +46,7 @@ abstract class SqlArray extends DriverArray
      * @param Serializer<TValue> $serializer
      */
     protected function __construct(
-        FieldConfig $config,
+        DbArrayBuilder $config,
         Serializer $serializer,
         protected readonly SqlConnectionPool $db,
         private readonly string $get,

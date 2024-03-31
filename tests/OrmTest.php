@@ -32,7 +32,7 @@ use Amp\Redis\RedisConfig;
 use AssertionError;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
@@ -149,7 +149,7 @@ final class OrmTest extends TestCase
     #[DataProvider('provideSettingsKeysValues')]
     public function testBasic(int $tablePostfix, Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             "testBasic_$tablePostfix",
             $settings,
             $keyType,
@@ -265,7 +265,7 @@ final class OrmTest extends TestCase
     #[DataProvider('provideSettings')]
     public function testKeyMigration(int $tablePostfix, Settings $settings): void
     {
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table = 'testKeyMigration_'.$tablePostfix,
             $settings,
             KeyType::STRING_OR_INT,
@@ -288,7 +288,7 @@ final class OrmTest extends TestCase
             return;
         }
 
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table,
             $settings,
             KeyType::INT,
@@ -305,7 +305,7 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(1, $cnt);
 
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table,
             $settings,
             KeyType::STRING,
@@ -323,7 +323,7 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(1, $cnt);
 
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table,
             $settings,
             KeyType::INT,
@@ -341,7 +341,7 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(1, $cnt);
 
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table.'_new',
             $settings,
             KeyType::INT,
@@ -359,7 +359,7 @@ final class OrmTest extends TestCase
         }
         $this->assertEquals(1, $cnt);
 
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             $table.'_new',
             new MemorySettings,
             KeyType::INT,
@@ -390,7 +390,7 @@ final class OrmTest extends TestCase
         if ($settings->serializer instanceof Json) {
             $this->expectExceptionMessage("The JSON backend cannot be used when serializing objects!");
         }
-        $field = new FieldConfig(
+        $field = new DbArrayBuilder(
             'testObject_'.$tablePostfix,
             $settings,
             KeyType::STRING_OR_INT,
@@ -488,11 +488,11 @@ final class OrmTest extends TestCase
 
     public function testCache(): void
     {
-        $field = new FieldConfig("testCache", new RedisSettings(
+        $field = new DbArrayBuilder("testCache", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 1
         ), KeyType::INT, ValueType::INT);
-        $fieldNoCache = new FieldConfig("testCache", new RedisSettings(
+        $fieldNoCache = new DbArrayBuilder("testCache", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 0
         ), KeyType::INT, ValueType::INT);

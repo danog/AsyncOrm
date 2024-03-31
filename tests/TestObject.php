@@ -27,7 +27,7 @@ use danog\AsyncOrm\Annotations\OrmMappedArray;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbAutoProperties;
 use danog\AsyncOrm\DbObject;
-use danog\AsyncOrm\FieldConfig;
+use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\ValueType;
 
@@ -57,7 +57,7 @@ final class TestObject extends DbObject
         return ['savedProp', 'arr'];
     }
 
-    protected function onLoaded(FieldConfig $config): void
+    protected function onLoaded(DbArrayBuilder $config): void
     {
         $this->initDbProperties($config->settings, $config->table);
         $this->loadedCnt++;

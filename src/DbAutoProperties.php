@@ -34,7 +34,11 @@ use ReflectionClass;
 use function Amp\async;
 use function Amp\Future\await;
 
-/** @api */
+/** 
+ * Trait that provides autoconfiguration of OrmMappedArray properties.
+ * 
+ * @api 
+ */
 trait DbAutoProperties
 {
     /** @var list<CachedArray> */
@@ -74,7 +78,7 @@ trait DbAutoProperties
                 }
             }
 
-            $config = new FieldConfig(
+            $config = new DbArrayBuilder(
                 $tablePrefix.($attr->tablePostfix ?? $property->getName()),
                 $settings,
                 $attr->keyType,

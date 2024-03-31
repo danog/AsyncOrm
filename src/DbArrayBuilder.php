@@ -19,6 +19,7 @@
  * @license   https://opensource.org/license/apache-2-0 Apache 2.0
  * @link https://daniil.it/AsyncOrm AsyncOrm documentation
  */
+
 namespace danog\AsyncOrm;
 
 use AssertionError;
@@ -29,11 +30,11 @@ use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\MemorySettings;
 
 /**
- * Contains configuration for a single ORM field.
+ * Contains configuration needed to build a DbArray.
  *
  * @api
  */
-final readonly class FieldConfig
+final readonly class DbArrayBuilder
 {
     public function __construct(
         /**
