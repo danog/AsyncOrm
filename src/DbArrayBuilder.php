@@ -58,6 +58,12 @@ final readonly class DbArrayBuilder
 
     /**
      * Build database array.
+     *
+     * @template TKey as array-key
+     * @template TValue
+     *
+     * @param DbArray<TKey, TValue>|null $previous
+     * @return DbArray<TKey, TValue>
      */
     public function build(?DbArray $previous = null): DbArray
     {
@@ -68,6 +74,7 @@ final readonly class DbArrayBuilder
             if ($this->settings->serializer instanceof Json) {
                 throw new AssertionError("The JSON backend cannot be used when serializing objects!");
             }
+            /** @psalm-suppress MixedArgumentTypeCoercion */
             return ObjectArray::getInstance($this, $previous);
         }
         if ($this->settings instanceof MemorySettings

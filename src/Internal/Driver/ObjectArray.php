@@ -50,28 +50,33 @@ final class ObjectArray extends DbArray
 
     /**
      * Get instance.
+     *
+     * @template TTKey as array-key
+     * @template TTValue as DbObject
+     *
+     * @param DbArray<TTKey, TValue>|null $previous
+     * @return DbArray<TTKey, TValue>
      */
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $new = $config->settings->getDriverClass();
         \assert($config->settings instanceof DriverSettings);
         if ($previous === null) {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $previous = new self($new::getInstance($config, null), $config, $config->settings->cacheTtl);
         } elseif ($previous instanceof self) {
-            /** @psalm-suppress MixedPropertyTypeCoercion, InvalidArgument */
             $previous->cache->inner = $new::getInstance($config, $previous->cache->inner);
             $previous->cache->config = $config;
             $previous->cache->cacheTtl = $config->settings->cacheTtl;
         } else {
-            /** @psalm-suppress MixedArgumentTypeCoercion */
             $previous = new self($new::getInstance($config, $previous), $config, $config->settings->cacheTtl);
         }
         if ($previous->cache->inner instanceof MemoryArray) {
             $previous->cache->flushCache();
+            /** @var DbArray<TTKey, TValue> */
             return $previous->cache->inner;
         }
         $previous->cache->startCacheCleanupLoop();
+        /** @var DbArray<TTKey, TValue> */
         return $previous;
     }
 

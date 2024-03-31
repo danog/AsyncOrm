@@ -118,6 +118,12 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
 
     /**
      * Get instance.
+     *
+     * @template TTKey as array-key
+     * @template TTValue as DbObject
+     *
+     * @param DbArray<TTKey, TValue>|null $previous
+     * @return DbArray<TTKey, TValue>
      */
     abstract public static function getInstance(DbArrayBuilder $config, self|null $previous): self;
 }

@@ -1,10 +1,9 @@
 # Async ORM
 
 [![codecov](https://codecov.io/gh/danog/AsyncOrm/branch/master/graph/badge.svg)](https://codecov.io/gh/danog/AsyncOrm)
-[![Mutation testing badge](https://img.shields.io/endpoint?style=flat&url=https%3A%2F%2Fbadge-api.stryker-mutator.io%2Fgithub.com%2Fdanog%2Floop%2Fmaster)](https://dashboard.stryker-mutator.io/r>
 [![Psalm coverage](https://shepherd.dev/github/danog/AsyncOrm/coverage.svg)](https://shepherd.dev/github/danog/AsyncOrm)
 [![Psalm level 1](https://shepherd.dev/github/danog/AsyncOrm/level.svg)](https://shepherd.dev/github/danog/AsyncOrm)
-![License](https://img.shields.io/badge/license-MIT-blue.svg)
+![License](https://img.shields.io/badge/license-Apache-2.0-blue.svg)
 
 Async ORM based on AMPHP v3 and fibers, created by Daniil Gentili <daniil@daniil.it> and Alexander Pankratov <alexander@i-c-a.su>.  
 

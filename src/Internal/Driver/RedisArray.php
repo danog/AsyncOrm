@@ -95,8 +95,9 @@ final class RedisArray extends DriverArray
 
     public function set(string|int $key, mixed $value): void
     {
-        /** @psalm-suppress MixedArgument The serializer always produces a string */
-        $this->db->set($this->config->table.':'.(string) $key, $this->serializer->serialize($value));
+        /** @var string */
+        $value = $this->serializer->serialize($value);
+        $this->db->set($this->config->table.':'.(string) $key, $value);
     }
 
     public function get(string|int $key): mixed

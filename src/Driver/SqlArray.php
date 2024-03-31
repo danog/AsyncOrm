@@ -88,12 +88,14 @@ abstract class SqlArray extends DriverArray
     public function set(string|int $key, mixed $value): void
     {
         $key = (string) $key;
+        /** @var scalar */
+        $value = $this->serializer->serialize($value);
 
         $this->execute(
             $this->set,
             [
                 'index' => $key,
-                'value' => $this->serializer->serialize($value),
+                'value' => $value,
             ],
         );
     }
@@ -124,8 +126,7 @@ abstract class SqlArray extends DriverArray
     {
         $row = $this->execute($this->count);
         $res = $row->fetchRow();
-        \assert($res !== null);
-        /** @var int */
+        \assert($res !== null && isset($res['count']) && \is_int($res['count']));
         return $res['count'];
     }
 
@@ -139,7 +140,7 @@ abstract class SqlArray extends DriverArray
 
     /**
      * Perform async request to db.
-     *
+     * @param array<string, scalar> $params
      */
     protected function execute(string $sql, array $params = []): SqlResult
     {

@@ -58,9 +58,16 @@ abstract class DriverArray extends DbArray
         $this->inited = true;
     }
 
+    /**
+     * @template TTKey as array-key
+     * @template TTValue
+     * @param DbArray<TTKey, TTValue> $previous
+     * @return DbArray<TTKey, TTValue>
+     */
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $migrate = true;
+        /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
         if ($previous !== null
             && $previous::class === static::class
             && $previous->config == $config
@@ -72,12 +79,14 @@ abstract class DriverArray extends DbArray
         }
         \assert($config->settings instanceof DriverSettings);
 
+        /** @var DbArray<TTKey, TTValue> */
         $instance = new static($config, $config->settings->serializer);
 
         if ($previous === null || !$migrate) {
             return $instance;
         }
 
+        /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
         if ($previous instanceof SqlArray
             && $instance instanceof SqlArray
             && $previous::class === $instance::class
@@ -85,7 +94,6 @@ abstract class DriverArray extends DbArray
             $instance->importFromTable($previous->config->table);
         } else {
             $promises = [];
-            /** @psalm-suppress MixedAssignment */
             foreach ($previous->getIterator() as $key => $value) {
                 $promises []= async($previous->unset(...), $key)
                     ->map(static fn () => $instance->set($key, $value));

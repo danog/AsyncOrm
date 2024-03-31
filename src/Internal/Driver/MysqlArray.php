@@ -82,8 +82,10 @@ final class MysqlArray extends SqlArray
                     COLLATE 'utf8mb4_general_ci'
                 ");
                 try {
-                    /** @psalm-suppress PossiblyNullArrayAccess */
-                    $max = (int) $connection->query("SHOW VARIABLES LIKE 'max_connections'")->fetchRow()['Value'];
+                    $max = $connection->query("SHOW VARIABLES LIKE 'max_connections'")->fetchRow();
+                    \assert(\is_array($max));
+                    $max = $max['Value'] ?? null;
+                    \assert(\is_int($max));
                     if ($max < 100000) {
                         $connection->query("SET GLOBAL max_connections = 100000");
                     }
@@ -219,11 +221,9 @@ final class MysqlArray extends SqlArray
 
     /**
      * Perform async request to db.
-     *
      */
     protected function execute(string $sql, array $params = []): SqlResult
     {
-        /** @psalm-suppress MixedAssignment */
         foreach ($params as $key => $value) {
             if (\is_string($value)) {
                 $value = $this->pdo->quote($value);
