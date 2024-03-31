@@ -18,7 +18,7 @@
  * @author    Daniil Gentili <daniil@daniil.it>
  * @copyright 2016-2023 Daniil Gentili <daniil@daniil.it>
  * @license   https://opensource.org/license/apache-2-0 Apache 2.0
- * @link https://daniil.it/AsyncOrm AsyncOrm documentation
+ * @link https://github.com/danog/AsyncOrm AsyncOrm documentation
  */
 
 namespace danog\AsyncOrm;
@@ -51,7 +51,7 @@ enum ValueType: string
     /**
      * Values of any scalar type, serialized as specified in the settings.
      *
-     * Using SCALAR worsens performances, please use any of the other types possible.
+     * Using SCALAR worsens performances, please use any of the other types if possible.
      */
     case SCALAR = 'scalar';
 }

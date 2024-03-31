@@ -13,7 +13,7 @@
  * @copyright 2016-2024 Daniil Gentili <daniil@daniil.it>
  * @copyright 2016-2024 Alexander Pankratov <alexander@i-c-a.su>
  * @license   https://opensource.org/license/apache-2-0 Apache 2.0
- * @link https://daniil.it/AsyncOrm AsyncOrm documentation
+ * @link https://github.com/danog/AsyncOrm AsyncOrm documentation
  */
 
 namespace danog\AsyncOrm\Internal\Containers;

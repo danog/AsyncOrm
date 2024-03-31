@@ -71,17 +71,17 @@ final class Application
     /**
      * This field is automatically connected to the database using the specified Settings.
      * 
-     * @var DbArray<string, int>
+     * @var DbArray<string, MyObject>
      */
-    #[OrmMappedArray(KeyType::STRING, ValueType::INT)]
+    #[OrmMappedArray(KeyType::STRING, ValueType::OBJECT)]
     private DbArray $dbProperty1;
 
     /**
      * This field is automatically connected to the database using the specified Settings.
      * 
-     * @var DbArray<string, MyObject>
+     * @var DbArray<string, int>
      */
-    #[OrmMappedArray(KeyType::STRING, ValueType::OBJECT)]
+    #[OrmMappedArray(KeyType::STRING, ValueType::INT)]
     private DbArray $dbProperty2;
 
     public function __construct(
@@ -93,23 +93,23 @@ final class Application
 
     public function businessLogic(): void
     {
-        // Can store integers, strings, arrays or objects depending on the specified ValueType
-        $this->dbProperty1['someKey'] = 123;
-        var_dump($this->dbProperty1['someKey']);
+        $this->dbProperty1['someOtherKey'] = new MyObject("initialValue");
 
-        $this->dbProperty2['someOtherKey'] = new MyObject("initialValue");
+        // Can store integers, strings, arrays or objects depending on the specified ValueType
+        $this->dbProperty2['someKey'] = 123;
+        var_dump($this->dbProperty2['someKey']);        
     }
 
     public function businessLogic2(string $value): void
     {
-        $obj = $this->dbProperty2['someOtherKey'];
+        $obj = $this->dbProperty1['someOtherKey'];
         $obj->setValue($value);
         $obj->save();
     }
 
     public function businessLogic3(): string
     {
-        return $this->dbProperty2['someOtherKey']->getValue();
+        return $this->dbProperty1['someOtherKey']->getValue();
     }
 
     public function shutdown(): void
