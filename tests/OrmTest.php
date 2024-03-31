@@ -529,7 +529,7 @@ final class OrmTest extends TestCase
         $ormUnCached = $fieldNoCache->build();
 
         $orm->set($key, $value);
-        if ($value === ValueType::OBJECT) {
+        if ($valueType === ValueType::OBJECT) {
             $this->assertCount(1, $ormUnCached);
         } else {
             $this->assertCount(0, $ormUnCached);
