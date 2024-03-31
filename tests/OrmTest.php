@@ -33,6 +33,7 @@ use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
+use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
@@ -510,50 +511,72 @@ final class OrmTest extends TestCase
         (new TestObject)->save();
     }
 
-    public function testCache(): void
+    #[DataProvider('provideKeyValues')]
+    public function testCache(int $tablePostfix, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
-        $field = new DbArrayBuilder("testCache", new RedisSettings(
+        if ($value instanceof TestObject) {
+            $value = new TestObject;
+        }
+        $field = new DbArrayBuilder("testCache_{$tablePostfix}", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 1
-        ), KeyType::INT, ValueType::INT);
-        $fieldNoCache = new DbArrayBuilder("testCache", new RedisSettings(
+        ), $keyType, $valueType);
+        $fieldNoCache = new DbArrayBuilder("testCache_{$tablePostfix}", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 0
-        ), KeyType::INT, ValueType::INT);
+        ), $keyType, $valueType);
         $orm = $field->build();
         $ormUnCached = $fieldNoCache->build();
 
-        $orm->set(0, 1);
-        $this->assertCount(0, $ormUnCached);
-        delay(0.1);
-        $this->assertCount(0, $ormUnCached);
-        delay(0.9);
-        $this->assertCount(1, $ormUnCached);
+        $orm->set($key, $value);
+        if ($value === ValueType::OBJECT) {
+            $this->assertCount(1, $ormUnCached);
+        } else {
+            $this->assertCount(0, $ormUnCached);
+            delay(0.1);
+            $this->assertCount(0, $ormUnCached);
+            delay(0.9);
+        }
         delay(1.0);
-        /** @var CacheContainer */
-        $c = (new ReflectionProperty(CachedArray::class, 'cache'))->getValue($orm);
-        $this->assertCount(0, (new ReflectionProperty(CacheContainer::class, 'cache'))->getValue($c));
 
-        $f1 = async($orm->get(...), 0);
-        $f2 = async($orm->get(...), 0);
-        $this->assertSame(1, $f1->await());
-        $this->assertSame(1, $f2->await());
+        if ($value instanceof TestObject) {
+            unset($value);
+            $c = (new ReflectionProperty(ObjectArray::class, 'cache'))->getValue($orm);
+            $c->flushCache();
+            $this->assertCount(0, (new ReflectionProperty(ObjectContainer::class, 'cache'))->getValue($c));
+
+            $f1 = async($orm->get(...), $key);
+            $f2 = async($orm->get(...), $key);
+            $value = $f1->await();
+            $this->assertSame($value, $f1->await());
+            $this->assertSame($value, $f2->await());
+        } else {
+            /** @var CacheContainer */
+            $c = (new ReflectionProperty(CachedArray::class, 'cache'))->getValue($orm);
+            $this->assertCount(0, (new ReflectionProperty(CacheContainer::class, 'cache'))->getValue($c));
+            $f1 = async($orm->get(...), $key);
+            $f2 = async($orm->get(...), $key);
+            $this->assertSame($value, $f1->await());
+            $this->assertSame($value, $f2->await());
+        }
 
         $orm->clear();
-
+    }
+    public function testCacheStandalone(): void
+    {
         $obj = new TestObject;
         $obj->initDbProperties(new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 1
-        ), 'testCacheMore_');
+        ), "testCacheStandalone_");
 
-        $fieldNoCache2 = new DbArrayBuilder("testCacheMore_arr2", new RedisSettings(
+        $fieldNoCache2 = new DbArrayBuilder("testCacheStandalone_arr2", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 0
         ), KeyType::INT, ValueType::INT);
         $orm2Uncached = $fieldNoCache2->build();
 
-        $fieldNoCache4 = new DbArrayBuilder("testCacheMore_arr4", new RedisSettings(
+        $fieldNoCache4 = new DbArrayBuilder("testCacheStandalone_arr4", new RedisSettings(
             RedisConfig::fromUri("redis://127.0.0.1"),
             cacheTtl: 0
         ), KeyType::INT, ValueType::INT);
@@ -576,22 +599,7 @@ final class OrmTest extends TestCase
     {
         $key = 0;
         foreach (self::provideSettings() as [, $settings]) {
-            foreach ([
-                [ValueType::INT, 123],
-                [ValueType::STRING, '123'],
-                [ValueType::STRING, 'test'],
-                [ValueType::FLOAT, 123.321],
-                [ValueType::BOOL, true],
-                [ValueType::BOOL, false],
-
-                // Uncomment when segfaults are fixed
-                [ValueType::OBJECT, new TestObject],
-
-                [ValueType::SCALAR, 'test'],
-                [ValueType::SCALAR, 123],
-                [ValueType::SCALAR, ['test' => 123]],
-                [ValueType::SCALAR, 123.321],
-            ] as [$valueType, $value]) {
+            foreach (self::provideKeyValues() as [, $keyType, $key, $valueType, $value]) {
                 if ($valueType === ValueType::OBJECT && (
                     $settings instanceof MemorySettings
                     || $settings->serializer instanceof Json
@@ -601,37 +609,64 @@ final class OrmTest extends TestCase
                 yield [
                     $key++,
                     $settings,
-                    KeyType::INT,
-                    1234,
-                    $valueType,
-                    $value
-                ];
-                yield [
-                    $key++,
-                    $settings,
-                    KeyType::STRING,
-                    'test',
-                    $valueType,
-                    $value
-                ];
-                yield [
-                    $key++,
-                    $settings,
-                    KeyType::STRING,
-                    '4321',
-                    $valueType,
-                    $value
-                ];
-                yield [
-                    $key++,
-                    $settings,
-                    KeyType::STRING_OR_INT,
-                    'test_2',
+                    $keyType,
+                    $key,
                     $valueType,
                     $value
                 ];
             }
         }
+    }
+
+    public static function provideKeyValues(): \Generator
+    {
+        $key = 0;
+        foreach ([
+            [ValueType::INT, 123],
+            [ValueType::STRING, '123'],
+            [ValueType::STRING, 'test'],
+            [ValueType::FLOAT, 123.321],
+            [ValueType::BOOL, true],
+            [ValueType::BOOL, false],
+
+            // Uncomment when segfaults are fixed
+            [ValueType::OBJECT, new TestObject],
+
+            [ValueType::SCALAR, 'test'],
+            [ValueType::SCALAR, 123],
+            [ValueType::SCALAR, ['test' => 123]],
+            [ValueType::SCALAR, 123.321],
+        ] as [$valueType, $value]) {
+            yield [
+                $key++,
+                KeyType::INT,
+                1234,
+                $valueType,
+                $value
+            ];
+            yield [
+                $key++,
+                KeyType::STRING,
+                'test',
+                $valueType,
+                $value
+            ];
+            yield [
+                $key++,
+                KeyType::STRING,
+                '4321',
+                $valueType,
+                $value
+            ];
+            yield [
+                $key++,
+                KeyType::STRING_OR_INT,
+                'test_2',
+                $valueType,
+                $value
+            ];
+        }
+
     }
 
     public static function provideSettings(): \Generator

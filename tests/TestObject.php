@@ -54,7 +54,7 @@ final class TestObject extends DbObject
 
     #[OrmMappedArray(
         KeyType::INT,
-        ValueType::INT,
+        ValueType::OBJECT,
         cacheTtl: 0,
     )]
     public DbArray $arr3;

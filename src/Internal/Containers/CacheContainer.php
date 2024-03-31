@@ -170,8 +170,12 @@ final class CacheContainer
             }
             foreach ($updatedValues as $key => $value) {
                 if (($newValues[$key] = $this->cache[$key]) === $value) {
+                    // The value we wrote is equal to the latest value,
+                    // turn into a read-cache entry
                     $newTtl[$key] = \time() + $this->cacheTtl;
                 } else {
+                    // The value we wrote is already old,
+                    // keep it a write-cache entry to re-write it later
                     $newTtl[$key] = $this->ttl[$key];
                 }
             }
