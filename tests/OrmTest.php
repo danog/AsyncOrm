@@ -597,7 +597,7 @@ final class OrmTest extends TestCase
 
     public static function provideSettingsKeysValues(): \Generator
     {
-        $key = 0;
+        $k = 0;
         foreach (self::provideSettings() as [, $settings]) {
             foreach (self::provideKeyValues() as [, $keyType, $key, $valueType, $value]) {
                 if ($valueType === ValueType::OBJECT && (
@@ -607,7 +607,7 @@ final class OrmTest extends TestCase
                     continue;
                 }
                 yield [
-                    $key++,
+                    $k++,
                     $settings,
                     $keyType,
                     $key,
