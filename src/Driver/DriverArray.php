@@ -98,8 +98,10 @@ abstract class DriverArray extends DbArray
                 $promises []= async($previous->unset(...), $key)
                     ->map(static fn () => $instance->set($key, $value));
                 if (\count($promises) % 500 === 0) {
+                    // @codeCoverageIgnoreStart
                     await($promises);
                     $promises = [];
+                    // @codeCoverageIgnoreEnd
                 }
             }
             if ($promises) {

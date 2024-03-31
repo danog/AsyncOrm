@@ -52,6 +52,21 @@ final class TestObject extends DbObject
     )]
     public DbArray $arr2;
 
+    #[OrmMappedArray(
+        KeyType::INT,
+        ValueType::INT,
+        cacheTtl: 0,
+    )]
+    public DbArray $arr3;
+
+    #[OrmMappedArray(
+        KeyType::INT,
+        ValueType::INT,
+        cacheTtl: 0,
+        optimizeIfWastedMb: 0
+    )]
+    public DbArray $arr4;
+
     public function __sleep()
     {
         return ['savedProp', 'arr'];

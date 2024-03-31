@@ -44,6 +44,20 @@ trait DbAutoProperties
     /** @var list<CachedArray> */
     private array $properties = [];
 
+    /** @return list<\ReflectionProperty> */
+    private function getDbAutoProperties(): array
+    {
+        $res = [];
+        foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
+            $attr = $property->getAttributes(OrmMappedArray::class);
+            if (!$attr) {
+                continue;
+            }
+            $res []= $property;
+        }
+        return $res;
+    }
+
     /**
      * Initialize database properties.
      */
@@ -51,17 +65,15 @@ trait DbAutoProperties
     {
         $this->properties = [];
         $promises = [];
-        foreach ((new ReflectionClass(static::class))->getProperties() as $property) {
+        foreach ($this->getDbAutoProperties() as $property) {
             $attr = $property->getAttributes(OrmMappedArray::class);
-            if (!$attr) {
-                continue;
-            }
+            \assert(\count($attr) !== 0);
             $attr = $attr[0]->newInstance();
 
             if ($settings instanceof DriverSettings) {
                 $ttl = $attr->cacheTtl ?? $settings->cacheTtl;
                 if ($ttl !== $settings->cacheTtl) {
-                    $settings = new $settings(\array_merge(
+                    $settings = new $settings(...\array_merge(
                         (array) $settings,
                         ['cacheTtl' => $ttl]
                     ));
@@ -70,7 +82,7 @@ trait DbAutoProperties
                     $optimize = $attr->optimizeIfWastedMb ?? $settings->optimizeIfWastedMb;
 
                     if ($optimize !== $settings->optimizeIfWastedMb) {
-                        $settings = new $settings(\array_merge(
+                        $settings = new $settings(...\array_merge(
                             (array) $settings,
                             ['optimizeIfWastedMb' => $optimize]
                         ));

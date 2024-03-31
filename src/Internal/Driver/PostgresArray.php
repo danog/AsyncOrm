@@ -130,8 +130,10 @@ class PostgresArray extends SqlArray
             } elseif ($key === 'value') {
                 $expected = $valueType;
             } else {
+                // @codeCoverageIgnoreStart
                 $connection->query("ALTER TABLE \"bytea_{$config->table}\" DROP \"$key\"");
                 continue;
+                // @codeCoverageIgnoreEnd
             }
             if ($expected !== $type) {
                 if ($expected === 'BIGINT') {

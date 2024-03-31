@@ -33,6 +33,7 @@ use AssertionError;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
+use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\KeyType;
@@ -379,6 +380,27 @@ final class OrmTest extends TestCase
         $this->assertEquals(1, $cnt);
 
         $this->assertCount(0, $old);
+
+        $field = new DbArrayBuilder(
+            $table.'_new',
+            new MemorySettings,
+            KeyType::INT,
+            ValueType::INT
+        );
+        $old = $orm;
+        $orm = $field->build($old);
+        $this->assertSame(123, $orm[321]);
+        $this->assertTrue(isset($orm[321]));
+
+        $cnt = 0;
+        foreach ($orm as $kk => $vv) {
+            $cnt++;
+            $this->assertSame(321, $kk);
+            $this->assertSame(123, $vv);
+        }
+        $this->assertEquals(1, $cnt);
+
+        $this->assertCount(1, $old);
     }
 
     #[DataProvider('provideSettings')]
@@ -486,6 +508,12 @@ final class OrmTest extends TestCase
         $field->build()->clear();
     }
 
+    public function testException(): void
+    {
+        $this->expectExceptionMessage("Cannot save an uninitialized object!");
+        (new TestObject)->save();
+    }
+
     public function testCache(): void
     {
         $field = new DbArrayBuilder("testCache", new RedisSettings(
@@ -505,7 +533,47 @@ final class OrmTest extends TestCase
         $this->assertCount(0, $ormUnCached);
         delay(0.9);
         $this->assertCount(1, $ormUnCached);
+        delay(1.0);
+        /** @var CacheContainer */
+        $c = (new ReflectionProperty(CachedArray::class, 'cache'))->getValue($orm);
+        $this->assertCount(0, (new ReflectionProperty(CacheContainer::class, 'cache'))->getValue($c));
+
+        $f1 = async($orm->get(...), 0);
+        $f2 = async($orm->get(...), 0);
+        $this->assertSame(1, $f1->await());
+        $this->assertSame(1, $f2->await());
+
         $orm->clear();
+
+        $obj = new TestObject;
+        $obj->initDbProperties(new RedisSettings(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 1
+        ), 'testCacheMore_');
+
+        $fieldNoCache2 = new DbArrayBuilder("testCacheMore_arr2", new RedisSettings(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 0
+        ), KeyType::INT, ValueType::INT);
+        $orm2Uncached = $fieldNoCache2->build();
+
+        $fieldNoCache4 = new DbArrayBuilder("testCacheMore_arr4", new RedisSettings(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 0
+        ), KeyType::INT, ValueType::INT);
+        $orm4Uncached = $fieldNoCache4->build();
+
+        $obj->arr2->set(0, 1);
+        $this->assertCount(0, $orm2Uncached);
+        delay(0.1);
+        $this->assertCount(0, $orm2Uncached);
+        delay(0.9);
+        $this->assertCount(1, $orm2Uncached);
+        $orm2Uncached->clear();
+
+        $obj->arr4->set(0, 1);
+        $this->assertCount(1, $orm4Uncached);
+        $orm4Uncached->clear();
     }
 
     public static function provideSettingsKeysValues(): \Generator
