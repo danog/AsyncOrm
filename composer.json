@@ -33,10 +33,10 @@
     },
     "require-dev": {
         "vimeo/psalm": "dev-master",
-        "phpunit/phpunit": "^11.0.6",
+        "phpunit/phpunit": "^11.0.9",
         "amphp/php-cs-fixer-config": "^2.0.1",
-        "friendsofphp/php-cs-fixer": "^3.51",
-        "amphp/process": "^2.0",
+        "friendsofphp/php-cs-fixer": "^3.52.1",
+        "amphp/process": "^2.0.2",
         "infection/infection": "^0.28.1",
         "danog/phpdoc": "^0.1.22"
     },
