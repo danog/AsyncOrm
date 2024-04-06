@@ -598,10 +598,24 @@ final class OrmTest extends TestCase
         $this->assertCount(0, $orm2Uncached);
         delay(0.9);
         $this->assertCount(1, $orm2Uncached);
+        $fieldNoCache2 = new DbArrayBuilder("testCacheStandalone_arr2", new RedisSettings(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 100
+        ), KeyType::INT, ValueType::INT);
+        $orm2Uncached = $fieldNoCache2->build($orm2Uncached);
+        $this->assertCount(1, $orm2Uncached);
         $orm2Uncached->clear();
 
         $obj->arr4->set(0, 1);
         $this->assertCount(1, $orm4Uncached);
+
+        $fieldNoCache4 = new DbArrayBuilder("testCacheStandalone_arr4", new RedisSettings(
+            RedisConfig::fromUri("redis://127.0.0.1"),
+            cacheTtl: 100
+        ), KeyType::INT, ValueType::INT);
+        $orm4Uncached = $fieldNoCache4->build($orm4Uncached);
+        $this->assertCount(1, $orm4Uncached);
+
         $orm4Uncached->clear();
     }
 
