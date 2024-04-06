@@ -23,7 +23,6 @@
       <code><![CDATA[$previous instanceof self]]></code>
     </DocblockTypeContradiction>
     <MixedArgumentTypeCoercion>
-      <code><![CDATA[$new::getInstance($config, $previous)]]></code>
       <code><![CDATA[$new::getInstance($config, null)]]></code>
     </MixedArgumentTypeCoercion>
     <MixedPropertyTypeCoercion>
