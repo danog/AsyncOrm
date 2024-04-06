@@ -69,7 +69,7 @@ final class TestObject extends DbObject
 
     public function __sleep()
     {
-        return ['savedProp', 'arr'];
+        return ['savedProp', 'arr', 'arr2', 'arr3', 'arr4'];
     }
 
     protected function onLoaded(DbArrayBuilder $config): void
