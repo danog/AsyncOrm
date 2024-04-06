@@ -142,7 +142,9 @@ class PostgresArray extends SqlArray
                 $connection->query("ALTER TABLE \"bytea_{$config->table}\" ALTER COLUMN \"$key\" TYPE $expected");
             }
             if ($null !== 'NO') {
+                // @codeCoverageIgnoreStart
                 $connection->query("ALTER TABLE \"bytea_{$config->table}\" ALTER COLUMN \"$key\" SET NOT NULL");
+                // @codeCoverageIgnoreEnd
             }
         }
 

@@ -168,8 +168,10 @@ final class MysqlArray extends SqlArray
             } elseif ($key === 'value') {
                 $expected = $valueType;
             } else {
+                // @codeCoverageIgnoreStart
                 $db->query("ALTER TABLE `{$config->table}` DROP `$key`");
                 continue;
+                // @codeCoverageIgnoreEnd
             }
             if ($expected !== $type || $null !== 'NO') {
                 $db->query("ALTER TABLE `{$config->table}` MODIFY `$key` $expected NOT NULL");
@@ -182,11 +184,15 @@ final class MysqlArray extends SqlArray
                 ->execute([$database, $config->table])
                 ->fetchRow();
             if ($result === null) {
+                // @codeCoverageIgnoreStart
                 throw new AssertionError("Result cannot be null!");
+                // @codeCoverageIgnoreEnd
             }
             $result = $result['data_free'] ?? $result['DATA_FREE'];
             if (!\is_int($result)) {
+                // @codeCoverageIgnoreStart
                 throw new AssertionError("data_free must be an integer!");
+                // @codeCoverageIgnoreEnd
             }
             if (($result >> 20) >= $settings->optimizeIfWastedMb) {
                 $db->query("OPTIMIZE TABLE `{$config->table}`");
