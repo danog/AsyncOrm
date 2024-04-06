@@ -163,8 +163,10 @@ final class RedisArray extends DriverArray
         foreach ($request as $key) {
             $keys[] = $key;
             if (\count($keys) === 10) {
+                // @codeCoverageIgnoreStart
                 $this->db->delete(...$keys);
                 $keys = [];
+                // @codeCoverageIgnoreEnd
             }
         }
         if ($keys) {

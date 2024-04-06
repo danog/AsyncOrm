@@ -101,7 +101,6 @@ final class MysqlArray extends SqlArray
                 if (!\extension_loaded('pdo_mysql')) {
                     throw new AssertionError("PDO is needed for the mysql backend!");
                 }
-                // @codeCoverageIgnoreEnd
 
                 $pdo = new PDO(
                     $host[0] === '/'
@@ -110,6 +109,7 @@ final class MysqlArray extends SqlArray
                     $settings->config->getUser(),
                     $settings->config->getPassword(),
                 );
+                // @codeCoverageIgnoreEnd
 
                 self::$connections[$dbKey] = [
                     new MysqlConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout),

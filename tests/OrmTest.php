@@ -50,6 +50,7 @@ use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
+use Revolt\EventLoop;
 use WeakReference;
 
 use function Amp\async;
@@ -561,6 +562,12 @@ final class OrmTest extends TestCase
             $f2 = async($orm->get(...), $key);
             $this->assertSame($value, $f1->await());
             $this->assertSame($value, $f2->await());
+
+            $orm[$key] = PHP_INT_MAX;
+            $this->assertSame(PHP_INT_MAX, $orm[$key]);
+            EventLoop::queue($orm->set(...), $key, $value);
+            $c->flushCache();
+            $this->assertSame($value, $orm[$key]);
         }
 
         $orm->clear();
