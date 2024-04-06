@@ -26,7 +26,11 @@ There are two main ways to use the ORM: through automatic ORM properties, which 
 * [Automatic ORM properties example &raquo;](https://github.com/danog/AsyncOrm/blob/master/examples/1-automatic.php)
 * [Manual example &raquo;](https://github.com/danog/AsyncOrm/blob/master/examples/2-manual.php)
 
-The `DbArray` obtained through one of the methods above is an abstract array object that automatically stores and fetches elements of the specified type, from the specified database.  
+The `DbArray` obtained through one of the methods above is an abstract array object that automatically stores and fetches elements of the specified [type &raquo;](#value-types), from the specified database.  
+
+`DbArray`s of type `ValueType::OBJECT` can contain objects extending `DbObject`.  
+
+Classes extending `DbObject` have a special `save` method that can be used to persist object changes to the database, as can be seen in the [example](https://github.com/danog/AsyncOrm/blob/master/examples/2-manual.php).  
 
 ### Settings
 
@@ -79,35 +83,7 @@ For optimal performance, the specified types must be as strict as possible, here
 
 One of the most important value types is `ValueType::OBJECT`, it is used to store entire objects extending the `DbObject` class to the database.  
 
-Objects extending `DbObject` have a special `save` method that can be used to persist object changes to the database.  
-
-```php
-$fieldConfig = new DbArrayBuilder(
-    'tableName',
-    $settings,
-    KeyType::STRING,
-    ValueType::OBJECT
-);
-
-$db = $fieldConfig->build();
-
-class MyObject extends DbObject
-{
-    public function __construct(
-        public readonly string $value
-    ) {
-    }
-}
-
-$db->set("a", new MyObject('v'));
-$obj = $db->get("a");
-
-var_dump($obj->value);
-$obj->value = 'newValue';
-$obj->save();
-
-var_dump($db->get("a")->value); // newValue
-```
+Objects extending `DbObject` have a special `save` method that can be used to persist object changes to the database, as can be seen in the [example](https://github.com/danog/AsyncOrm/blob/master/examples/2-manual.php).  
 
 ## API Documentation
 

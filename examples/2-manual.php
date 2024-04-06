@@ -50,11 +50,16 @@ $db = $fieldConfig->build();
 class MyObject extends DbObject
 {
     public function __construct(
-        public readonly string $value
+        public string $value
     ) {
     }
 }
 
 $db->set("a", new MyObject('v'));
 $obj = $db->get("a");
+
 var_dump($obj->value);
+$obj->value = 'newValue';
+$obj->save();
+
+var_dump($db->get("a")->value); // newValue
