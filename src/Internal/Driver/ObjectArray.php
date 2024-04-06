@@ -25,10 +25,10 @@
 
 namespace danog\AsyncOrm\Internal\Driver;
 
+use AssertionError;
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
-use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Settings\DriverSettings;
 use Traversable;
@@ -68,12 +68,9 @@ final class ObjectArray extends DbArray
             $previous->cache->config = $config;
             $previous->cache->cacheTtl = $config->settings->cacheTtl;
         } else {
-            $previous = new self($new::getInstance($config, $previous), $config, $config->settings->cacheTtl);
-        }
-        if ($previous->cache->inner instanceof MemoryArray) {
-            $previous->cache->flushCache();
-            /** @var DbArray<TTKey, TValue> */
-            return $previous->cache->inner;
+            // @codeCoverageIgnoreStart
+            throw new AssertionError("Impossible!");
+            // @codeCoverageIgnoreEnd
         }
         $previous->cache->startCacheCleanupLoop();
         /** @var DbArray<TTKey, TValue> */
