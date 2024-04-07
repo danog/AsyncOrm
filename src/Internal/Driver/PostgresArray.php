@@ -108,6 +108,27 @@ class PostgresArray extends SqlArray
             default => new Passthrough
         };
 
+        /** @psalm-suppress InvalidArgument */
+        parent::__construct(
+            $config,
+            $serializer,
+            $connection,
+            "SELECT value FROM \"bytea_{$config->table}\" WHERE key = :index",
+            "
+                INSERT INTO \"bytea_{$config->table}\"
+                (key,value)
+                VALUES (:index, :value)
+                ON CONFLICT (key) DO UPDATE SET value = :value
+            ",
+            "
+                DELETE FROM \"bytea_{$config->table}\"
+                WHERE key = :index
+            ",
+            "SELECT count(key) as count FROM \"bytea_{$config->table}\"",
+            "SELECT key, value FROM \"bytea_{$config->table}\"",
+            "DELETE FROM \"bytea_{$config->table}\""
+        );
+
         $connection->query("
             CREATE TABLE IF NOT EXISTS \"bytea_{$config->table}\"
             (
@@ -147,27 +168,6 @@ class PostgresArray extends SqlArray
                 // @codeCoverageIgnoreEnd
             }
         }
-
-        /** @psalm-suppress InvalidArgument */
-        parent::__construct(
-            $config,
-            $serializer,
-            $connection,
-            "SELECT value FROM \"bytea_{$config->table}\" WHERE key = :index",
-            "
-                INSERT INTO \"bytea_{$config->table}\"
-                (key,value)
-                VALUES (:index, :value)
-                ON CONFLICT (key) DO UPDATE SET value = :value
-            ",
-            "
-                DELETE FROM \"bytea_{$config->table}\"
-                WHERE key = :index
-            ",
-            "SELECT count(key) as count FROM \"bytea_{$config->table}\"",
-            "SELECT key, value FROM \"bytea_{$config->table}\"",
-            "DELETE FROM \"bytea_{$config->table}\""
-        );
     }
 
     protected function importFromTable(string $fromTable): void

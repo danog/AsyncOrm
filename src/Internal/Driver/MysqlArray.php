@@ -142,6 +142,30 @@ final class MysqlArray extends SqlArray
             ValueType::BOOL => new BoolInt,
             default => new Passthrough
         };
+        /** @psalm-suppress InvalidArgument */
+        parent::__construct(
+            $config,
+            $serializer,
+            $db,
+            "SELECT `value` FROM `{$config->table}` WHERE `key` = :index LIMIT 1",
+            "
+                REPLACE INTO `{$config->table}` 
+                SET `key` = :index, `value` = :value 
+            ",
+            "
+                DELETE FROM `{$config->table}`
+                WHERE `key` = :index
+            ",
+            "
+                SELECT count(`key`) as `count` FROM `{$config->table}`
+            ",
+            "
+                SELECT `key`, `value` FROM `{$config->table}`
+            ",
+            "
+                DELETE FROM `{$config->table}`
+            "
+        );
 
         $db->query("
             CREATE TABLE IF NOT EXISTS `{$config->table}`
@@ -198,31 +222,6 @@ final class MysqlArray extends SqlArray
                 $db->query("OPTIMIZE TABLE `{$config->table}`");
             }
         }
-
-        /** @psalm-suppress InvalidArgument */
-        parent::__construct(
-            $config,
-            $serializer,
-            $db,
-            "SELECT `value` FROM `{$config->table}` WHERE `key` = :index LIMIT 1",
-            "
-                REPLACE INTO `{$config->table}` 
-                SET `key` = :index, `value` = :value 
-            ",
-            "
-                DELETE FROM `{$config->table}`
-                WHERE `key` = :index
-            ",
-            "
-                SELECT count(`key`) as `count` FROM `{$config->table}`
-            ",
-            "
-                SELECT `key`, `value` FROM `{$config->table}`
-            ",
-            "
-                DELETE FROM `{$config->table}`
-            "
-        );
     }
 
     /**
