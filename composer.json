@@ -24,7 +24,7 @@
         }
     ],
     "require": {
-        "php": ">=8.2.17",
+        "php": ">=8.2.4",
         "amphp/mysql": "^3.0",
         "amphp/postgres": "^2.0",
         "amphp/redis": "^2.0",
