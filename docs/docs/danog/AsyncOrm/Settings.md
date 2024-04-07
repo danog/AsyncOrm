@@ -16,10 +16,10 @@ Base interface for ORM settings.
 
 
 ## Method list:
-* [`getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`](#getdriverclass-class-string-danog-asyncorm-dbarray)
+* [`getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`](#getDriverClass)
 
 ## Methods:
-### `getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`
+### <a name="getDriverClass"></a> `getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`
 
 
 

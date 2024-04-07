@@ -16,10 +16,10 @@ MemorySettings backend settings.
 
 
 ## Method list:
-* [`getDriverClass(): string`](#getdriverclass-string)
+* [`getDriverClass(): string`](#getDriverClass)
 
 ## Methods:
-### `getDriverClass(): string`
+### <a name="getDriverClass"></a> `getDriverClass(): string`
 
 
 

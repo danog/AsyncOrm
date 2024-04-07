@@ -15,17 +15,19 @@ Attribute use to autoconfigure ORM properties.
 
 
 ## Properties
-* `$keyType`: `\danog\AsyncOrm\KeyType` Key type.
-* `$valueType`: `\danog\AsyncOrm\ValueType` Value type.
-* `$cacheTtl`: `int<0, max>|null` 
-* `$optimizeIfWastedMb`: `int<1, max>|null` 
+* `$keyType`: `danog\AsyncOrm\KeyType` Key type.
+* `$valueType`: `danog\AsyncOrm\ValueType` Value type.
+* `$cacheTtl`: `(int<0, max> | null)` TTL of the cache, if null defaults to the value specified in the settings.
+
+If zero disables caching.
+* `$optimizeIfWastedMb`: `(int<1, max> | null)` Optimize table if more than this many megabytes are wasted, if null defaults to the value specified in the settings.
 * `$tablePostfix`: `?string` Table name postfix, if null defaults to the property name.
 
 ## Method list:
-* [`__construct(\danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType, ?int $cacheTtl = NULL, ?int $optimizeIfWastedMb = NULL, ?string $tablePostfix = NULL)`](#__construct-danog-asyncorm-keytype-keytype-danog-asyncorm-valuetype-valuetype-int-cachettl-null-int-optimizeifwastedmb-null-string-tablepostfix-null)
+* [`__construct(\danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType, ?int $cacheTtl = NULL, ?int $optimizeIfWastedMb = NULL, ?string $tablePostfix = NULL)`](#__construct)
 
 ## Methods:
-### `__construct(\danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType, ?int $cacheTtl = NULL, ?int $optimizeIfWastedMb = NULL, ?string $tablePostfix = NULL)`
+### <a name="__construct"></a> `__construct(\danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType, ?int $cacheTtl = NULL, ?int $optimizeIfWastedMb = NULL, ?string $tablePostfix = NULL)`
 
 
 

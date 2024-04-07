@@ -16,16 +16,16 @@ Contains configuration needed to build a DbArray.
 
 ## Properties
 * `$table`: `string` Table name.
-* `$settings`: `\danog\AsyncOrm\Settings` Settings.
-* `$keyType`: `\danog\AsyncOrm\KeyType` Key type.
-* `$valueType`: `\danog\AsyncOrm\ValueType` Value type.
+* `$settings`: `danog\AsyncOrm\Settings` Settings.
+* `$keyType`: `danog\AsyncOrm\KeyType` Key type.
+* `$valueType`: `danog\AsyncOrm\ValueType` Value type.
 
 ## Method list:
-* [`__construct(string $table, \danog\AsyncOrm\Settings $settings, \danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType)`](#__construct-string-table-danog-asyncorm-settings-settings-danog-asyncorm-keytype-keytype-danog-asyncorm-valuetype-valuetype)
-* [`build(?\danog\AsyncOrm\DbArray $previous = NULL): \danog\AsyncOrm\DbArray`](#build-danog-asyncorm-dbarray-previous-null-danog-asyncorm-dbarray)
+* [`__construct(string $table, \danog\AsyncOrm\Settings $settings, \danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType)`](#__construct)
+* [`build((\danog\AsyncOrm\DbArray<TKey, TValue>|null) $previous = NULL): \danog\AsyncOrm\DbArray<TKey, TValue>`](#build)
 
 ## Methods:
-### `__construct(string $table, \danog\AsyncOrm\Settings $settings, \danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType)`
+### <a name="__construct"></a> `__construct(string $table, \danog\AsyncOrm\Settings $settings, \danog\AsyncOrm\KeyType $keyType, \danog\AsyncOrm\ValueType $valueType)`
 
 
 
@@ -46,17 +46,19 @@ Parameters:
 
 
 
-### `build(?\danog\AsyncOrm\DbArray $previous = NULL): \danog\AsyncOrm\DbArray`
+### <a name="build"></a> `build((\danog\AsyncOrm\DbArray<TKey, TValue>|null) $previous = NULL): \danog\AsyncOrm\DbArray<TKey, TValue>`
 
 Build database array.
 
 
 Parameters:
 
-* `$previous`: `?\danog\AsyncOrm\DbArray`   
+* `$previous`: `(\danog\AsyncOrm\DbArray<TKey, TValue>|null)`   
 
 
 #### See also: 
+* `TKey`
+* `TValue`
 * [`\danog\AsyncOrm\DbArray`: DB array interface.](../../danog/AsyncOrm/DbArray.md)
 
 

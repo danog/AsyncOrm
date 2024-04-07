@@ -16,27 +16,27 @@ Serializer interface.
 
 
 ## Method list:
-* [`serialize(\TValue $value): mixed`](#serialize-tvalue-value-mixed)
-* [`deserialize(mixed $value): \TValue`](#deserialize-mixed-value-tvalue)
+* [`serialize(TValue $value): mixed`](#serialize)
+* [`deserialize(mixed $value): TValue`](#deserialize)
 
 ## Methods:
-### `serialize(\TValue $value): mixed`
+### <a name="serialize"></a> `serialize(TValue $value): mixed`
 
 
 
 
 Parameters:
 
-* `$value`: `\TValue`   
+* `$value`: `TValue`   
 
 
 #### See also: 
-* `\TValue`
+* `TValue`
 
 
 
 
-### `deserialize(mixed $value): \TValue`
+### <a name="deserialize"></a> `deserialize(mixed $value): TValue`
 
 
 
@@ -47,7 +47,7 @@ Parameters:
 
 
 #### See also: 
-* `\TValue`
+* `TValue`
 
 
 

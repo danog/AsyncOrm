@@ -16,23 +16,22 @@ Generic SQL database backend.
 
 
 ## Method list:
-* [`getIterator(): \Traversable<array-key, mixed>`](#getiterator-traversable-array-key-mixed)
-* [`get(mixed $key): mixed`](#get-mixed-key-mixed)
-* [`set(string|int $key, mixed $value): void`](#set-string-int-key-mixed-value-void)
-* [`unset(string|int $key): void`](#unset-string-int-key-void)
-* [`count(): \int The number of elements or public properties in the associated
-array or object, respectively.`](#count-int-the-number-of-elements-or-public-properties-in-the-associated-array-or-object-respectively)
-* [`clear(): void`](#clear-void)
-* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-dbarraybuilder-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
-* [`isset(\TKey $key): bool`](#isset-tkey-key-bool)
-* [`offsetGet(\TKey $offset): \TValue`](#offsetget-tkey-offset-tvalue)
-* [`offsetExists(\TKey $offset): bool`](#offsetexists-tkey-offset-bool)
-* [`offsetSet(\TKey $offset, \TValue $value): void`](#offsetset-tkey-offset-tvalue-value-void)
-* [`offsetUnset(\TKey $offset): void`](#offsetunset-tkey-offset-void)
-* [`getArrayCopy(): array`](#getarraycopy-array)
+* [`getIterator(): \Traversable<array-key, mixed>`](#getIterator)
+* [`get(mixed $key): mixed`](#get)
+* [`set(string|int $key, mixed $value): void`](#set)
+* [`unset(string|int $key): void`](#unset)
+* [`count(): int`](#count)
+* [`clear(): void`](#clear)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, \danog\AsyncOrm\DbArray<TTKey, TTValue> $previous): \danog\AsyncOrm\DbArray<TTKey, TTValue>`](#getInstance)
+* [`isset(TKey $key): bool`](#isset)
+* [`offsetGet(TKey $offset): TValue`](#offsetGet)
+* [`offsetExists(TKey $offset): bool`](#offsetExists)
+* [`offsetSet(TKey $offset, TValue $value): void`](#offsetSet)
+* [`offsetUnset(TKey $offset): void`](#offsetUnset)
+* [`getArrayCopy(): array`](#getArrayCopy)
 
 ## Methods:
-### `getIterator(): \Traversable<array-key, mixed>`
+### <a name="getIterator"></a> `getIterator(): \Traversable<array-key, mixed>`
 
 Get iterator.
 
@@ -43,7 +42,7 @@ Get iterator.
 
 
 
-### `get(mixed $key): mixed`
+### <a name="get"></a> `get(mixed $key): mixed`
 
 
 
@@ -54,7 +53,7 @@ Parameters:
 
 
 
-### `set(string|int $key, mixed $value): void`
+### <a name="set"></a> `set(string|int $key, mixed $value): void`
 
 
 
@@ -66,7 +65,7 @@ Parameters:
 
 
 
-### `unset(string|int $key): void`
+### <a name="unset"></a> `unset(string|int $key): void`
 
 Unset value for an offset.
 
@@ -77,23 +76,22 @@ Parameters:
 
 
 
-### `count(): \int The number of elements or public properties in the associated
-array or object, respectively.`
+### <a name="count"></a> `count(): int`
 
 Count elements.
 
 
 Return value: The number of elements or public properties in the associated
-array or object, respectively.
+            array or object, respectively.
 
 
-### `clear(): void`
+### <a name="clear"></a> `clear(): void`
 
 Clear all elements.
 
 
 
-### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
+### <a name="getInstance"></a> `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, \danog\AsyncOrm\DbArray<TTKey, TTValue> $previous): \danog\AsyncOrm\DbArray<TTKey, TTValue>`
 
 
 
@@ -101,100 +99,102 @@ Clear all elements.
 Parameters:
 
 * `$config`: `\danog\AsyncOrm\DbArrayBuilder`   
-* `$previous`: `?\danog\AsyncOrm\DbArray`   
+* `$previous`: `\danog\AsyncOrm\DbArray<TTKey, TTValue>`   
 
 
 #### See also: 
 * [`\danog\AsyncOrm\DbArrayBuilder`: Contains configuration needed to build a DbArray.](../../../danog/AsyncOrm/DbArrayBuilder.md)
+* `TTKey`
+* `TTValue`
 * [`\danog\AsyncOrm\DbArray`: DB array interface.](../../../danog/AsyncOrm/DbArray.md)
 
 
 
 
-### `isset(\TKey $key): bool`
+### <a name="isset"></a> `isset(TKey $key): bool`
 
 Check if element exists.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
+* `$key`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetGet(\TKey $offset): \TValue`
+### <a name="offsetGet"></a> `offsetGet(TKey $offset): TValue`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetExists(\TKey $offset): bool`
+### <a name="offsetExists"></a> `offsetExists(TKey $offset): bool`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetSet(\TKey $offset, \TValue $value): void`
+### <a name="offsetSet"></a> `offsetSet(TKey $offset, TValue $value): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
-* `$value`: `\TValue`   
+* `$offset`: `TKey`   
+* `$value`: `TValue`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetUnset(\TKey $offset): void`
+### <a name="offsetUnset"></a> `offsetUnset(TKey $offset): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `getArrayCopy(): array`
+### <a name="getArrayCopy"></a> `getArrayCopy(): array`
 
 
 

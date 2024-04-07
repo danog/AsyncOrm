@@ -19,15 +19,15 @@ Base settings class for database backends.
 * `danog\AsyncOrm\Settings\DriverSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
-* `$serializer`: `\danog\AsyncOrm\Serializer` 
+* `$serializer`: `danog\AsyncOrm\Serializer` 
 * `$cacheTtl`: `int<0, max>` For how long to keep records in memory after last read.
 
 ## Method list:
-* [`__construct(?\danog\AsyncOrm\Serializer $serializer = NULL, int $cacheTtl = \self::DEFAULT_CACHE_TTL)`](#__construct-danog-asyncorm-serializer-serializer-null-int-cachettl-self-default_cache_ttl)
-* [`getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`](#getdriverclass-class-string-danog-asyncorm-dbarray)
+* [`__construct(?\danog\AsyncOrm\Serializer $serializer = NULL, int $cacheTtl = \self::DEFAULT_CACHE_TTL)`](#__construct)
+* [`getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`](#getDriverClass)
 
 ## Methods:
-### `__construct(?\danog\AsyncOrm\Serializer $serializer = NULL, int $cacheTtl = \self::DEFAULT_CACHE_TTL)`
+### <a name="__construct"></a> `__construct(?\danog\AsyncOrm\Serializer $serializer = NULL, int $cacheTtl = \self::DEFAULT_CACHE_TTL)`
 
 
 
@@ -44,7 +44,7 @@ Parameters:
 
 
 
-### `getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`
+### <a name="getDriverClass"></a> `getDriverClass(): class-string<\danog\AsyncOrm\DbArray>`
 
 
 

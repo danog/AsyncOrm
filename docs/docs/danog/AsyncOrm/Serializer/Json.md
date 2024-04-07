@@ -16,11 +16,11 @@ JSON serializer.
 
 
 ## Method list:
-* [`serialize(mixed $value): mixed`](#serialize-mixed-value-mixed)
-* [`deserialize(mixed $value): mixed`](#deserialize-mixed-value-mixed)
+* [`serialize(mixed $value): mixed`](#serialize)
+* [`deserialize(mixed $value): mixed`](#deserialize)
 
 ## Methods:
-### `serialize(mixed $value): mixed`
+### <a name="serialize"></a> `serialize(mixed $value): mixed`
 
 
 
@@ -31,7 +31,7 @@ Parameters:
 
 
 
-### `deserialize(mixed $value): mixed`
+### <a name="deserialize"></a> `deserialize(mixed $value): mixed`
 
 
 

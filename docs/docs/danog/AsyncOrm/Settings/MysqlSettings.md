@@ -1,6 +1,6 @@
 ---
 title: "danog\\AsyncOrm\\Settings\\MysqlSettings: MySQL backend settings."
-description: "MariaDb 10.2+ or Mysql 5.6+ required."
+description: "\nMariaDb 10.2+ or Mysql 5.6+ required.\n"
 
 ---
 # `danog\AsyncOrm\Settings\MysqlSettings`
@@ -12,7 +12,9 @@ description: "MariaDb 10.2+ or Mysql 5.6+ required."
 
 MySQL backend settings.  
 
+
 MariaDb 10.2+ or Mysql 5.6+ required.
+
 
 
 ## Constants
@@ -23,19 +25,24 @@ MariaDb 10.2+ or Mysql 5.6+ required.
 * `danog\AsyncOrm\Settings\MysqlSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
-* `$optimizeIfWastedMb`: `int<1, max>|null` 
-* `$maxConnections`: `positive-int` 
-* `$idleTimeout`: `positive-int` 
-* `$config`: `\T` 
-* `$serializer`: `\danog\AsyncOrm\Serializer` 
+* `$optimizeIfWastedMb`: `(int<1, max> | null)` 
+Whether to optimize MySQL tables automatically if more than the specified amount of megabytes is wasted by the MySQL engine.
+
+Be careful when tweaking this setting as it may lead to slowdowns on startup.
+
+If null disables optimization.
+* `$maxConnections`: `positive-int` Maximum connection limit.
+* `$idleTimeout`: `positive-int` Idle timeout.
+* `$config`: `T` 
+* `$serializer`: `danog\AsyncOrm\Serializer` 
 * `$cacheTtl`: `int<0, max>` For how long to keep records in memory after last read.
 
 ## Method list:
-* [`__construct(\Amp\Mysql\MysqlConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<\1, \max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<\1, \max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT, ?int $optimizeIfWastedMb = NULL)`](#__construct-amp-mysql-mysqlconfig-config-danog-asyncorm-serializer-serializer-null-int-0-max-cachettl-self-default_cache_ttl-int-1-max-maxconnections-self-default_sql_max_connections-int-1-max-idletimeout-self-default_sql_idle_timeout-int-optimizeifwastedmb-null)
-* [`getDriverClass(): string`](#getdriverclass-string)
+* [`__construct(\Amp\Mysql\MysqlConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<1, max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<1, max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT, ?int $optimizeIfWastedMb = NULL)`](#__construct)
+* [`getDriverClass(): string`](#getDriverClass)
 
 ## Methods:
-### `__construct(\Amp\Mysql\MysqlConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<\1, \max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<\1, \max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT, ?int $optimizeIfWastedMb = NULL)`
+### <a name="__construct"></a> `__construct(\Amp\Mysql\MysqlConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<1, max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<1, max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT, ?int $optimizeIfWastedMb = NULL)`
 
 
 
@@ -44,21 +51,21 @@ Parameters:
 
 * `$config`: `\Amp\Mysql\MysqlConfig`   
 * `$serializer`: `?\danog\AsyncOrm\Serializer` to use for object and mixed type values, if null defaults to either Igbinary or Native.  
-* `$cacheTtl`: `int<\0, \max>` Cache TTL in seconds, if 0 disables caching.  
-* `$maxConnections`: `int<\1, \max>` Maximum connection limit  
-* `$idleTimeout`: `int<\1, \max>` Idle timeout  
+* `$cacheTtl`: `int<0, max>` Cache TTL in seconds, if 0 disables caching.  
+* `$maxConnections`: `int<1, max>` Maximum connection limit  
+* `$idleTimeout`: `int<1, max>` Idle timeout  
 * `$optimizeIfWastedMb`: `?int`   
 
 
 #### See also: 
 * `\Amp\Mysql\MysqlConfig`
 * [`\danog\AsyncOrm\Serializer`: Serializer interface.](../../../danog/AsyncOrm/Serializer.md)
-* `\max`
+* `max`
 
 
 
 
-### `getDriverClass(): string`
+### <a name="getDriverClass"></a> `getDriverClass(): string`
 
 
 

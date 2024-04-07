@@ -16,22 +16,22 @@ Base class for driver-based arrays.
 
 
 ## Method list:
-* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-dbarraybuilder-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
-* [`isset(\TKey $key): bool`](#isset-tkey-key-bool)
-* [`offsetGet(\TKey $offset): \TValue`](#offsetget-tkey-offset-tvalue)
-* [`offsetExists(\TKey $offset): bool`](#offsetexists-tkey-offset-bool)
-* [`offsetSet(\TKey $offset, \TValue $value): void`](#offsetset-tkey-offset-tvalue-value-void)
-* [`offsetUnset(\TKey $offset): void`](#offsetunset-tkey-offset-void)
-* [`getArrayCopy(): array`](#getarraycopy-array)
-* [`unset(\TKey $key): void`](#unset-tkey-key-void)
-* [`set(\TKey $key, \TValue $value): void`](#set-tkey-key-tvalue-value-void)
-* [`get(\TKey $key): ?\TValue`](#get-tkey-key-tvalue)
-* [`clear(): void`](#clear-void)
-* [`count(): mixed`](#count-mixed)
-* [`getIterator(): mixed`](#getiterator-mixed)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, \danog\AsyncOrm\DbArray<TTKey, TTValue> $previous): \danog\AsyncOrm\DbArray<TTKey, TTValue>`](#getInstance)
+* [`isset(TKey $key): bool`](#isset)
+* [`offsetGet(TKey $offset): TValue`](#offsetGet)
+* [`offsetExists(TKey $offset): bool`](#offsetExists)
+* [`offsetSet(TKey $offset, TValue $value): void`](#offsetSet)
+* [`offsetUnset(TKey $offset): void`](#offsetUnset)
+* [`getArrayCopy(): array`](#getArrayCopy)
+* [`unset(TKey $key): void`](#unset)
+* [`set(TKey $key, TValue $value): void`](#set)
+* [`get(TKey $key): ?TValue`](#get)
+* [`clear(): void`](#clear)
+* [`count()`](#count)
+* [`getIterator()`](#getIterator)
 
 ## Methods:
-### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
+### <a name="getInstance"></a> `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, \danog\AsyncOrm\DbArray<TTKey, TTValue> $previous): \danog\AsyncOrm\DbArray<TTKey, TTValue>`
 
 
 
@@ -39,169 +39,171 @@ Base class for driver-based arrays.
 Parameters:
 
 * `$config`: `\danog\AsyncOrm\DbArrayBuilder`   
-* `$previous`: `?\danog\AsyncOrm\DbArray`   
+* `$previous`: `\danog\AsyncOrm\DbArray<TTKey, TTValue>`   
 
 
 #### See also: 
 * [`\danog\AsyncOrm\DbArrayBuilder`: Contains configuration needed to build a DbArray.](../../../danog/AsyncOrm/DbArrayBuilder.md)
+* `TTKey`
+* `TTValue`
 * [`\danog\AsyncOrm\DbArray`: DB array interface.](../../../danog/AsyncOrm/DbArray.md)
 
 
 
 
-### `isset(\TKey $key): bool`
+### <a name="isset"></a> `isset(TKey $key): bool`
 
 Check if element exists.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
+* `$key`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetGet(\TKey $offset): \TValue`
+### <a name="offsetGet"></a> `offsetGet(TKey $offset): TValue`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetExists(\TKey $offset): bool`
+### <a name="offsetExists"></a> `offsetExists(TKey $offset): bool`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetSet(\TKey $offset, \TValue $value): void`
+### <a name="offsetSet"></a> `offsetSet(TKey $offset, TValue $value): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
-* `$value`: `\TValue`   
+* `$offset`: `TKey`   
+* `$value`: `TValue`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetUnset(\TKey $offset): void`
+### <a name="offsetUnset"></a> `offsetUnset(TKey $offset): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `getArrayCopy(): array`
+### <a name="getArrayCopy"></a> `getArrayCopy(): array`
 
 
 
 
 
-### `unset(\TKey $key): void`
+### <a name="unset"></a> `unset(TKey $key): void`
 
 Unset element.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
+* `$key`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `set(\TKey $key, \TValue $value): void`
+### <a name="set"></a> `set(TKey $key, TValue $value): void`
 
 Set element.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
-* `$value`: `\TValue`   
+* `$key`: `TKey`   
+* `$value`: `TValue`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `get(\TKey $key): ?\TValue`
+### <a name="get"></a> `get(TKey $key): ?TValue`
 
 Get element.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
+* `$key`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `clear(): void`
+### <a name="clear"></a> `clear(): void`
 
 Clear all elements.
 
 
 
-### `count(): mixed`
+### <a name="count"></a> `count()`
 
 
 
 
 
-### `getIterator(): mixed`
+### <a name="getIterator"></a> `getIterator()`
 
 
 

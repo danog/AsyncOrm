@@ -19,16 +19,16 @@ Redis backend settings.
 * `danog\AsyncOrm\Settings\RedisSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
-* `$config`: `\Amp\Redis\RedisConfig` 
-* `$serializer`: `\danog\AsyncOrm\Serializer` 
+* `$config`: `Amp\Redis\RedisConfig` 
+* `$serializer`: `danog\AsyncOrm\Serializer` 
 * `$cacheTtl`: `int<0, max>` For how long to keep records in memory after last read.
 
 ## Method list:
-* [`__construct(\Amp\Redis\RedisConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`](#__construct-amp-redis-redisconfig-config-danog-asyncorm-serializer-serializer-null-int-0-max-cachettl-self-default_cache_ttl)
-* [`getDriverClass(): string`](#getdriverclass-string)
+* [`__construct(\Amp\Redis\RedisConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`](#__construct)
+* [`getDriverClass(): string`](#getDriverClass)
 
 ## Methods:
-### `__construct(\Amp\Redis\RedisConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`
+### <a name="__construct"></a> `__construct(\Amp\Redis\RedisConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`
 
 
 
@@ -37,18 +37,18 @@ Parameters:
 
 * `$config`: `\Amp\Redis\RedisConfig`   
 * `$serializer`: `?\danog\AsyncOrm\Serializer` to use for object and mixed type values, if null defaults to either Igbinary or Native.  
-* `$cacheTtl`: `int<\0, \max>` Cache TTL in seconds  
+* `$cacheTtl`: `int<0, max>` Cache TTL in seconds  
 
 
 #### See also: 
 * `\Amp\Redis\RedisConfig`
 * [`\danog\AsyncOrm\Serializer`: Serializer interface.](../../../danog/AsyncOrm/Serializer.md)
-* `\max`
+* `max`
 
 
 
 
-### `getDriverClass(): string`
+### <a name="getDriverClass"></a> `getDriverClass(): string`
 
 
 

@@ -23,18 +23,18 @@ Postgres backend settings.
 * `danog\AsyncOrm\Settings\PostgresSettings::DEFAULT_CACHE_TTL`: 
 
 ## Properties
-* `$maxConnections`: `positive-int` 
-* `$idleTimeout`: `positive-int` 
-* `$config`: `\T` 
-* `$serializer`: `\danog\AsyncOrm\Serializer` 
+* `$maxConnections`: `positive-int` Maximum connection limit.
+* `$idleTimeout`: `positive-int` Idle timeout.
+* `$config`: `T` 
+* `$serializer`: `danog\AsyncOrm\Serializer` 
 * `$cacheTtl`: `int<0, max>` For how long to keep records in memory after last read.
 
 ## Method list:
-* [`__construct(\Amp\Postgres\PostgresConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<\1, \max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<\1, \max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT)`](#__construct-amp-postgres-postgresconfig-config-danog-asyncorm-serializer-serializer-null-int-0-max-cachettl-self-default_cache_ttl-int-1-max-maxconnections-self-default_sql_max_connections-int-1-max-idletimeout-self-default_sql_idle_timeout)
-* [`getDriverClass(): string`](#getdriverclass-string)
+* [`__construct(\Amp\Postgres\PostgresConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<1, max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<1, max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT)`](#__construct)
+* [`getDriverClass(): string`](#getDriverClass)
 
 ## Methods:
-### `__construct(\Amp\Postgres\PostgresConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<\0, \max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<\1, \max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<\1, \max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT)`
+### <a name="__construct"></a> `__construct(\Amp\Postgres\PostgresConfig $config, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, int<1, max> $maxConnections = \self::DEFAULT_SQL_MAX_CONNECTIONS, int<1, max> $idleTimeout = \self::DEFAULT_SQL_IDLE_TIMEOUT)`
 
 
 
@@ -43,20 +43,20 @@ Parameters:
 
 * `$config`: `\Amp\Postgres\PostgresConfig`   
 * `$serializer`: `?\danog\AsyncOrm\Serializer` to use for object and mixed type values, if null defaults to either Igbinary or Native.  
-* `$cacheTtl`: `int<\0, \max>` Cache TTL in seconds  
-* `$maxConnections`: `int<\1, \max>` Maximum connection limit  
-* `$idleTimeout`: `int<\1, \max>` Idle timeout  
+* `$cacheTtl`: `int<0, max>` Cache TTL in seconds  
+* `$maxConnections`: `int<1, max>` Maximum connection limit  
+* `$idleTimeout`: `int<1, max>` Idle timeout  
 
 
 #### See also: 
 * `\Amp\Postgres\PostgresConfig`
 * [`\danog\AsyncOrm\Serializer`: Serializer interface.](../../../danog/AsyncOrm/Serializer.md)
-* `\max`
+* `max`
 
 
 
 
-### `getDriverClass(): string`
+### <a name="getDriverClass"></a> `getDriverClass(): string`
 
 
 

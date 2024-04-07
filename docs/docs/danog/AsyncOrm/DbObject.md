@@ -16,10 +16,10 @@ description: ""
 
 
 ## Method list:
-* [`save(): void`](#save-void)
+* [`save(): void`](#save)
 
 ## Methods:
-### `save(): void`
+### <a name="save"></a> `save(): void`
 
 Save object to database.
 

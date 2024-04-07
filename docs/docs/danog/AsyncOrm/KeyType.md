@@ -27,18 +27,18 @@ Specifies the type of keys.
 * `$value`: `string` 
 
 ## Method list:
-* [`cases(): array`](#cases-array)
-* [`from(string|int $value): static`](#from-string-int-value-static)
-* [`tryFrom(string|int $value): ?static`](#tryfrom-string-int-value-static)
+* [`cases(): array`](#cases)
+* [`from(string|int $value): static`](#from)
+* [`tryFrom(string|int $value): ?static`](#tryFrom)
 
 ## Methods:
-### `cases(): array`
+### <a name="cases"></a> `cases(): array`
 
 
 
 
 
-### `from(string|int $value): static`
+### <a name="from"></a> `from(string|int $value): static`
 
 
 
@@ -49,7 +49,7 @@ Parameters:
 
 
 
-### `tryFrom(string|int $value): ?static`
+### <a name="tryFrom"></a> `tryFrom(string|int $value): ?static`
 
 
 

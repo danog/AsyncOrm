@@ -16,11 +16,11 @@ Trait that provides autoconfiguration of OrmMappedArray properties.
 
 
 ## Method list:
-* [`initDbProperties(\danog\AsyncOrm\Settings $settings, string $tablePrefix): void`](#initdbproperties-danog-asyncorm-settings-settings-string-tableprefix-void)
-* [`saveDbProperties(): void`](#savedbproperties-void)
+* [`initDbProperties(\danog\AsyncOrm\Settings $settings, string $tablePrefix): void`](#initDbProperties)
+* [`saveDbProperties(): void`](#saveDbProperties)
 
 ## Methods:
-### `initDbProperties(\danog\AsyncOrm\Settings $settings, string $tablePrefix): void`
+### <a name="initDbProperties"></a> `initDbProperties(\danog\AsyncOrm\Settings $settings, string $tablePrefix): void`
 
 Initialize database properties.
 
@@ -37,7 +37,7 @@ Parameters:
 
 
 
-### `saveDbProperties(): void`
+### <a name="saveDbProperties"></a> `saveDbProperties(): void`
 
 Save all properties.
 

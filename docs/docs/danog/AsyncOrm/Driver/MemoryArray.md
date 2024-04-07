@@ -16,23 +16,23 @@ Memory database backend.
 
 
 ## Method list:
-* [`__construct(array $data)`](#__construct-array-data)
-* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getinstance-danog-asyncorm-dbarraybuilder-config-danog-asyncorm-dbarray-previous-danog-asyncorm-dbarray)
-* [`set(string|int $key, mixed $value): void`](#set-string-int-key-mixed-value-void)
-* [`get(string|int $key): mixed`](#get-string-int-key-mixed)
-* [`unset(string|int $key): void`](#unset-string-int-key-void)
-* [`clear(): void`](#clear-void)
-* [`count(): int`](#count-int)
-* [`getIterator(): \Traversable`](#getiterator-traversable)
-* [`getArrayCopy(): array`](#getarraycopy-array)
-* [`isset(\TKey $key): bool`](#isset-tkey-key-bool)
-* [`offsetGet(\TKey $offset): \TValue`](#offsetget-tkey-offset-tvalue)
-* [`offsetExists(\TKey $offset): bool`](#offsetexists-tkey-offset-bool)
-* [`offsetSet(\TKey $offset, \TValue $value): void`](#offsetset-tkey-offset-tvalue-value-void)
-* [`offsetUnset(\TKey $offset): void`](#offsetunset-tkey-offset-void)
+* [`__construct(array $data)`](#__construct)
+* [`getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`](#getInstance)
+* [`set(string|int $key, mixed $value): void`](#set)
+* [`get(string|int $key): mixed`](#get)
+* [`unset(string|int $key): void`](#unset)
+* [`clear(): void`](#clear)
+* [`count(): int`](#count)
+* [`getIterator(): Traversable`](#getIterator)
+* [`getArrayCopy(): array`](#getArrayCopy)
+* [`isset(TKey $key): bool`](#isset)
+* [`offsetGet(TKey $offset): TValue`](#offsetGet)
+* [`offsetExists(TKey $offset): bool`](#offsetExists)
+* [`offsetSet(TKey $offset, TValue $value): void`](#offsetSet)
+* [`offsetUnset(TKey $offset): void`](#offsetUnset)
 
 ## Methods:
-### `__construct(array $data)`
+### <a name="__construct"></a> `__construct(array $data)`
 
 
 
@@ -43,7 +43,7 @@ Parameters:
 
 
 
-### `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
+### <a name="getInstance"></a> `getInstance(\danog\AsyncOrm\DbArrayBuilder $config, ?\danog\AsyncOrm\DbArray $previous): \danog\AsyncOrm\DbArray`
 
 
 
@@ -61,7 +61,7 @@ Parameters:
 
 
 
-### `set(string|int $key, mixed $value): void`
+### <a name="set"></a> `set(string|int $key, mixed $value): void`
 
 
 
@@ -73,7 +73,7 @@ Parameters:
 
 
 
-### `get(string|int $key): mixed`
+### <a name="get"></a> `get(string|int $key): mixed`
 
 
 
@@ -84,7 +84,7 @@ Parameters:
 
 
 
-### `unset(string|int $key): void`
+### <a name="unset"></a> `unset(string|int $key): void`
 
 
 
@@ -95,114 +95,114 @@ Parameters:
 
 
 
-### `clear(): void`
+### <a name="clear"></a> `clear(): void`
 
 
 
 
 
-### `count(): int`
+### <a name="count"></a> `count(): int`
 
 
 
 
 
-### `getIterator(): \Traversable`
+### <a name="getIterator"></a> `getIterator(): Traversable`
 
 
 
 
 #### See also: 
-* `\Traversable`
+* `Traversable`
 
 
 
 
-### `getArrayCopy(): array`
+### <a name="getArrayCopy"></a> `getArrayCopy(): array`
 
 
 
 
 
-### `isset(\TKey $key): bool`
+### <a name="isset"></a> `isset(TKey $key): bool`
 
 Check if element exists.
 
 
 Parameters:
 
-* `$key`: `\TKey`   
+* `$key`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetGet(\TKey $offset): \TValue`
+### <a name="offsetGet"></a> `offsetGet(TKey $offset): TValue`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetExists(\TKey $offset): bool`
+### <a name="offsetExists"></a> `offsetExists(TKey $offset): bool`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
 
-### `offsetSet(\TKey $offset, \TValue $value): void`
+### <a name="offsetSet"></a> `offsetSet(TKey $offset, TValue $value): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
-* `$value`: `\TValue`   
+* `$offset`: `TKey`   
+* `$value`: `TValue`   
 
 
 #### See also: 
-* `\TKey`
-* `\TValue`
+* `TKey`
+* `TValue`
 
 
 
 
-### `offsetUnset(\TKey $offset): void`
+### <a name="offsetUnset"></a> `offsetUnset(TKey $offset): void`
 
 
 
 
 Parameters:
 
-* `$offset`: `\TKey`   
+* `$offset`: `TKey`   
 
 
 #### See also: 
-* `\TKey`
+* `TKey`
 
 
 
