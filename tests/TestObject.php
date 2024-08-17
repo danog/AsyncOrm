@@ -29,6 +29,7 @@ use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbAutoProperties;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\KeyType;
+use danog\AsyncOrm\Serializer\Json;
 use danog\AsyncOrm\ValueType;
 
 final class TestObject extends DbObject
@@ -66,6 +67,14 @@ final class TestObject extends DbObject
         optimizeIfWastedMb: 0
     )]
     public DbArray $arr4;
+
+    #[OrmMappedArray(
+        keyType: KeyType::INT,
+        valueType: ValueType::SCALAR,
+        cacheTtl: 0,
+        serializer: new Json(),
+    )]
+    public DbArray $arr5;
 
     public function __sleep()
     {

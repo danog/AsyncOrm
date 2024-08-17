@@ -78,6 +78,13 @@ trait DbAutoProperties
                         ['cacheTtl' => $ttl]
                     ));
                 }
+                $serializer = $attr->serializer ?? $settings->serializer;
+                if ($serializer !== $settings->serializer) {
+                    $settings = new $settings(...\array_merge(
+                        (array) $settings,
+                        ['serializer' => $serializer]
+                    ));
+                }
                 if ($settings instanceof MysqlSettings) {
                     $optimize = $attr->optimizeIfWastedMb ?? $settings->optimizeIfWastedMb;
 
