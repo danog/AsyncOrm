@@ -209,7 +209,7 @@ For optimal performance, the specified types must be as strict as possible, here
 * `ValueType::INT`: Direct storage of integer values.
 * `ValueType::BOOL`: Direct storage of boolean values.
 * `ValueType::FLOAT`: Direct storage of floating point (double precision) values.
-* `ValueType::SCALAR`: Values of any scalar type (including arrays, excluding objects), serialized as specified in the settings.
+* `ValueType::SCALAR`: Values of any scalar type (including blobs and arrays, excluding objects), serialized as specified in the settings.
    Using SCALAR worsens performances, please use any of the other types if possible.
 * `ValueType::OBJECT`: Objects extending DbObject, serialized as specified in the settings.
 
