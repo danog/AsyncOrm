@@ -433,8 +433,10 @@ final class OrmTest extends TestCase
 
         $obj->arr[12345] = 54321;
         $obj->arr2[123456] = 654321;
+        $obj->arr5[123] = "7734";
         $this->assertSame(54321, $obj->arr[12345]);
         $this->assertSame(654321, $obj->arr2[123456]);
+        $this->assertSame("7734", $obj->arr5[123]);
         $this->assertCount(1, $obj->arr);
         $this->assertCount(1, $obj->arr2);
 

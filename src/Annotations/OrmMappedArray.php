@@ -18,6 +18,7 @@ namespace danog\AsyncOrm\Annotations;
 
 use Attribute;
 use danog\AsyncOrm\KeyType;
+use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\ValueType;
 
 /**
@@ -54,7 +55,11 @@ final class OrmMappedArray
         /**
          * Table name postfix, if null defaults to the property name.
          */
-        public readonly ?string $tablePostfix = null
+        public readonly ?string $tablePostfix = null,
+        /**
+         * Provide custom serializer for table.
+         */
+        public readonly ?Serializer $serializer = null,
     ) {
     }
 }
