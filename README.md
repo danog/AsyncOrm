@@ -5,7 +5,7 @@
 [![Psalm level 1](https://shepherd.dev/github/danog/AsyncOrm/level.svg)](https://shepherd.dev/github/danog/AsyncOrm)
 ![License](https://img.shields.io/github/license/danog/AsyncOrm)
 
-Async ORM based on AMPHP v3 and fibers, created by Daniil Gentili (https://daniil.it) and Alexander Pankratov (https://github.com/xtrime-ru).  
+Async PHP ORM based on AMPHP v3 and fibers, created by Daniil Gentili (https://daniil.it) and Alexander Pankratov (https://github.com/xtrime-ru).  
 
 Supports MySQL, Redis, Postgres.  
 
