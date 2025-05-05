@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="dev-master@ef3b018e89c4ffc157332c13e2ebf9cf22320d17">
+<files psalm-version="dev-master@02b64e98082db34b325814d4cc98fb65b0908721">
   <file src="src/Driver/DriverArray.php">
     <ImplementedParamTypeMismatch>
       <code><![CDATA[$previous]]></code>
@@ -18,6 +18,11 @@
       <code><![CDATA[$previous instanceof self]]></code>
     </DocblockTypeContradiction>
   </file>
+  <file src="src/Internal/Driver/MysqlArray.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[importFromTable]]></code>
+    </PossiblyUnusedMethod>
+  </file>
   <file src="src/Internal/Driver/ObjectArray.php">
     <DocblockTypeContradiction>
       <code><![CDATA[$previous instanceof self]]></code>
@@ -28,5 +33,10 @@
     <MixedPropertyTypeCoercion>
       <code><![CDATA[$new::getInstance($config, $previous->cache->inner)]]></code>
     </MixedPropertyTypeCoercion>
+  </file>
+  <file src="src/Internal/Driver/PostgresArray.php">
+    <PossiblyUnusedMethod>
+      <code><![CDATA[importFromTable]]></code>
+    </PossiblyUnusedMethod>
   </file>
 </files>
