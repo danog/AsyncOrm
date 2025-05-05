@@ -243,6 +243,10 @@ final class MysqlArray extends SqlArray
 
     protected function importFromTable(string $fromTable): void
     {
+        if ($this->config->table === $fromTable) {
+            return;
+        }
+
         $this->db->query("
             REPLACE INTO `{$this->config->table}`
             SELECT * FROM `{$fromTable}`;

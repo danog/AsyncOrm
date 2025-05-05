@@ -172,6 +172,10 @@ class PostgresArray extends SqlArray
 
     protected function importFromTable(string $fromTable): void
     {
+        if ($this->config->table === $fromTable) {
+            return;
+        }
+
         $this->db->query(/** @lang PostgreSQL */ "
             DROP TABLE \"bytea_{$this->config->table}\";
         ");
