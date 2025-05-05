@@ -29,7 +29,8 @@
         "amphp/postgres": "^2.0",
         "amphp/redis": "^2.0",
         "amphp/sync": "^2.2",
-        "revolt/event-loop": "^1.0.6"
+        "revolt/event-loop": "^1.0.6",
+        "symfony/polyfill-php83": "^1.32"
     },
     "require-dev": {
         "vimeo/psalm": "dev-master",
