@@ -87,27 +87,19 @@ abstract class DriverArray extends DbArray
             return $instance;
         }
 
-        /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
-        if ($previous instanceof SqlArray
-            && $instance instanceof SqlArray
-            && $previous::class === $instance::class
-        ) {
-            $instance->importFromTable($previous->config->table);
-        } else {
-            $promises = [];
-            foreach ($previous->getIterator() as $key => $value) {
-                $promises []= async($previous->unset(...), $key)
-                    ->map(static fn () => $instance->set($key, $value));
-                if (\count($promises) % 500 === 0) {
-                    // @codeCoverageIgnoreStart
-                    await($promises);
-                    $promises = [];
-                    // @codeCoverageIgnoreEnd
-                }
-            }
-            if ($promises) {
+        $promises = [];
+        foreach ($previous->getIterator() as $key => $value) {
+            $promises []= async($previous->unset(...), $key)
+                ->map(static fn () => $instance->set($key, $value));
+            if (\count($promises) % 500 === 0) {
+                // @codeCoverageIgnoreStart
                 await($promises);
+                $promises = [];
+                // @codeCoverageIgnoreEnd
             }
+        }
+        if ($promises) {
+            await($promises);
         }
 
         return $instance;
