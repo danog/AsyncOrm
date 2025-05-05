@@ -46,11 +46,13 @@ final readonly class RedisSettings extends DriverSettings
         parent::__construct($serializer, $cacheTtl);
     }
     /** @internal */
+    #[\Override]
     public function getDbIdentifier(): string
     {
         $host = $this->config->getConnectUri();
         return "$host\0".$this->config->getDatabase();
     }
+    #[\Override]
     public function getDriverClass(): string
     {
         return RedisArray::class;

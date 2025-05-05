@@ -57,6 +57,7 @@ final class ObjectArray extends DbArray
      * @param DbArray<TTKey, TValue>|null $previous
      * @return DbArray<TTKey, TValue>
      */
+    #[\Override]
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $new = $config->settings->getDriverClass();
@@ -89,11 +90,13 @@ final class ObjectArray extends DbArray
     }
 
     /** @api */
+    #[\Override]
     public function count(): int
     {
         return $this->cache->count();
     }
 
+    #[\Override]
     public function clear(): void
     {
         $this->cache->clear();
@@ -103,6 +106,7 @@ final class ObjectArray extends DbArray
      * @param TKey $key
      * @return TValue
      */
+    #[\Override]
     public function get(mixed $key): mixed
     {
         return $this->cache->get($key);
@@ -112,18 +116,21 @@ final class ObjectArray extends DbArray
      * @param TKey $key
      * @param TValue $value
      */
+    #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         $this->cache->set($key, $value);
     }
 
     /** @param TKey $key */
+    #[\Override]
     public function unset(string|int $key): void
     {
         $this->cache->unset($key);
     }
 
     /** @return Traversable<TKey, TValue> */
+    #[\Override]
     public function getIterator(): Traversable
     {
         return $this->cache->getIterator();

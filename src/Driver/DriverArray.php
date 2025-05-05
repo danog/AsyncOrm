@@ -64,6 +64,7 @@ abstract class DriverArray extends DbArray
      * @param DbArray<TTKey, TTValue> $previous
      * @return DbArray<TTKey, TTValue>
      */
+    #[\Override]
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         $migrate = true;

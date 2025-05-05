@@ -37,10 +37,12 @@ use danog\AsyncOrm\Serializer;
  */
 final class Json implements Serializer
 {
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return \json_encode($value, flags: JSON_THROW_ON_ERROR|JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));

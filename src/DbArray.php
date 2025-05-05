@@ -56,6 +56,7 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      * @param TKey $offset
      * @return TValue
      */
+    #[\Override]
     final public function offsetGet(mixed $offset): mixed
     {
         return $this->get($offset);
@@ -64,6 +65,7 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
     /**
      * @param TKey $offset
      */
+    #[\Override]
     final public function offsetExists(mixed $offset): bool
     {
         return $this->isset($offset);
@@ -73,6 +75,7 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      * @param TKey $offset
      * @param TValue $value
      */
+    #[\Override]
     final public function offsetSet(mixed $offset, mixed $value): void
     {
         $this->set($offset, $value);
@@ -81,6 +84,7 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
     /**
      * @param TKey $offset
      */
+    #[\Override]
     final public function offsetUnset(mixed $offset): void
     {
         $this->unset($offset);

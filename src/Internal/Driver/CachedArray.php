@@ -51,6 +51,7 @@ final class CachedArray extends DbArray
     /**
      * Get instance.
      */
+    #[\Override]
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         \assert($config->settings instanceof DriverSettings);
@@ -83,17 +84,20 @@ final class CachedArray extends DbArray
         $this->cache->flushCache();
     }
 
+    #[\Override]
     public function count(): int
     {
         return $this->cache->count();
     }
 
+    #[\Override]
     public function clear(): void
     {
         $this->cache->clear();
     }
 
     /** @param TKey $key */
+    #[\Override]
     public function get(mixed $key): mixed
     {
         return $this->cache->get($key);
@@ -103,18 +107,21 @@ final class CachedArray extends DbArray
      * @param TKey $key
      * @param TValue $value
      */
+    #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         $this->cache->set($key, $value);
     }
 
     /** @param TKey $key */
+    #[\Override]
     public function unset(string|int $key): void
     {
         $this->cache->set($key, null);
     }
 
     /** @return Traversable<TKey, TValue> */
+    #[\Override]
     public function getIterator(): Traversable
     {
         return $this->cache->getIterator();

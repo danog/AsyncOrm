@@ -36,10 +36,12 @@ use danog\AsyncOrm\Serializer;
  */
 final class FloatString implements Serializer
 {
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return (string) $value;
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         return (float) $value;

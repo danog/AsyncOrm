@@ -50,6 +50,7 @@ final readonly class PostgresSettings extends SqlSettings
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }
 
+    #[\Override]
     public function getDriverClass(): string
     {
         return PostgresArray::class;

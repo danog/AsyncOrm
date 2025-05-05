@@ -36,6 +36,7 @@ use danog\AsyncOrm\Serializer;
  */
 final class BoolString implements Serializer
 {
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return match ($value) {
@@ -43,6 +44,7 @@ final class BoolString implements Serializer
             false => '0',
         };
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         /** @psalm-suppress UnhandledMatchCondition Intentional */

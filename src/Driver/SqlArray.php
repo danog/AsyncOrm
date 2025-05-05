@@ -64,6 +64,7 @@ abstract class SqlArray extends DriverArray
      *
      * @return \Traversable<array-key, mixed>
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         foreach ($this->execute($this->iterate) as ['key' => $key, 'value' => $value]) {
@@ -71,6 +72,7 @@ abstract class SqlArray extends DriverArray
         }
     }
 
+    #[\Override]
     public function get(mixed $key): mixed
     {
         $key = (string) $key;
@@ -85,6 +87,7 @@ abstract class SqlArray extends DriverArray
         return $value;
     }
 
+    #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         $key = (string) $key;
@@ -105,6 +108,7 @@ abstract class SqlArray extends DriverArray
      *
      * @link https://php.net/manual/en/arrayiterator.offsetunset.php
      */
+    #[\Override]
     public function unset(string|int $key): void
     {
         $key = (string) $key;
@@ -122,6 +126,7 @@ abstract class SqlArray extends DriverArray
      * @return int The number of elements or public properties in the associated
      *             array or object, respectively.
      */
+    #[\Override]
     public function count(): int
     {
         $row = $this->execute($this->count);
@@ -133,6 +138,7 @@ abstract class SqlArray extends DriverArray
     /**
      * Clear all elements.
      */
+    #[\Override]
     public function clear(): void
     {
         $this->execute($this->clear);

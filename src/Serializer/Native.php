@@ -37,10 +37,12 @@ use danog\AsyncOrm\Serializer;
  */
 final class Native implements Serializer
 {
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return \serialize($value);
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));

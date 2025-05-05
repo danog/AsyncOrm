@@ -64,6 +64,7 @@ final readonly class MysqlSettings extends SqlSettings
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }
 
+    #[\Override]
     public function getDriverClass(): string
     {
         return MysqlArray::class;

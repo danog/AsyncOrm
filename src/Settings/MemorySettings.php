@@ -31,6 +31,7 @@ use danog\AsyncOrm\Settings;
  */
 final readonly class MemorySettings implements Settings
 {
+    #[\Override]
     public function getDriverClass(): string
     {
         return MemoryArray::class;

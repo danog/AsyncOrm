@@ -37,6 +37,7 @@ use danog\AsyncOrm\Serializer;
  */
 final class BoolInt implements Serializer
 {
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return match ($value) {
@@ -44,6 +45,7 @@ final class BoolInt implements Serializer
             false => 0,
         };
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         \assert(\is_string($value));

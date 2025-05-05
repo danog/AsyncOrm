@@ -93,6 +93,7 @@ final class RedisArray extends DriverArray
         $this->db = self::$connections[$dbKey];
     }
 
+    #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         /** @var string */
@@ -100,6 +101,7 @@ final class RedisArray extends DriverArray
         $this->db->set($this->config->table.':'.(string) $key, $value);
     }
 
+    #[\Override]
     public function get(string|int $key): mixed
     {
         $key = (string) $key;
@@ -114,6 +116,7 @@ final class RedisArray extends DriverArray
         return $value;
     }
 
+    #[\Override]
     public function unset(string|int $key): void
     {
         $this->db->delete($this->config->table.':'.(string) $key);
@@ -124,6 +127,7 @@ final class RedisArray extends DriverArray
      *
      * @return \Traversable<array-key, mixed>
      */
+    #[\Override]
     public function getIterator(): \Traversable
     {
         $request = $this->db->scan($this->config->table.':*');
@@ -147,6 +151,7 @@ final class RedisArray extends DriverArray
      * @return int The number of elements or public properties in the associated
      *             array or object, respectively.
      */
+    #[\Override]
     public function count(): int
     {
         return \iterator_count($this->db->scan($this->config->table.':*'));
@@ -155,6 +160,7 @@ final class RedisArray extends DriverArray
     /**
      * Clear all elements.
      */
+    #[\Override]
     public function clear(): void
     {
         $request = $this->db->scan($this->config->table.':*');

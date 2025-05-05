@@ -45,6 +45,7 @@ final class MemoryArray extends DbArray
     ) {
     }
 
+    #[\Override]
     public static function getInstance(DbArrayBuilder $config, DbArray|null $previous): DbArray
     {
         if ($previous instanceof self) {
@@ -60,34 +61,41 @@ final class MemoryArray extends DbArray
         return new self($previous);
     }
 
+    #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         $this->data[$key] = $value;
     }
+    #[\Override]
     public function get(string|int $key): mixed
     {
         return $this->data[$key] ?? null;
     }
+    #[\Override]
     public function unset(string|int $key): void
     {
         unset($this->data[$key]);
     }
 
+    #[\Override]
     public function clear(): void
     {
         $this->data = [];
     }
 
+    #[\Override]
     public function count(): int
     {
         return \count($this->data);
     }
 
+    #[\Override]
     public function getIterator(): \Traversable
     {
         return new ArrayIterator($this->data);
     }
 
+    #[\Override]
     public function getArrayCopy(): array
     {
         return $this->data;

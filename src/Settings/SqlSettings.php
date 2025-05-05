@@ -67,6 +67,7 @@ abstract readonly class SqlSettings extends DriverSettings
         $this->idleTimeout = $idleTimeout;
     }
     /** @internal */
+    #[\Override]
     public function getDbIdentifier(): string
     {
         $host = $this->config->getHost();

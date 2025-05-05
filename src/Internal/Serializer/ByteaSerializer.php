@@ -43,10 +43,12 @@ final class ByteaSerializer implements Serializer
         private readonly Serializer $inner
     ) {
     }
+    #[\Override]
     public function serialize(mixed $value): mixed
     {
         return new PostgresByteA((string) $this->inner->serialize($value));
     }
+    #[\Override]
     public function deserialize(mixed $value): mixed
     {
         return $this->inner->deserialize($value);
