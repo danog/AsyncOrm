@@ -103,7 +103,7 @@ abstract class DriverArray extends DbArray
                 if ($c->getDatabase() !== $prevC->getDatabase()) {
                     $instance->importFromTable($previous->config->table);
                 }
-                // Only the user changed
+                // Only the user changed, or some local settings
                 return $instance;
             }
         }
