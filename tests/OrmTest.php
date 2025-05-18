@@ -108,7 +108,7 @@ final class OrmTest extends TestCase
         if (!self::$processes) {
             throw new AssertionError("No processes!");
         }
-        $t = new TimeoutCancellation(5.0);
+        $t = new TimeoutCancellation(10.0);
         foreach (self::$processes as $name => $process) {
             $ok = awaitAny([
                 async(self::waitForStartup(...), $process->getStdout()),

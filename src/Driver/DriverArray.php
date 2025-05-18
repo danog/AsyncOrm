@@ -104,6 +104,7 @@ abstract class DriverArray extends DbArray
                 if ($config->table !== $previous->config->table) {
                     $instance->importFromTable($previous->config->table);
                 }
+                // Only keyType/valueType changed, and we already migrated those on construction.
                 return $instance;
             }
         }
