@@ -28,6 +28,7 @@ use Amp\Mysql\MysqlConfig;
 use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
+use Amp\TimeoutCancellation;
 use AssertionError;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
@@ -107,11 +108,12 @@ final class OrmTest extends TestCase
         if (!self::$processes) {
             throw new AssertionError("No processes!");
         }
+        $t = new TimeoutCancellation(5.0);
         foreach (self::$processes as $name => $process) {
             $ok = awaitAny([
                 async(self::waitForStartup(...), $process->getStdout()),
                 async(self::waitForStartup(...), $process->getStderr()),
-            ]);
+            ], $t);
             if (!$ok) {
                 throw new AssertionError("Could not start $name!");
             }
@@ -129,7 +131,7 @@ final class OrmTest extends TestCase
     {
         foreach (splitLines($f) as $line) {
             if (\stripos($line, 'ready to ') !== false
-                || \stripos($line, "socket: '/run/mysqld/mysqld.sock'  port: 3306") !== false
+                || \stripos($line, "socket: '/run/mysqld/mysqld.sock'") !== false
             ) {
                 async(buffer(...), $f);
                 return true;

@@ -99,11 +99,11 @@ abstract class DriverArray extends DbArray
             $prevC = $config->settings->config;
             if ($c->getHost() === $prevC->getHost()
                 && $c->getPort() === $prevC->getPort()
+                && $c->getDatabase() === $prevC->getDatabase()
             ) {
-                if ($c->getDatabase() !== $prevC->getDatabase()) {
+                if ($config->table !== $previous->config->table) {
                     $instance->importFromTable($previous->config->table);
                 }
-                // Only the user changed, or some local settings
                 return $instance;
             }
         }
