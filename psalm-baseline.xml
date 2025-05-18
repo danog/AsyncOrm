@@ -18,11 +18,6 @@
       <code><![CDATA[$previous instanceof self]]></code>
     </DocblockTypeContradiction>
   </file>
-  <file src="src/Internal/Driver/MysqlArray.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[importFromTable]]></code>
-    </PossiblyUnusedMethod>
-  </file>
   <file src="src/Internal/Driver/ObjectArray.php">
     <DocblockTypeContradiction>
       <code><![CDATA[$previous instanceof self]]></code>
@@ -33,10 +28,5 @@
     <MixedPropertyTypeCoercion>
       <code><![CDATA[$new::getInstance($config, $previous->cache->inner)]]></code>
     </MixedPropertyTypeCoercion>
-  </file>
-  <file src="src/Internal/Driver/PostgresArray.php">
-    <PossiblyUnusedMethod>
-      <code><![CDATA[importFromTable]]></code>
-    </PossiblyUnusedMethod>
   </file>
 </files>
