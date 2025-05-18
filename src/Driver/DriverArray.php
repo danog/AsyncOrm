@@ -29,6 +29,7 @@ use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\DriverSettings;
+use danog\AsyncOrm\Settings\SqlSettings;
 
 use function Amp\async;
 use function Amp\Future\await;
@@ -92,22 +93,34 @@ abstract class DriverArray extends DbArray
             && $instance instanceof SqlArray
             && $previous::class === $instance::class
         ) {
-            $instance->importFromTable($previous->config->table);
-        } else {
-            $promises = [];
-            foreach ($previous->getIterator() as $key => $value) {
-                $promises []= async($previous->unset(...), $key)
-                    ->map(static fn () => $instance->set($key, $value));
-                if (\count($promises) % 500 === 0) {
-                    // @codeCoverageIgnoreStart
-                    await($promises);
-                    $promises = [];
-                    // @codeCoverageIgnoreEnd
+            \assert($config->settings instanceof SqlSettings);
+            \assert($previous->config->settings instanceof SqlSettings);
+            $c = $config->settings->config;
+            $prevC = $config->settings->config;
+            if ($c->getHost() === $prevC->getHost()
+                && $c->getPort() === $prevC->getPort()
+            ) {
+                if ($c->getDatabase() !== $prevC->getDatabase()) {
+                    $instance->importFromTable($previous->config->table);
                 }
+                // Only the user changed
+                return $instance;
             }
-            if ($promises) {
+        }
+
+        $promises = [];
+        foreach ($previous->getIterator() as $key => $value) {
+            $promises []= async($previous->unset(...), $key)
+                ->map(static fn () => $instance->set($key, $value));
+            if (\count($promises) % 500 === 0) {
+                // @codeCoverageIgnoreStart
                 await($promises);
+                $promises = [];
+                // @codeCoverageIgnoreEnd
             }
+        }
+        if ($promises) {
+            await($promises);
         }
 
         return $instance;
