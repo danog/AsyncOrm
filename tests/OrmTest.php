@@ -131,7 +131,7 @@ final class OrmTest extends TestCase
     {
         foreach (splitLines($f) as $line) {
             if (\stripos($line, 'ready to ') !== false
-                || \stripos($line, "socket: '/run/mysqld/mysqld.sock'") !== false
+                || \stripos($line, "socket: '/run/mysqld/mysqld.sock'  port: 3306") !== false
             ) {
                 async(buffer(...), $f);
                 return true;
