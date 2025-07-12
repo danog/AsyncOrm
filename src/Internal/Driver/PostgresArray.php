@@ -64,6 +64,24 @@ final class PostgresArray extends SqlArray
         $_ = self::$mutex->acquire($dbKey);
 
         if (!isset(self::$connections[$dbKey])) {
+            try {
+                $db = $settings->config->getDatabase();
+                $user = $settings->config->getUser();
+                $connection =  new PostgresConnectionPool($settings->config->withDatabase(null));
+
+                $result = $connection->query("SELECT * FROM pg_database WHERE datname = '{$db}'");
+
+                // Replace with getRowCount once it gets fixed
+                if (!\iterator_count($result)) {
+                    $connection->query("
+                        CREATE DATABASE {$db}
+                        OWNER {$user}
+                        ENCODING utf8
+                    ");
+                }
+                $connection->close();
+            } catch (\Throwable) {
+            }
             self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout);
         }
 
