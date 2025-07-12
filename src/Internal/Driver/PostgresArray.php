@@ -35,7 +35,6 @@ use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\ValueType;
-use Revolt\EventLoop;
 
 /**
  * Postgres database backend.
@@ -62,30 +61,10 @@ final class PostgresArray extends SqlArray
         \assert($settings instanceof PostgresSettings);
 
         $dbKey = $settings->getDbIdentifier();
-        $lock = self::$mutex->acquire($dbKey);
+        $_ = self::$mutex->acquire($dbKey);
 
-        try {
-            if (!isset(self::$connections[$dbKey])) {
-                $db = $settings->config->getDatabase();
-                $user = $settings->config->getUser();
-                $connection =  new PostgresConnectionPool($settings->config->withDatabase(null));
-
-                $result = $connection->query("SELECT * FROM pg_database WHERE datname = '{$db}'");
-
-                // Replace with getRowCount once it gets fixed
-                if (!\iterator_count($result)) {
-                    $connection->query("
-                        CREATE DATABASE {$db}
-                        OWNER {$user}
-                        ENCODING utf8
-                    ");
-                }
-                $connection->close();
-
-                self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout);
-            }
-        } finally {
-            EventLoop::queue($lock->release(...));
+        if (!isset(self::$connections[$dbKey])) {
+            self::$connections[$dbKey] = new PostgresConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout);
         }
 
         $connection = self::$connections[$dbKey];
