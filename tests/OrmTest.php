@@ -94,7 +94,7 @@ final class OrmTest extends TestCase
                 self::shellExec("docker rm -f test_$image 2>/dev/null");
 
                 $args = match ($image) {
-                    'postgres' => '-e POSTGRES_HOST_AUTH_METHOD=trust',
+                    'postgres' => '-e POSTGRES_HOST_AUTH_METHOD=trust -e POSTGRES_DB=test',
                     'mariadb' => '-e MARIADB_ALLOW_EMPTY_ROOT_PASSWORD=1',
                     default => ''
                 };
