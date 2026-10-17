@@ -149,6 +149,12 @@ final class CacheContainer
      */
     public function flushCache(): void
     {
+        // Not initialized if the unserialization of the session failed before __wakeup ran:
+        // such a container only holds defaults, there's nothing to flush.
+        /** @psalm-suppress RedundantPropertyInitializationCheck */
+        if (!isset($this->mutex)) {
+            return;
+        }
         $lock = $this->mutex->acquire();
         try {
             $updatedValues = [];
