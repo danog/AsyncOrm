@@ -98,7 +98,7 @@ abstract class DriverArray extends DbArray
             \assert($config->settings instanceof SqlSettings);
             \assert($previous->config->settings instanceof SqlSettings);
             $c = $config->settings->config;
-            $prevC = $config->settings->config;
+            $prevC = $previous->config->settings->config;
             if ($c->getHost() === $prevC->getHost()
                 && $c->getPort() === $prevC->getPort()
                 && $c->getDatabase() === $prevC->getDatabase()
