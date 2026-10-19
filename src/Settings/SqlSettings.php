@@ -53,6 +53,8 @@ abstract readonly class SqlSettings extends DriverSettings
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout
+     *
+     * @psalm-capabilities read-props
      */
     public function __construct(
         /** @var T */
@@ -66,7 +68,11 @@ abstract readonly class SqlSettings extends DriverSettings
         $this->maxConnections = $maxConnections;
         $this->idleTimeout = $idleTimeout;
     }
-    /** @internal */
+    /**
+     * @internal
+     *
+     * @psalm-capabilities read-props
+     */
     #[\Override]
     public function getDbIdentifier(): string
     {

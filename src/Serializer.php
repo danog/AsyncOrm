@@ -34,10 +34,14 @@ interface Serializer
 {
     /**
      * @param TValue $value
+     *
+     * @psalm-impure
      */
     public function serialize(mixed $value): mixed;
     /**
      * @return TValue
+     *
+     * @psalm-impure
      */
     public function deserialize(mixed $value): mixed;
 }

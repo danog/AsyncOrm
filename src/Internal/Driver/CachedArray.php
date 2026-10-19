@@ -106,6 +106,8 @@ final class CachedArray extends DbArray
     /**
      * @param TKey $key
      * @param TValue $value
+     *
+     * @psalm-capabilities read-props|write-this-props|write-props|write-refs
      */
     #[\Override]
     public function set(string|int $key, mixed $value): void
@@ -113,7 +115,11 @@ final class CachedArray extends DbArray
         $this->cache->set($key, $value);
     }
 
-    /** @param TKey $key */
+    /**
+     * @param TKey $key
+     *
+     * @psalm-capabilities read-props|write-this-props|write-props|write-refs
+     */
     #[\Override]
     public function unset(string|int $key): void
     {

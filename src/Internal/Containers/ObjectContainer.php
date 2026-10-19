@@ -54,6 +54,9 @@ final class ObjectContainer
     ) {
         $this->mutex = new LocalMutex;
     }
+    /**
+     * @psalm-pure
+     */
     public function __sleep()
     {
         return ['inner'];
@@ -73,6 +76,9 @@ final class ObjectContainer
             fn () => $this->flushCache(),
         );
     }
+    /**
+     * @psalm-suppress PossiblyUnusedMethod Psalm ignores the call in ObjectArray::__destruct
+     */
     public function stopCacheCleanupLoop(): void
     {
         if ($this->cacheCleanupId !== null) {

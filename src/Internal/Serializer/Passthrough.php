@@ -39,14 +39,21 @@ final class Passthrough implements Serializer
 {
     /**
      * @param TValue $value
+     *
      * @return TValue
+     *
+     * @psalm-pure
      */
     #[\Override]
     public function serialize(mixed $value): mixed
     {
         return $value;
     }
-    /** @param TValue $value */
+    /**
+     * @param TValue $value
+     *
+     * @psalm-pure
+     */
     #[\Override]
     public function deserialize(mixed $value): mixed
     {

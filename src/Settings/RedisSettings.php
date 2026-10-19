@@ -37,6 +37,8 @@ final readonly class RedisSettings extends DriverSettings
      *
      * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
+     *
+     * @psalm-capabilities read-props
      */
     public function __construct(
         public readonly RedisConfig $config,
@@ -45,13 +47,20 @@ final readonly class RedisSettings extends DriverSettings
     ) {
         parent::__construct($serializer, $cacheTtl);
     }
-    /** @internal */
+    /**
+     * @internal
+     *
+     * @psalm-capabilities read-props
+     */
     #[\Override]
     public function getDbIdentifier(): string
     {
         $host = $this->config->getConnectUri();
         return "$host\0".$this->config->getDatabase();
     }
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function getDriverClass(): string
     {

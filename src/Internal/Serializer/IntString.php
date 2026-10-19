@@ -36,11 +36,17 @@ use danog\AsyncOrm\Serializer;
  */
 final class IntString implements Serializer
 {
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function serialize(mixed $value): mixed
     {
         return (string) $value;
     }
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function deserialize(mixed $value): mixed
     {

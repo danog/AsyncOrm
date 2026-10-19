@@ -37,6 +37,8 @@ abstract readonly class DriverSettings implements Settings
     public readonly Serializer $serializer;
     /**
      * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
+     *
+     * @psalm-capabilities read-props
      */
     public function __construct(
         ?Serializer $serializer = null,
@@ -52,6 +54,8 @@ abstract readonly class DriverSettings implements Settings
      * Get the DB's unique ID.
      *
      * @internal
+     *
+     * @psalm-capabilities read-props
      */
     abstract public function getDbIdentifier(): string;
 }

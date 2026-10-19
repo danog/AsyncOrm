@@ -155,6 +155,8 @@ abstract class SqlArray extends DriverArray
 
     /**
      * Import data from existing table.
+     *
+     * @psalm-impure
      */
     abstract protected function importFromTable(string $fromTable): void;
 }

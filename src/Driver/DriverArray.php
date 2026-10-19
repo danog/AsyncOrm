@@ -51,6 +51,8 @@ abstract class DriverArray extends DbArray
     private bool $inited = false;
     /**
      * @param Serializer<TValue> $serializer
+     *
+     * @psalm-impure Subclasses connect to the database, and the constructor is consistent.
      */
     protected function __construct(
         protected readonly DbArrayBuilder $config,
@@ -129,6 +131,8 @@ abstract class DriverArray extends DbArray
 
     /**
      * Sleep function.
+     *
+     * @psalm-pure
      */
     public function __sleep(): array
     {
