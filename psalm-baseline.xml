@@ -1,27 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<files psalm-version="dev-master@bca6198cf7ff36bafeb160f0dfd760b864728164">
-  <file src="src/Annotations/OrmMappedArray.php">
-    <MissingImmutableAnnotation>
-      <code><![CDATA[OrmMappedArray]]></code>
-    </MissingImmutableAnnotation>
-  </file>
-  <file src="src/DbArray.php">
-    <MissingAbstractPureAnnotation>
-      <code><![CDATA[clear]]></code>
-      <code><![CDATA[get]]></code>
-      <code><![CDATA[getInstance]]></code>
-      <code><![CDATA[set]]></code>
-      <code><![CDATA[unset]]></code>
-    </MissingAbstractPureAnnotation>
-  </file>
-  <file src="src/DbObject.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[initDb]]></code>
-      <code><![CDATA[onAfterSave]]></code>
-      <code><![CDATA[onBeforeSave]]></code>
-      <code><![CDATA[onLoaded]]></code>
-    </MissingPureAnnotation>
-  </file>
+<files psalm-version="dev-master@02b64e98082db34b325814d4cc98fb65b0908721">
   <file src="src/Driver/DriverArray.php">
     <ImplementedParamTypeMismatch>
       <code><![CDATA[$previous]]></code>
@@ -29,58 +7,16 @@
     <ImplementedReturnTypeMismatch>
       <code><![CDATA[DbArray<TTKey, TTValue>]]></code>
     </ImplementedReturnTypeMismatch>
-    <MissingPureAnnotation>
-      <code><![CDATA[__sleep]]></code>
-    </MissingPureAnnotation>
   </file>
   <file src="src/Driver/MemoryArray.php">
     <DocblockTypeContradiction>
       <code><![CDATA[$previous instanceof self]]></code>
     </DocblockTypeContradiction>
-    <MissingPureAnnotation>
-      <code><![CDATA[clear]]></code>
-      <code><![CDATA[count]]></code>
-      <code><![CDATA[get]]></code>
-      <code><![CDATA[getIterator]]></code>
-      <code><![CDATA[set]]></code>
-      <code><![CDATA[unset]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Driver/SqlArray.php">
-    <ImmutableDependency>
-      <code><![CDATA[protected function __construct(]]></code>
-    </ImmutableDependency>
-    <MissingAbstractPureAnnotation>
-      <code><![CDATA[importFromTable]]></code>
-    </MissingAbstractPureAnnotation>
-  </file>
-  <file src="src/Internal/Containers/CacheContainer.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__sleep]]></code>
-      <code><![CDATA[set]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Containers/ObjectContainer.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__sleep]]></code>
-    </MissingPureAnnotation>
-    <PossiblyUnusedMethod>
-      <code><![CDATA[stopCacheCleanupLoop]]></code>
-    </PossiblyUnusedMethod>
   </file>
   <file src="src/Internal/Driver/CachedArray.php">
     <DocblockTypeContradiction>
       <code><![CDATA[$previous instanceof self]]></code>
     </DocblockTypeContradiction>
-    <MissingPureAnnotation>
-      <code><![CDATA[set]]></code>
-      <code><![CDATA[unset]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Driver/MysqlArray.php">
-    <ImmutableDependency>
-      <code><![CDATA[public function __construct(DbArrayBuilder $config, Serializer $serializer)]]></code>
-    </ImmutableDependency>
   </file>
   <file src="src/Internal/Driver/ObjectArray.php">
     <DocblockTypeContradiction>
@@ -92,106 +28,5 @@
     <MixedPropertyTypeCoercion>
       <code><![CDATA[$new::getInstance($config, $previous->cache->inner)]]></code>
     </MixedPropertyTypeCoercion>
-  </file>
-  <file src="src/Internal/Driver/PostgresArray.php">
-    <ImmutableDependency>
-      <code><![CDATA[public function __construct(DbArrayBuilder $config, Serializer $serializer)]]></code>
-    </ImmutableDependency>
-  </file>
-  <file src="src/Internal/Driver/RedisArray.php">
-    <ImmutableDependency>
-      <code><![CDATA[public function __construct(DbArrayBuilder $config, Serializer $serializer)]]></code>
-    </ImmutableDependency>
-  </file>
-  <file src="src/Internal/Serializer/BoolInt.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Serializer/BoolString.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Serializer/FloatString.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Serializer/IntString.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Internal/Serializer/Passthrough.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Serializer.php">
-    <MissingAbstractPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingAbstractPureAnnotation>
-    <MissingInterfaceImmutableAnnotation>
-      <code><![CDATA[Serializer]]></code>
-    </MissingInterfaceImmutableAnnotation>
-  </file>
-  <file src="src/Serializer/Json.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[deserialize]]></code>
-      <code><![CDATA[serialize]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings.php">
-    <MissingAbstractPureAnnotation>
-      <code><![CDATA[getDriverClass]]></code>
-    </MissingAbstractPureAnnotation>
-    <MissingInterfaceImmutableAnnotation>
-      <code><![CDATA[Settings]]></code>
-    </MissingInterfaceImmutableAnnotation>
-  </file>
-  <file src="src/Settings/DriverSettings.php">
-    <MissingAbstractPureAnnotation>
-      <code><![CDATA[getDbIdentifier]]></code>
-    </MissingAbstractPureAnnotation>
-    <MissingPureAnnotation>
-      <code><![CDATA[__construct]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings/MemorySettings.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[getDriverClass]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings/MysqlSettings.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[getDriverClass]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings/PostgresSettings.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[getDriverClass]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings/RedisSettings.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[getDbIdentifier]]></code>
-      <code><![CDATA[getDriverClass]]></code>
-    </MissingPureAnnotation>
-  </file>
-  <file src="src/Settings/SqlSettings.php">
-    <MissingPureAnnotation>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[getDbIdentifier]]></code>
-    </MissingPureAnnotation>
   </file>
 </files>

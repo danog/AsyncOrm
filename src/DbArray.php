@@ -99,6 +99,8 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      * Unset element.
      *
      * @param TKey $key
+     *
+     * @psalm-impure
      */
     abstract public function unset(string|int $key): void;
     /**
@@ -106,6 +108,8 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      *
      * @param TKey   $key
      * @param TValue $value
+     *
+     * @psalm-impure
      */
     abstract public function set(string|int $key, mixed $value): void;
     /**
@@ -113,10 +117,14 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      *
      * @param TKey   $key
      * @return ?TValue
+     *
+     * @psalm-impure
      */
     abstract public function get(string|int $key): mixed;
     /**
      * Clear all elements.
+     *
+     * @psalm-impure
      */
     abstract public function clear(): void;
 
@@ -128,6 +136,8 @@ abstract class DbArray implements Countable, ArrayAccess, Traversable, IteratorA
      *
      * @param DbArray<TTKey, TValue>|null $previous
      * @return DbArray<TTKey, TValue>
+     *
+     * @psalm-impure
      */
     abstract public static function getInstance(DbArrayBuilder $config, self|null $previous): self;
 }

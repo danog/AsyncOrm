@@ -36,6 +36,9 @@ use danog\AsyncOrm\Serializer;
  */
 final class BoolString implements Serializer
 {
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function serialize(mixed $value): mixed
     {
@@ -44,6 +47,9 @@ final class BoolString implements Serializer
             false => '0',
         };
     }
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function deserialize(mixed $value): mixed
     {

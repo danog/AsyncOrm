@@ -61,34 +61,52 @@ final class MemoryArray extends DbArray
         return new self($previous);
     }
 
+    /**
+     * @psalm-capabilities read-props|write-this-props|write-refs
+     */
     #[\Override]
     public function set(string|int $key, mixed $value): void
     {
         $this->data[$key] = $value;
     }
+    /**
+     * @psalm-capabilities read-props
+     */
     #[\Override]
     public function get(string|int $key): mixed
     {
         return $this->data[$key] ?? null;
     }
+    /**
+     * @psalm-capabilities read-props|write-this-props|write-refs
+     */
     #[\Override]
     public function unset(string|int $key): void
     {
         unset($this->data[$key]);
     }
 
+    /**
+     * @psalm-capabilities read-props|write-this-props|write-refs
+     */
     #[\Override]
     public function clear(): void
     {
         $this->data = [];
     }
 
+    /**
+     * @psalm-capabilities read-props
+     */
     #[\Override]
     public function count(): int
     {
         return \count($this->data);
     }
 
+    /**
+     * @psalm-capabilities read-props
+     */
     #[\Override]
     public function getIterator(): \Traversable
     {
