@@ -263,6 +263,51 @@ final class OrmTest extends TestCase
         $orm->clear();
     }
 
+    public static function provideSqlSettingsOtherDatabase(): \Generator
+    {
+        $key = 0;
+        foreach ([new Native, new Igbinary, new Json] as $serializer) {
+            foreach ([0, 100] as $ttl) {
+                yield [$key++, new PostgresSettings(
+                    PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test'),
+                    $serializer,
+                    $ttl,
+                ), new PostgresSettings(
+                    PostgresConfig::fromString('host=127.0.0.1:5432 user=postgres db=test_other'),
+                    $serializer,
+                    $ttl,
+                )];
+                yield [$key++, new MysqlSettings(
+                    MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
+                    $serializer,
+                    $ttl,
+                ), new MysqlSettings(
+                    MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test_other'),
+                    $serializer,
+                    $ttl,
+                )];
+            }
+        }
+    }
+
+    /**
+     * Moving an array to another database of the same driver migrates its contents.
+     */
+    #[DataProvider('provideSqlSettingsOtherDatabase')]
+    public function testMigrationToOtherDatabase(int $tablePostfix, Settings $settings, Settings $otherSettings): void
+    {
+        $table = 'testMigrationToOtherDatabase_'.$tablePostfix;
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::STRING, ValueType::INT))->build();
+        $orm->clear();
+        $orm['key'] = 123;
+
+        $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
+        $this->assertSame(123, $other['key']);
+        $this->assertCount(1, $other);
+
+        $other->clear();
+    }
+
     #[DataProvider('provideSettings')]
     public function testKeyMigration(int $tablePostfix, Settings $settings): void
     {
