@@ -146,11 +146,15 @@ abstract class SqlArray extends DriverArray
 
     /**
      * Perform async request to db.
+     *
+     * Uses an unnamed statement: preparing a named one for each query costs two more round trips, and
+     * deallocating it races with the next queries on the connection (amphp/postgres#75).
+     *
      * @param array<string, scalar> $params
      */
     protected function execute(string $sql, array $params = []): SqlResult
     {
-        return $this->db->prepare($sql)->execute($params);
+        return $this->db->execute($sql, $params);
     }
 
     /**

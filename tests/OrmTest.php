@@ -129,10 +129,20 @@ final class OrmTest extends TestCase
     }
     private static function waitForStartup(ReadableStream $f): bool
     {
+        // The postgres and mariadb images first run a temporary server to initialize the database,
+        // which doesn't listen on TCP: wait for the final one.
+        $postgresListening = false;
         foreach (splitLines($f) as $line) {
-            if (\stripos($line, 'ready to ') !== false
-                || \stripos($line, "socket: '/run/mysqld/mysqld.sock'  port: 3306") !== false
-            ) {
+            if (\stripos($line, 'listening on IPv4 address') !== false) {
+                $postgresListening = true;
+            }
+            $ready = match (true) {
+                \stripos($line, 'database system is ready to accept connections') !== false => $postgresListening,
+                \stripos($line, 'ready to ') !== false,
+                \stripos($line, "socket: '/run/mysqld/mysqld.sock'  port: 3306") !== false => true,
+                default => false,
+            };
+            if ($ready) {
                 async(buffer(...), $f);
                 return true;
             }
