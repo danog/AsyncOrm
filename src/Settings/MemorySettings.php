@@ -31,6 +31,9 @@ use danog\AsyncOrm\Settings;
  */
 final readonly class MemorySettings implements Settings
 {
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function getDriverClass(): string
     {

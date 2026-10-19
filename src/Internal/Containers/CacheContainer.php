@@ -53,6 +53,9 @@ final class CacheContainer
     ) {
         $this->mutex = new LocalMutex;
     }
+    /**
+     * @psalm-pure
+     */
     public function __sleep()
     {
         return ['inner'];
@@ -111,6 +114,8 @@ final class CacheContainer
     /**
      * @param TKey $key
      * @param ?TValue $value
+     *
+     * @psalm-capabilities read-props|write-this-props|write-refs
      */
     public function set(string|int $key, mixed $value): void
     {

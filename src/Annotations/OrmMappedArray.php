@@ -25,6 +25,8 @@ use danog\AsyncOrm\ValueType;
  * Attribute use to autoconfigure ORM properties.
  *
  * @api
+ *
+ * @psalm-immutable
  */
 #[Attribute(Attribute::TARGET_PROPERTY)]
 final class OrmMappedArray

@@ -35,10 +35,13 @@ final readonly class PostgresSettings extends SqlSettings
 {
     /**
      * @api
+     *
      * @param ?Serializer $serializer to use for object and mixed type values, if null defaults to either Igbinary or Native.
      * @param int<0, max> $cacheTtl Cache TTL in seconds
      * @param int<1, max> $maxConnections Maximum connection limit
      * @param int<1, max> $idleTimeout Idle timeout
+     *
+     * @psalm-capabilities read-props
      */
     public function __construct(
         PostgresConfig $config,
@@ -50,6 +53,9 @@ final readonly class PostgresSettings extends SqlSettings
         parent::__construct($config, $serializer, $cacheTtl, $maxConnections, $idleTimeout);
     }
 
+    /**
+     * @psalm-pure
+     */
     #[\Override]
     public function getDriverClass(): string
     {

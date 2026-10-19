@@ -28,6 +28,10 @@ namespace danog\AsyncOrm;
  */
 interface Settings
 {
-    /** @return class-string<DbArray> */
+    /**
+     * @return class-string<DbArray>
+     *
+     * @psalm-pure
+     */
     public function getDriverClass(): string;
 }

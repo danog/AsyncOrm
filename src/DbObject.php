@@ -64,6 +64,8 @@ abstract class DbObject
      * Method invoked after loading the object.
      *
      * @psalm-suppress PossiblyUnusedParam
+     *
+     * @psalm-impure
      */
     protected function onLoaded(DbArrayBuilder $config): void
     {
@@ -71,6 +73,8 @@ abstract class DbObject
     }
     /**
      * Method invoked before saving the object.
+     *
+     * @psalm-impure
      */
     protected function onBeforeSave(): void
     {
@@ -78,6 +82,8 @@ abstract class DbObject
     }
     /**
      * Method invoked after saving the object.
+     *
+     * @psalm-impure
      */
     protected function onAfterSave(): void
     {
