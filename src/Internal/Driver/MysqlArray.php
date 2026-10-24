@@ -224,6 +224,15 @@ final class MysqlArray extends SqlArray
         }
     }
 
+    #[\Override]
+    protected function getDatabaseIdentity(): ?string
+    {
+        $row = $this->db->query(
+            "SELECT CONCAT_WS(CHAR(0), @@hostname, @@port, @@datadir, @@server_id, DATABASE()) AS id"
+        )->fetchRow();
+        return isset($row['id']) && \is_string($row['id']) ? $row['id'] : null;
+    }
+
     /**
      * Perform async request to db.
      */

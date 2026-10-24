@@ -318,6 +318,79 @@ final class OrmTest extends TestCase
         $other->clear();
     }
 
+    /**
+     * Same, from an array that was unserialized (as from a session) and never woken up:
+     * the new database is the first thing it's opened for.
+     */
+    #[DataProvider('provideSqlSettingsOtherDatabase')]
+    public function testMigrationToOtherDatabaseFromUnserialized(int $tablePostfix, Settings $settings, Settings $otherSettings): void
+    {
+        $table = 'testMigrationToOtherDatabaseFromUnserialized_'.$tablePostfix;
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::STRING, ValueType::INT))->build();
+        $orm->clear();
+        $orm['key'] = 123;
+        $orm = \unserialize(\serialize($orm));
+
+        $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
+        $this->assertSame(123, $other['key']);
+        $this->assertCount(1, $other);
+
+        $other->clear();
+    }
+
+    public static function provideMysqlSettingsSameServerOtherAddress(): \Generator
+    {
+        $key = 0;
+        foreach ([new Native, new Igbinary, new Json] as $serializer) {
+            foreach ([0, 100] as $ttl) {
+                yield [$key++, new MysqlSettings(
+                    MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'),
+                    $serializer,
+                    $ttl,
+                ), new MysqlSettings(
+                    MysqlConfig::fromString('host=127.0.0.2:3306 user=root db=test'),
+                    $serializer,
+                    $ttl,
+                )];
+            }
+        }
+    }
+
+    /**
+     * The same server and database under another address (here another loopback address; in
+     * production, TCP and a unix socket) is the same table: nothing is copied, so nothing
+     * is deleted and rewritten (which loses rows if the process dies halfway).
+     */
+    #[DataProvider('provideMysqlSettingsSameServerOtherAddress')]
+    public function testNoMigrationOnSameServerOtherAddress(int $tablePostfix, Settings $settings, Settings $otherSettings): void
+    {
+        $table = 'testNoMigrationOnSameServerOtherAddress_'.$tablePostfix;
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::STRING, ValueType::INT))->build();
+        $orm->clear();
+        for ($x = 0; $x < 100; $x++) {
+            $orm["key$x"] = $x;
+        }
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
+        $orm = \unserialize(\serialize($orm));
+
+        $deletes = static function (): int {
+            $pool = new \Amp\Mysql\MysqlConnectionPool(MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test'));
+            $n = (int) $pool->query("SHOW GLOBAL STATUS LIKE 'Handler_delete'")->fetchRow()['Value'];
+            $pool->close();
+            return $n;
+        };
+        $before = $deletes();
+        $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
+        $this->assertSame($before, $deletes());
+
+        $this->assertCount(100, $other);
+        $this->assertSame(42, $other['key42']);
+
+        $other->clear();
+    }
+
     #[DataProvider('provideSettings')]
     public function testKeyMigration(int $tablePostfix, Settings $settings): void
     {

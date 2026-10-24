@@ -168,6 +168,21 @@ final class PostgresArray extends SqlArray
     }
 
     #[\Override]
+    protected function getDatabaseIdentity(): ?string
+    {
+        try {
+            // The cluster's system identifier is unique per initdb.
+            $row = $this->db->query(
+                "SELECT system_identifier::text || chr(1) || current_database() AS id FROM pg_control_system()"
+            )->fetchRow();
+        } catch (\Throwable) {
+            // pg_control_system() may be restricted: then it can't be told.
+            return null;
+        }
+        return isset($row['id']) && \is_string($row['id']) ? $row['id'] : null;
+    }
+
+    #[\Override]
     protected function importFromTable(string $fromTable): void
     {
         if ($this->config->table === $fromTable) {
