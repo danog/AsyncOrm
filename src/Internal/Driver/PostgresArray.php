@@ -167,6 +167,7 @@ final class PostgresArray extends SqlArray
         }
     }
 
+    /** @psalm-impure */
     #[\Override]
     protected function getDatabaseIdentity(): ?string
     {
