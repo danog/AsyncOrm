@@ -157,4 +157,10 @@ abstract class SqlArray extends DriverArray
      * Import data from existing table.
      */
     abstract protected function importFromTable(string $fromTable): void;
+
+    /**
+     * What identifies the server and database this array's table is on, whatever address
+     * reaches them (TCP, another host name, a unix socket), or null if it can't be told.
+     */
+    abstract protected function getDatabaseIdentity(): ?string;
 }

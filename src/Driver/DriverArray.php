@@ -89,10 +89,10 @@ abstract class DriverArray extends DbArray
         }
 
         /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
-        if ($previous instanceof SqlArray
+        $sameDriver = $previous instanceof SqlArray
             && $instance instanceof SqlArray
-            && $previous::class === $instance::class
-        ) {
+            && $previous::class === $instance::class;
+        if ($sameDriver) {
             \assert($config->settings instanceof SqlSettings);
             \assert($previous->config->settings instanceof SqlSettings);
             $c = $config->settings->config;
@@ -101,18 +101,44 @@ abstract class DriverArray extends DbArray
                 && $c->getPort() === $prevC->getPort()
                 && $c->getDatabase() === $prevC->getDatabase()
             ) {
-                if ($config->table !== $previous->config->table) {
-                    $instance->importFromTable($previous->config->table);
-                }
-                // Only keyType/valueType changed, and we already migrated those on construction.
-                return $instance;
+                return self::sameDatabase($instance, $previous);
             }
+        }
+
+        /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
+        if ($previous instanceof self && !$previous->inited) {
+            // Unserialized (e.g. from a session) and not woken up yet: it has its settings,
+            // but no connection or queries. Bring it up from its own settings to read it.
+            /** @var DbArray<TTKey, TTValue> */
+            $previous = $previous::getInstance($previous->config, null);
+        }
+
+        // The old rows are deleted only once they're known to be stored elsewhere: by
+        // another driver, or by an SQL server and database that tell they're not the same.
+        // Otherwise the previous array may be the very same storage under other settings
+        // (another address, cache TTL or serializer), and the copy rewrites its rows in place.
+        $deleteOld = $previous::class !== $instance::class;
+        if ($sameDriver) {
+            /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
+            \assert($previous instanceof SqlArray);
+            // The same server and database under another address (e.g. TCP and a unix
+            // socket): copying the rows would read and rewrite the very same table.
+            $id = $instance->getDatabaseIdentity();
+            $prevId = $previous->getDatabaseIdentity();
+            if ($id !== null && $id === $prevId) {
+                return self::sameDatabase($instance, $previous);
+            }
+            $deleteOld = $id !== null && $prevId !== null;
         }
 
         $promises = [];
         foreach ($previous->getIterator() as $key => $value) {
-            $promises []= async($previous->unset(...), $key)
-                ->map(static fn () => $instance->set($key, $value));
+            // The new copy first: if this is interrupted, a row is at worst in both.
+            $f = async($instance->set(...), $key, $value);
+            if ($deleteOld) {
+                $f = $f->map(static fn () => $previous->unset($key));
+            }
+            $promises []= $f;
             if (\count($promises) % 500 === 0) {
                 // @codeCoverageIgnoreStart
                 await($promises);
@@ -124,6 +150,23 @@ abstract class DriverArray extends DbArray
             await($promises);
         }
 
+        return $instance;
+    }
+
+    /**
+     * The array is on the same database as before: at most, its table was renamed.
+     *
+     * @template TTKey as array-key
+     * @template TTValue
+     * @param SqlArray<TTKey, TTValue> $instance
+     * @return SqlArray<TTKey, TTValue>
+     */
+    private static function sameDatabase(SqlArray $instance, SqlArray $previous): SqlArray
+    {
+        if ($instance->config->table !== $previous->config->table) {
+            $instance->importFromTable($previous->config->table);
+        }
+        // Only keyType/valueType changed, and we already migrated those on construction.
         return $instance;
     }
 
