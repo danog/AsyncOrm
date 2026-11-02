@@ -120,12 +120,12 @@ final class MysqlArray extends SqlArray
                 );
                 // @codeCoverageIgnoreEnd
 
-                /** @var mixed */
-                $maxAllowedPacket = $pdo->query('SELECT @@max_allowed_packet')->fetchColumn();
+                // 0 (nothing fits: always quote) if it can't be read.
+                $maxAllowedPacket = (int) $pdo->query('SELECT @@max_allowed_packet')->fetchColumn();
                 self::$connections[$dbKey] = [
                     new MysqlConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout),
                     $pdo,
-                    \is_numeric($maxAllowedPacket) ? (int) $maxAllowedPacket : 0,
+                    $maxAllowedPacket,
                 ];
             }
         } finally {
