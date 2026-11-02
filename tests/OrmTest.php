@@ -762,6 +762,12 @@ final class OrmTest extends TestCase
                 )) {
                     continue;
                 }
+                // JSON can't encode binary strings.
+                if (\is_string($value) && !\mb_check_encoding($value, 'UTF-8')
+                    && !$settings instanceof MemorySettings && $settings->serializer instanceof Json
+                ) {
+                    continue;
+                }
                 yield [
                     $k++,
                     $settings,
@@ -792,6 +798,8 @@ final class OrmTest extends TestCase
             [ValueType::SCALAR, 123],
             [ValueType::SCALAR, ['test' => 123]],
             [ValueType::SCALAR, 123.321],
+            // Every byte value, and a placeholder lookalike, in the serialized value.
+            [ValueType::SCALAR, \implode('', \array_map(\chr(...), \range(0, 255))).":index:value"],
         ] as [$valueType, $value]) {
             yield [
                 $key++,
@@ -818,6 +826,14 @@ final class OrmTest extends TestCase
                 $key++,
                 KeyType::STRING_OR_INT,
                 'test_2',
+                $valueType,
+                $value
+            ];
+            // A key containing another placeholder must not be substituted into.
+            yield [
+                $key++,
+                KeyType::STRING,
+                "it's:value:index",
                 $valueType,
                 $value
             ];
