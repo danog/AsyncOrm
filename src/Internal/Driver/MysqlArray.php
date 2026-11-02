@@ -51,16 +51,22 @@ use Revolt\EventLoop;
  */
 final class MysqlArray extends SqlArray
 {
-    /** @var array<list{MysqlConnectionPool, \PDO}> */
+    /** @var array<list{MysqlConnectionPool, \PDO, int}> */
     private static array $connections = [];
 
     private static ?LocalKeyedMutex $mutex = null;
+
+    /** Room for the rest of a statement: its quoted key (at most 255 characters, each escaped) and the X''. */
+    private const STATEMENT_OVERHEAD = 4096;
 
     // We're forced to use quoting (just like PDO does internally when using prepares) because native MySQL prepares are extremely slow.
     protected PDO $pdo;
 
     /** Whether values are stored in a binary (BLOB) column: they're then sent as hex literals. */
     private bool $binaryValues;
+
+    /** The server's max_allowed_packet: no statement may be longer. */
+    private int $maxAllowedPacket;
 
     /**
      * @psalm-suppress MethodSignatureMismatch
@@ -114,16 +120,19 @@ final class MysqlArray extends SqlArray
                 );
                 // @codeCoverageIgnoreEnd
 
+                /** @var mixed */
+                $maxAllowedPacket = $pdo->query('SELECT @@max_allowed_packet')->fetchColumn();
                 self::$connections[$dbKey] = [
                     new MysqlConnectionPool($settings->config, $settings->maxConnections, $settings->idleTimeout),
                     $pdo,
+                    \is_numeric($maxAllowedPacket) ? (int) $maxAllowedPacket : 0,
                 ];
             }
         } finally {
             EventLoop::queue($lock->release(...));
         }
 
-        [$db, $pdo] = self::$connections[$dbKey];
+        [$db, $pdo, $this->maxAllowedPacket] = self::$connections[$dbKey];
         $this->pdo = $pdo;
 
         $keyType = match ($config->keyType) {
@@ -248,7 +257,11 @@ final class MysqlArray extends SqlArray
         foreach ($params as $key => $value) {
             if (!\is_string($value)) {
                 $value = (string) $value;
-            } elseif ($key === 'value' && $this->binaryValues) {
+            } elseif ($key === 'value' && $this->binaryValues
+                // A hex literal doubles the value, quote() barely grows it (binary data has few bytes to
+                // escape): it's only used if the statement still fits in a packet.
+                && 2 * \strlen($value) + \strlen($sql) + self::STATEMENT_OVERHEAD <= $this->maxAllowedPacket
+            ) {
                 // Exact for a binary column, and much cheaper than quote(), which escapes
                 // (and validates as utf8mb4) the serialized value byte by byte.
                 $value = "X'".\bin2hex($value)."'";

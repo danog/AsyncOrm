@@ -159,6 +159,28 @@ final class OrmTest extends TestCase
         }
     }
 
+    public static function provideMysqlSettings(): \Generator
+    {
+        foreach (self::provideSettings() as [$k, $settings]) {
+            if ($settings instanceof MysqlSettings && !$settings->serializer instanceof Json) {
+                yield [$k, $settings];
+            }
+        }
+    }
+
+    /** A value too big to double into a hex literal within max_allowed_packet (16 MiB by default) still fits quoted. */
+    #[DataProvider('provideMysqlSettings')]
+    public function testValueLargerThanHalfAPacket(int $tablePostfix, MysqlSettings $settings): void
+    {
+        $orm = (new DbArrayBuilder("testLargeValue_$tablePostfix", $settings, KeyType::STRING, ValueType::SCALAR))->build();
+        $value = \random_bytes(10 << 20);
+        $orm['large'] = $value;
+        $this->assertSame($value, $orm['large']);
+        $orm['small'] = 'x';
+        $this->assertSame('x', $orm['small']);
+        unset($orm['large'], $orm['small']);
+    }
+
     #[DataProvider('provideSettingsKeysValues')]
     public function testBasic(int $tablePostfix, Settings $settings, KeyType $keyType, string|int $key, ValueType $valueType, mixed $value): void
     {
