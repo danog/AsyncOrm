@@ -59,6 +59,9 @@ final class MysqlArray extends SqlArray
     // We're forced to use quoting (just like PDO does internally when using prepares) because native MySQL prepares are extremely slow.
     protected PDO $pdo;
 
+    /** Whether values are stored in a binary (BLOB) column: they're then sent as hex literals. */
+    private bool $binaryValues;
+
     /**
      * @psalm-suppress MethodSignatureMismatch
      * @param Serializer<TValue> $serializer
@@ -136,6 +139,7 @@ final class MysqlArray extends SqlArray
             ValueType::BOOL => "BIT(1)",
             ValueType::SCALAR, ValueType::OBJECT => "MEDIUMBLOB"
         };
+        $this->binaryValues = $valueType === "MEDIUMBLOB";
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
             ValueType::SCALAR, ValueType::OBJECT => $serializer,
@@ -240,16 +244,22 @@ final class MysqlArray extends SqlArray
     #[\Override]
     protected function execute(string $sql, array $params = []): SqlResult
     {
+        $replacements = [];
         foreach ($params as $key => $value) {
-            if (\is_string($value)) {
-                $value = $this->pdo->quote($value);
-            } else {
+            if (!\is_string($value)) {
                 $value = (string) $value;
+            } elseif ($key === 'value' && $this->binaryValues) {
+                // Exact for a binary column, and much cheaper than quote(), which escapes
+                // (and validates as utf8mb4) the serialized value byte by byte.
+                $value = "X'".\bin2hex($value)."'";
+            } else {
+                $value = $this->pdo->quote($value);
             }
-            $sql = \str_replace(":$key", $value, $sql);
+            $replacements[":$key"] = $value;
         }
 
-        return $this->db->query($sql);
+        // One pass: a replaced value is never scanned again for another placeholder.
+        return $this->db->query(\strtr($sql, $replacements));
     }
 
     #[\Override]
