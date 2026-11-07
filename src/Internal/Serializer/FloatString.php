@@ -30,6 +30,10 @@ use danog\AsyncOrm\Serializer;
 /**
  * Float casting serializer.
  *
+ * Exact: (string) and var_export() print floats with the `precision` and `serialize_precision`
+ * ini settings, (string) with 14 significant digits by default (0.1 + 0.2 is "0.3"), while
+ * 17 always identify the same double.
+ *
  * @internal
  *
  * @implements Serializer<float>
@@ -42,7 +46,7 @@ final class FloatString implements Serializer
     #[\Override]
     public function serialize(mixed $value): mixed
     {
-        return (string) $value;
+        return \sprintf('%.17G', $value);
     }
     /**
      * @psalm-pure

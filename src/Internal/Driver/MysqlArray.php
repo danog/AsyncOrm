@@ -33,6 +33,7 @@ use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Driver\Mysql;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\Internal\Serializer\BoolInt;
+use danog\AsyncOrm\Internal\Serializer\FloatString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
@@ -153,6 +154,8 @@ final class MysqlArray extends SqlArray
         $serializer = match ($config->valueType) {
             ValueType::SCALAR, ValueType::OBJECT => $serializer,
             ValueType::BOOL => new BoolInt,
+            // Not a float parameter, which execute() would print with 14 digits.
+            ValueType::FLOAT => new FloatString,
             default => new Passthrough
         };
         /** @psalm-suppress InvalidArgument */

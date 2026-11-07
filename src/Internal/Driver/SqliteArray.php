@@ -27,6 +27,7 @@ namespace danog\AsyncOrm\Internal\Driver;
 
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Driver\DriverArray;
+use danog\AsyncOrm\Internal\Serializer\FloatString;
 use danog\AsyncOrm\Internal\Serializer\IntBool;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
@@ -54,7 +55,6 @@ final class SqliteArray extends DriverArray
     private readonly SqliteConnection $connection;
     private readonly bool $intKey;
     private readonly int $bindType;
-    private readonly bool $float;
 
     private string $t;
     private PDOStatement $get;
@@ -70,7 +70,6 @@ final class SqliteArray extends DriverArray
         \assert($settings instanceof SqliteSettings);
 
         $this->intKey = $config->keyType === KeyType::INT;
-        $this->float = $config->valueType === ValueType::FLOAT;
         $this->bindType = match ($config->valueType) {
             // Serialized values are bytes: as TEXT, SQLite could treat them as UTF-8.
             ValueType::SCALAR, ValueType::OBJECT => PDO::PARAM_LOB,
@@ -81,6 +80,9 @@ final class SqliteArray extends DriverArray
         $serializer = match ($config->valueType) {
             ValueType::SCALAR, ValueType::OBJECT => $serializer,
             ValueType::BOOL => new IntBool,
+            // Not a float parameter, which PDO would print with 14 digits: SQLite converts the
+            // text back to the same double.
+            ValueType::FLOAT => new FloatString,
             default => new Passthrough
         };
         parent::__construct($config, $serializer);
@@ -172,11 +174,6 @@ final class SqliteArray extends DriverArray
     {
         /** @var scalar */
         $value = $this->serializer->serialize($value);
-        if ($this->float) {
-            // PDO binds floats as strings with `precision` digits (14 by default): 17 digits
-            // always identify the same double, which SQLite converts the text back to.
-            $value = \sprintf('%.17G', (float) $value);
-        }
         $this->connection->write(function () use ($key, $value): void {
             $stmt = $this->set;
             $this->bindKey($stmt, $key);
