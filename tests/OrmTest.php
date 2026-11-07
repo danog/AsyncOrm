@@ -24,12 +24,19 @@
 namespace danog\TestAsyncOrm;
 
 use Amp\ByteStream\ReadableStream;
+use Amp\Cancellation;
 use Amp\Mysql\MysqlConfig;
+use Amp\Parallel\Worker\Execution;
+use Amp\Parallel\Worker\Task;
+use Amp\Parallel\Worker\Worker;
+use Amp\Parallel\Worker\WorkerException;
+use Amp\Parallel\Worker\WorkerPool;
 use Amp\Postgres\PostgresConfig;
 use Amp\Process\Process;
 use Amp\Redis\RedisConfig;
 use Amp\TimeoutCancellation;
 use AssertionError;
+use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
@@ -37,6 +44,7 @@ use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
+use danog\AsyncOrm\Internal\Driver\SqliteConnection;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
 use danog\AsyncOrm\Serializer\Json;
@@ -47,6 +55,7 @@ use danog\AsyncOrm\Settings\MemorySettings;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
+use danog\AsyncOrm\Settings\SqliteSettings;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -63,6 +72,7 @@ use function Amp\ByteStream\splitLines;
 use function Amp\delay;
 use function Amp\Future\await;
 use function Amp\Future\awaitAny;
+use function Amp\Parallel\Worker\workerPool;
 
 final class OrmTest extends TestCase
 {
@@ -148,6 +158,11 @@ final class OrmTest extends TestCase
             }
         }
         return false;
+    }
+
+    private static function sqlitePath(string $name): string
+    {
+        return \sys_get_temp_dir()."/async-orm-$name.sqlite";
     }
 
     public function assertSameNotObject(mixed $a, mixed $b): void
@@ -318,6 +333,15 @@ final class OrmTest extends TestCase
                     $serializer,
                     $ttl,
                 )];
+                yield [$key++, new SqliteSettings(
+                    self::sqlitePath('test'),
+                    $serializer,
+                    $ttl,
+                ), new SqliteSettings(
+                    self::sqlitePath('test_other'),
+                    $serializer,
+                    $ttl,
+                )];
             }
         }
     }
@@ -417,6 +441,251 @@ final class OrmTest extends TestCase
         $this->assertSame(42, $other['key42']);
 
         $other->clear();
+    }
+
+    /** @return DbArray<int, int> */
+    private static function sqliteArray(string $table, string $path = 'sqlite_specific'): DbArray
+    {
+        $orm = (new DbArrayBuilder($table, new SqliteSettings(self::sqlitePath($path), cacheTtl: 0), KeyType::INT, ValueType::INT))->build();
+        $orm->clear();
+        delay(0);
+        return $orm;
+    }
+
+    private static function sqliteReader(string $path = 'sqlite_specific'): \SQLite3
+    {
+        $db = new \SQLite3(self::sqlitePath($path));
+        $db->enableExceptions(true);
+        $db->busyTimeout(5000);
+        return $db;
+    }
+
+    /**
+     * The writes of a tick are one transaction, committed when the loop gets a turn.
+     */
+    public function testSqliteTickTransaction(): void
+    {
+        $orm = self::sqliteArray('testSqliteTickTransaction');
+        $reader = self::sqliteReader();
+
+        for ($x = 0; $x < 100; $x++) {
+            $orm[$x] = $x;
+        }
+        $this->assertCount(100, $orm);
+        $this->assertSame(0, $reader->querySingle('SELECT count(*) FROM "testSqliteTickTransaction"'));
+
+        delay(0);
+        $this->assertSame(100, $reader->querySingle('SELECT count(*) FROM "testSqliteTickTransaction"'));
+        $orm->clear();
+    }
+
+    /**
+     * While another connection holds the write lock, a write waits without blocking the loop.
+     */
+    public function testSqliteLockWaitDoesNotBlock(): void
+    {
+        $orm = self::sqliteArray('testSqliteLockWaitDoesNotBlock');
+        $other = self::sqliteReader();
+        $other->exec('BEGIN IMMEDIATE');
+
+        $ticks = 0;
+        $timer = EventLoop::repeat(0.01, static function () use (&$ticks): void {
+            $ticks++;
+        });
+        $set = async(static fn () => $orm[1] = 1);
+        delay(0.2);
+        $this->assertFalse($set->isComplete());
+        $this->assertGreaterThan(5, $ticks);
+
+        $other->exec('COMMIT');
+        $set->await(new TimeoutCancellation(5.0));
+        EventLoop::cancel($timer);
+        $this->assertSame(1, $orm[1]);
+        $orm->clear();
+    }
+
+    /**
+     * Writes from several fibers waiting for the same lock all go into the same transaction.
+     */
+    public function testSqliteConcurrentLockWaits(): void
+    {
+        $orm = self::sqliteArray('testSqliteConcurrentLockWaits');
+        $other = self::sqliteReader();
+        $other->exec('BEGIN IMMEDIATE');
+
+        $sets = [];
+        for ($x = 0; $x < 3; $x++) {
+            $sets []= async(static fn () => $orm[$x] = $x);
+        }
+        delay(0.05);
+        $other->exec('COMMIT');
+        await($sets, new TimeoutCancellation(5.0));
+
+        for ($x = 0; $x < 3; $x++) {
+            $this->assertSame($x, $orm[$x]);
+        }
+        $orm->clear();
+    }
+
+    /**
+     * A long run of queries without suspending lets the loop run.
+     */
+    public function testSqliteYieldsWhenBusy(): void
+    {
+        $orm = self::sqliteArray('testSqliteYieldsWhenBusy');
+        $ran = false;
+        EventLoop::defer(static function () use (&$ran): void {
+            $ran = true;
+        });
+        $start = \hrtime(true);
+        for ($x = 0; !$ran && \hrtime(true) - $start < 5_000_000_000; $x++) {
+            $orm[$x % 100] = $x;
+        }
+        $this->assertTrue($ran);
+        $orm->clear();
+    }
+
+    private static function getCheckpointer(DbArray $orm): array
+    {
+        $connection = (new ReflectionProperty(SqliteConnection::class, 'connections'))->getValue()[self::sqlitePath('sqlite_specific')];
+        $db = $connection->db;
+        $t = new TimeoutCancellation(10.0);
+        while ((int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn() !== 0) {
+            delay(0.01, cancellation: $t);
+        }
+        return [$connection, $db];
+    }
+
+    /**
+     * The WAL is checkpointed by a worker.
+     */
+    public function testSqliteCheckpointer(): void
+    {
+        $orm = self::sqliteArray('testSqliteCheckpointer');
+        [, $db] = self::getCheckpointer($orm);
+
+        for ($x = 0; $x < 1000; $x++) {
+            $orm[$x] = $x;
+            if ($x % 10 === 0) {
+                delay(0);
+            }
+        }
+        delay(0);
+        $t = new TimeoutCancellation(10.0);
+        while (true) {
+            [, $log, $checkpointed] = self::sqliteReader()->query('PRAGMA wal_checkpoint(NOOP)')->fetchArray(SQLITE3_NUM);
+            if ($log === $checkpointed) {
+                break;
+            }
+            delay(0.05, cancellation: $t);
+        }
+        $this->assertSame(0, (int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn());
+        $orm->clear();
+    }
+
+    /**
+     * If no worker can run the checkpoints, SQLite checkpoints by itself again.
+     */
+    public function testSqliteCheckpointFallback(): void
+    {
+        $orm = self::sqliteArray('testSqliteCheckpointFallback');
+        [, $db] = self::getCheckpointer($orm);
+
+        $pool = workerPool();
+        workerPool(new class implements WorkerPool {
+            public function submit(Task $task, ?Cancellation $cancellation = null): Execution
+            {
+                throw new WorkerException('No workers here');
+            }
+            public function isRunning(): bool
+            {
+                return true;
+            }
+            public function isIdle(): bool
+            {
+                return true;
+            }
+            public function shutdown(): void
+            {
+            }
+            public function kill(): void
+            {
+            }
+            public function getWorker(): Worker
+            {
+                throw new WorkerException('No workers here');
+            }
+            public function getWorkerCount(): int
+            {
+                return 0;
+            }
+            public function getIdleWorkerCount(): int
+            {
+                return 0;
+            }
+        });
+        try {
+            $orm[1] = 1;
+            $t = new TimeoutCancellation(10.0);
+            while ((int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn() === 0) {
+                delay(0.01, cancellation: $t);
+            }
+            $this->assertSame(1000, (int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn());
+        } finally {
+            workerPool($pool);
+            // Workers are tried again only a minute later: start over for the other tests.
+            (new ReflectionProperty(SqliteConnection::class, 'connections'))->setValue(null, []);
+        }
+        $orm->clear();
+    }
+
+    /**
+     * Writes made right before exit() are committed.
+     */
+    public function testSqliteCommitOnExit(): void
+    {
+        $orm = self::sqliteArray('testSqliteCommitOnExit');
+        $autoload = \var_export(__DIR__.'/../vendor/autoload.php', true);
+        $path = \var_export(self::sqlitePath('sqlite_specific'), true);
+        $code = "require $autoload;
+            \$orm = (new danog\\AsyncOrm\\DbArrayBuilder('testSqliteCommitOnExit', new danog\\AsyncOrm\\Settings\\SqliteSettings($path, cacheTtl: 0), danog\\AsyncOrm\\KeyType::INT, danog\\AsyncOrm\\ValueType::INT))->build();
+            \$orm[1] = 123;
+            exit;";
+        $process = Process::start([PHP_BINARY, '-d', 'error_reporting=E_ALL&~E_DEPRECATED', '-r', $code]);
+        async(buffer(...), $process->getStdout());
+        async(buffer(...), $process->getStderr());
+        $this->assertSame(0, $process->join());
+        $this->assertSame(123, $orm[1]);
+        $orm->clear();
+    }
+
+    /**
+     * The same file through another path is the same table: nothing is copied (and so
+     * deleted from the very same table).
+     */
+    public function testSqliteSameFileOtherPath(): void
+    {
+        $orm = self::sqliteArray('testSqliteSameFileOtherPath');
+        for ($x = 0; $x < 100; $x++) {
+            $orm[$x] = $x;
+        }
+        delay(0);
+        $orm = \unserialize(\serialize($orm));
+
+        $link = \sys_get_temp_dir().'/async-orm-link.sqlite';
+        if (\is_link($link)) {
+            \unlink($link);
+        }
+        \symlink(self::sqlitePath('sqlite_specific'), $link);
+        try {
+            $other = (new DbArrayBuilder('testSqliteSameFileOtherPath', new SqliteSettings($link, cacheTtl: 0), KeyType::INT, ValueType::INT))->build($orm);
+            delay(0);
+            $this->assertCount(100, $other);
+            $this->assertSame(42, $other[42]);
+            $other->clear();
+        } finally {
+            \unlink($link);
+        }
     }
 
     #[DataProvider('provideSettings')]
@@ -896,6 +1165,11 @@ final class OrmTest extends TestCase
                         $serializer,
                         $ttl,
                         optimizeIfWastedMb: 0,
+                    )],
+                    [$key++, new SqliteSettings(
+                        self::sqlitePath('test'),
+                        $serializer,
+                        $ttl,
                     )],
                 ];
             }

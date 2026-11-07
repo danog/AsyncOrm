@@ -32,6 +32,7 @@ Async ORM based on AMPHP v3 and fibers.
 * [\danog\AsyncOrm\Settings\MysqlSettings: MySQL backend settings.](danog/AsyncOrm/Settings/MysqlSettings.md)
 * [\danog\AsyncOrm\Settings\PostgresSettings: Postgres backend settings.](danog/AsyncOrm/Settings/PostgresSettings.md)
 * [\danog\AsyncOrm\Settings\RedisSettings: Redis backend settings.](danog/AsyncOrm/Settings/RedisSettings.md)
+* [\danog\AsyncOrm\Settings\SqliteSettings: SQLite backend settings.](danog/AsyncOrm/Settings/SqliteSettings.md)
 
 ## Traits
 * [\danog\AsyncOrm\DbAutoProperties: Trait that provides autoconfiguration of OrmMappedArray properties.](danog/AsyncOrm/DbAutoProperties.md)
