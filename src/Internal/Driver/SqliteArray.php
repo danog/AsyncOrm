@@ -175,7 +175,7 @@ final class SqliteArray extends DriverArray
         if ($this->float) {
             // PDO binds floats as strings with `precision` digits (14 by default): 17 digits
             // always identify the same double, which SQLite converts the text back to.
-            $value = \sprintf('%.17G', $value);
+            $value = \sprintf('%.17G', (float) $value);
         }
         $this->connection->write(function () use ($key, $value): void {
             $stmt = $this->set;
