@@ -28,9 +28,13 @@
         "amphp/mysql": "^3.0",
         "amphp/postgres": "^2.0",
         "amphp/redis": "^2.0",
+        "amphp/parallel": "^2.3",
         "amphp/sync": "^2.2",
         "revolt/event-loop": "^1.0.6",
         "symfony/polyfill-php83": "^1.32"
+    },
+    "suggest": {
+        "ext-pdo_sqlite": "For the SQLite backend"
     },
     "require-dev": {
         "vimeo/psalm": "^7",
