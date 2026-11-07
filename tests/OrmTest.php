@@ -468,15 +468,30 @@ final class OrmTest extends TestCase
     {
         $orm = self::sqliteArray('testSqliteTickTransaction');
         $reader = self::sqliteReader();
+        $count = static fn (int $value): int => $reader->querySingle("SELECT count(*) FROM \"testSqliteTickTransaction\" WHERE value = $value");
 
-        for ($x = 0; $x < 100; $x++) {
-            $orm[$x] = $x;
+        // Queries let the loop tick after 1ms of queries (committing): on a slow or busy
+        // machine, try again until the writes were all made within one tick.
+        for ($attempt = 1; ; $attempt++) {
+            delay(0);
+            $ticked = false;
+            EventLoop::defer(static function () use (&$ticked): void {
+                $ticked = true;
+            });
+            for ($x = 0; $x < 10; $x++) {
+                $orm[$x] = $attempt;
+            }
+            $seen = $count($attempt);
+            if (!$ticked) {
+                break;
+            }
+            $this->assertLessThan(100, $attempt);
         }
-        $this->assertCount(100, $orm);
-        $this->assertSame(0, $reader->querySingle('SELECT count(*) FROM "testSqliteTickTransaction"'));
+        $this->assertSame(0, $seen);
+        $this->assertSame($attempt, $orm[9]);
 
         delay(0);
-        $this->assertSame(100, $reader->querySingle('SELECT count(*) FROM "testSqliteTickTransaction"'));
+        $this->assertSame(10, $count($attempt));
         $orm->clear();
     }
 
@@ -546,9 +561,9 @@ final class OrmTest extends TestCase
         $orm->clear();
     }
 
-    private static function getCheckpointer(DbArray $orm): array
+    private static function getCheckpointer(DbArray $orm, string $path = 'sqlite_specific'): array
     {
-        $connection = (new ReflectionProperty(SqliteConnection::class, 'connections'))->getValue()[self::sqlitePath('sqlite_specific')];
+        $connection = (new ReflectionProperty(SqliteConnection::class, 'connections'))->getValue()[self::sqlitePath($path)];
         $db = $connection->db;
         $t = new TimeoutCancellation(10.0);
         while ((int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn() !== 0) {
@@ -638,6 +653,79 @@ final class OrmTest extends TestCase
             (new ReflectionProperty(SqliteConnection::class, 'connections'))->setValue(null, []);
         }
         $orm->clear();
+    }
+
+    /**
+     * With checkpointInWorkers disabled, no worker is used: SQLite checkpoints by itself.
+     */
+    public function testSqliteCheckpointInWorkersDisabled(): void
+    {
+        // Its own database: connections of other tests may still have checkpoints scheduled.
+        $path = self::sqlitePath('sqlite_workers_disabled');
+        $orm = self::sqliteArray('testSqliteCheckpointInWorkersDisabled', 'sqlite_workers_disabled');
+        [, $db] = self::getCheckpointer($orm, 'sqlite_workers_disabled');
+
+        $submitted = 0;
+        $pool = workerPool();
+        workerPool(new class($submitted, $path) implements WorkerPool {
+            public function __construct(private int &$submitted, private string $path)
+            {
+            }
+            public function submit(Task $task, ?Cancellation $cancellation = null): Execution
+            {
+                if ((new ReflectionProperty($task, 'path'))->getValue($task) === $this->path) {
+                    $this->submitted++;
+                }
+                throw new WorkerException('No workers here');
+            }
+            public function isRunning(): bool
+            {
+                return true;
+            }
+            public function isIdle(): bool
+            {
+                return true;
+            }
+            public function shutdown(): void
+            {
+            }
+            public function kill(): void
+            {
+            }
+            public function getWorker(): Worker
+            {
+                throw new WorkerException('No workers here');
+            }
+            public function getWorkerCount(): int
+            {
+                return 0;
+            }
+            public function getIdleWorkerCount(): int
+            {
+                return 0;
+            }
+        });
+        try {
+            // Disabling it on a database whose checkpoints run in workers hands them back to SQLite.
+            $disabled = (new DbArrayBuilder(
+                'testSqliteCheckpointInWorkersDisabled',
+                new SqliteSettings($path, cacheTtl: 0, checkpointInWorkers: false),
+                KeyType::INT,
+                ValueType::INT,
+            ))->build();
+            $this->assertSame(1000, (int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn());
+
+            for ($x = 0; $x < 100; $x++) {
+                $disabled[$x] = $x;
+                delay(0);
+            }
+            delay(0.5);
+            $this->assertSame(0, $submitted);
+            $this->assertSame(1000, (int) $db->query('PRAGMA wal_autocheckpoint')->fetchColumn());
+            $disabled->clear();
+        } finally {
+            workerPool($pool);
+        }
     }
 
     /**

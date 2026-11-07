@@ -86,6 +86,7 @@ final class SqliteArray extends DriverArray
         parent::__construct($config, $serializer);
 
         $this->connection = SqliteConnection::get($settings->path);
+        $this->connection->setCheckpointInWorkers($settings->checkpointInWorkers);
         $this->setupTable();
     }
 
