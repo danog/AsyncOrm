@@ -55,6 +55,15 @@ final readonly class SqliteSettings extends DriverSettings
         string $path,
         ?Serializer $serializer = null,
         int $cacheTtl = self::DEFAULT_CACHE_TTL,
+        /**
+         * Whether to checkpoint the WAL in amphp/parallel workers.
+         *
+         * A checkpoint syncs the database file to disk. If false, or if no worker can be
+         * started, SQLite checkpoints by itself once the WAL reaches 1000 pages, when
+         * committing: that commit blocks the event loop while the disk syncs (a few
+         * milliseconds on an SSD, more on slower storage).
+         */
+        public bool $checkpointInWorkers = true,
     ) {
         // Absolute: the path identifies the database (see getDbIdentifier), whatever the
         // working directory of the process that opens it.

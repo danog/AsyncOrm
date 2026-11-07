@@ -72,6 +72,8 @@ final class SqliteConnection
     private bool $inTransaction = false;
     private ?int $busySince = null;
 
+    /** Whether workers may checkpoint the WAL (SqliteSettings::$checkpointInWorkers). */
+    private bool $checkpointInWorkers = true;
     /** Whether workers checkpoint the WAL (SQLite doesn't, when committing). */
     private bool $checkpointInWorker = false;
     private bool $checkpointScheduled = false;
@@ -225,6 +227,19 @@ final class SqliteConnection
     }
 
     /**
+     * Whether to checkpoint the WAL in workers: the settings of the last array opened on
+     * this database decide.
+     */
+    public function setCheckpointInWorkers(bool $checkpointInWorkers): void
+    {
+        $this->checkpointInWorkers = $checkpointInWorkers;
+        if (!$checkpointInWorkers && $this->checkpointInWorker) {
+            $this->checkpointInWorker = false;
+            $this->db->exec('PRAGMA wal_autocheckpoint='.self::CHECKPOINT_PAGES);
+        }
+    }
+
+    /**
      * Schedule a checkpoint of the WAL in a worker: a checkpoint syncs the database file,
      * which would block the event loop. At most one runs at a time, CHECKPOINT_INTERVAL
      * after a commit.
@@ -232,7 +247,10 @@ final class SqliteConnection
     private function committed(): void
     {
         $this->dirty = true;
-        if ($this->checkpointScheduled || \microtime(true) < $this->checkpointRetryAt) {
+        if (!$this->checkpointInWorkers
+            || $this->checkpointScheduled
+            || \microtime(true) < $this->checkpointRetryAt
+        ) {
             return;
         }
         $this->checkpointScheduled = true;
@@ -244,8 +262,18 @@ final class SqliteConnection
     private function checkpoint(): void
     {
         $this->dirty = false;
+        if (!$this->checkpointInWorkers) {
+            // Disabled since it was scheduled.
+            $this->checkpointScheduled = false;
+            return;
+        }
         try {
             workerPool()->submit(new SqliteCheckpointTask($this->path))->await();
+            // Disabled while it ran: SQLite checkpoints by itself.
+            /** @psalm-suppress TypeDoesNotContainType Set by setCheckpointInWorkers() meanwhile */
+            if (!$this->checkpointInWorkers) {
+                return;
+            }
             if (!$this->checkpointInWorker) {
                 $this->checkpointInWorker = true;
                 $this->db->exec('PRAGMA wal_autocheckpoint=0');

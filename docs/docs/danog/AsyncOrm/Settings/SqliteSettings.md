@@ -24,15 +24,21 @@ server), never waiting for locks or disk syncs there.
 
 ## Properties
 * `$path`: `string` Absolute path of the database file.
+* `$checkpointInWorkers`: `bool` Whether to checkpoint the WAL in amphp/parallel workers.
+
+A checkpoint syncs the database file to disk. If false, or if no worker can be
+started, SQLite checkpoints by itself once the WAL reaches 1000 pages, when
+committing: that commit blocks the event loop while the disk syncs (a few
+milliseconds on an SSD, more on slower storage).
 * `$serializer`: `danog\AsyncOrm\Serializer` 
 * `$cacheTtl`: `int<0, max>` For how long to keep records in memory after last read.
 
 ## Method list:
-* [`__construct(string $path, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`](#__construct)
+* [`__construct(string $path, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, bool $checkpointInWorkers = true)`](#__construct)
 * [`getDriverClass(): string`](#getDriverClass)
 
 ## Methods:
-### <a name="__construct"></a> `__construct(string $path, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL)`
+### <a name="__construct"></a> `__construct(string $path, ?\danog\AsyncOrm\Serializer $serializer = NULL, int<0, max> $cacheTtl = \self::DEFAULT_CACHE_TTL, bool $checkpointInWorkers = true)`
 
 
 
@@ -42,6 +48,7 @@ Parameters:
 * `$path`: `string` Absolute path of the database file (created if it doesn't exist).  
 * `$serializer`: `?\danog\AsyncOrm\Serializer` to use for object and mixed type values, if null defaults to either Igbinary or Native.  
 * `$cacheTtl`: `int<0, max>` Cache TTL in seconds  
+* `$checkpointInWorkers`: `bool`   
 
 
 #### See also: 
