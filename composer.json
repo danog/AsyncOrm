@@ -33,7 +33,7 @@
         "symfony/polyfill-php83": "^1.32"
     },
     "require-dev": {
-        "vimeo/psalm": "dev-master",
+        "vimeo/psalm": "^7",
         "phpunit/phpunit": "^11.0.9",
         "amphp/php-cs-fixer-config": "^2.0.1",
         "friendsofphp/php-cs-fixer": "^3.52.1",

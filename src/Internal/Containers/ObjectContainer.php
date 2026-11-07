@@ -76,9 +76,6 @@ final class ObjectContainer
             fn () => $this->flushCache(),
         );
     }
-    /**
-     * @psalm-suppress PossiblyUnusedMethod Psalm ignores the call in ObjectArray::__destruct
-     */
     public function stopCacheCleanupLoop(): void
     {
         if ($this->cacheCleanupId !== null) {
