@@ -297,9 +297,14 @@ final class OrmTest extends TestCase
         $orm = $field->build();
         $orm[$key] = $value;
         unset($orm);
-        delay(0.1);
 
+        // The destructor queues the flush: with a database server, a write that takes a
+        // round trip, so wait for it rather than for any fixed time.
         $orm = $field->build();
+        $t = new TimeoutCancellation(10.0);
+        while (\count($orm) === 0) {
+            delay(0.01, cancellation: $t);
+        }
         $this->assertCount(1, $orm);
         $cnt = 0;
         foreach ($orm as $kk => $vv) {
