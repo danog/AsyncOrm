@@ -1086,6 +1086,9 @@ final class OrmTest extends TestCase
             [ValueType::STRING, '123'],
             [ValueType::STRING, 'test'],
             [ValueType::FLOAT, 123.321],
+            // More than 14 significant digits (the default `precision` of (string) casts).
+            [ValueType::FLOAT, 0.1 + 0.2],
+            [ValueType::FLOAT, M_PI],
             [ValueType::BOOL, true],
             [ValueType::BOOL, false],
 

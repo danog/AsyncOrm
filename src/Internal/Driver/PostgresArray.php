@@ -30,6 +30,7 @@ use Amp\Sync\LocalKeyedMutex;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Driver\SqlArray;
 use danog\AsyncOrm\Internal\Serializer\ByteaSerializer;
+use danog\AsyncOrm\Internal\Serializer\FloatString;
 use danog\AsyncOrm\Internal\Serializer\Passthrough;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer;
@@ -102,6 +103,8 @@ final class PostgresArray extends SqlArray
         /** @var Serializer<TValue> */
         $serializer = match ($config->valueType) {
             ValueType::SCALAR, ValueType::OBJECT => new ByteaSerializer($serializer),
+            // Not a float parameter, which ext-pgsql would print with 14 digits.
+            ValueType::FLOAT => new FloatString,
             default => new Passthrough
         };
 
