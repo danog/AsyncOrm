@@ -81,7 +81,8 @@ final class OrmTest extends TestCase
         \touch('/tmp/async-orm-test');
         $lockFile = \fopen('/tmp/async-orm-test', 'r+');
         \flock($lockFile, LOCK_EX);
-        if (\fgets($lockFile) === 'done') {
+        // fgets() keeps the newline written below.
+        if (\fgets($lockFile) === "done\n") {
             \flock($lockFile, LOCK_UN);
             return;
         }
