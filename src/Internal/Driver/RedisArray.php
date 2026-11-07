@@ -50,8 +50,9 @@ use function Amp\Redis\createRedisConnector;
  * @template TKey as array-key
  * @template TValue
  * @extends DriverArray<TKey, TValue>
+ * @implements BatchWrites<TKey, TValue>
  */
-final class RedisArray extends DriverArray
+final class RedisArray extends DriverArray implements BatchWrites
 {
     /** @var array<RedisClient> */
     private static array $connections = [];
@@ -114,6 +115,30 @@ final class RedisArray extends DriverArray
         }
 
         return $value;
+    }
+
+    /** Keys per command of setMany() and unsetMany(). */
+    private const MANY_LIMIT = 1000;
+
+    #[\Override]
+    public function setMany(array $values): void
+    {
+        foreach (\array_chunk($values, self::MANY_LIMIT, true) as $chunk) {
+            $data = [];
+            foreach ($chunk as $key => $value) {
+                /** @var string */
+                $data[$this->config->table.':'.(string) $key] = $this->serializer->serialize($value);
+            }
+            $this->db->setMultiple($data);
+        }
+    }
+
+    #[\Override]
+    public function unsetMany(array $keys): void
+    {
+        foreach (\array_chunk($keys, self::MANY_LIMIT) as $chunk) {
+            $this->db->delete(...\array_map(fn (string|int $key): string => $this->config->table.':'.(string) $key, $chunk));
+        }
     }
 
     #[\Override]

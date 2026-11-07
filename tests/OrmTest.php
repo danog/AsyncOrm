@@ -42,6 +42,7 @@ use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\Driver\MemoryArray;
 use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
+use danog\AsyncOrm\Internal\Driver\BatchWrites;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Internal\Driver\SqliteConnection;
@@ -780,6 +781,66 @@ final class OrmTest extends TestCase
         } finally {
             \unlink($link);
         }
+    }
+
+    /**
+     * A flush writes every pending set and unset.
+     */
+    #[DataProvider('provideSettings')]
+    public function testFlushManyKeys(int $tablePostfix, Settings $settings): void
+    {
+        if (!$settings instanceof DriverSettings || $settings->cacheTtl === 0) {
+            $this->assertTrue(true);
+            return;
+        }
+        $table = "testFlushManyKeys_$tablePostfix";
+        $uncached = new DbArrayBuilder($table, new ($settings::class)(...match (true) {
+            $settings instanceof RedisSettings, $settings instanceof PostgresSettings, $settings instanceof MysqlSettings => [$settings->config, $settings->serializer, 0],
+            $settings instanceof SqliteSettings => [$settings->path, $settings->serializer, 0],
+        }), KeyType::INT, ValueType::SCALAR);
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::SCALAR))->build();
+        $orm->clear();
+        \assert($orm instanceof CachedArray);
+
+        for ($x = 0; $x < 2500; $x++) {
+            $orm[$x] = "value $x";
+        }
+        $orm->flushCache();
+        for ($x = 0; $x < 1300; $x++) {
+            unset($orm[$x]);
+        }
+        $orm[3000] = 'new';
+        $orm->flushCache();
+
+        $db = $uncached->build();
+        $this->assertCount(1201, $db);
+        $this->assertNull($db[0]);
+        $this->assertSame('value 1300', $db[1300]);
+        $this->assertSame('new', $db[3000]);
+
+        $orm->clear();
+    }
+
+    /** Values that don't all fit in one packet (16 MiB by default) are flushed by several statements. */
+    #[DataProvider('provideMysqlSettings')]
+    public function testSetManyLargerThanAPacket(int $tablePostfix, MysqlSettings $settings): void
+    {
+        $orm = (new DbArrayBuilder("testSetManyLarge_$tablePostfix", $settings, KeyType::STRING, ValueType::SCALAR))->build();
+        $orm->clear();
+        $values = ['a' => \random_bytes(7 << 20), 'b' => \random_bytes(7 << 20), 'c' => \random_bytes(7 << 20), 'd' => 'x'];
+        if ($orm instanceof CachedArray) {
+            foreach ($values as $key => $value) {
+                $orm[$key] = $value;
+            }
+            $orm->flushCache();
+        } else {
+            \assert($orm instanceof BatchWrites);
+            $orm->setMany($values);
+        }
+        foreach ($values as $key => $value) {
+            $this->assertSame($value, $orm[$key]);
+        }
+        $orm->clear();
     }
 
     #[DataProvider('provideSettings')]

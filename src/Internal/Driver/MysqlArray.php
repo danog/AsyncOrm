@@ -49,8 +49,9 @@ use Revolt\EventLoop;
  * @template TKey as array-key
  * @template TValue
  * @extends SqlArray<TKey, TValue>
+ * @implements BatchWrites<TKey, TValue>
  */
-final class MysqlArray extends SqlArray
+final class MysqlArray extends SqlArray implements BatchWrites
 {
     /** @var array<list{MysqlConnectionPool, \PDO, int}> */
     private static array $connections = [];
@@ -59,6 +60,9 @@ final class MysqlArray extends SqlArray
 
     /** Room for the rest of a statement: its quoted key (at most 255 characters, each escaped) and the X''. */
     private const STATEMENT_OVERHEAD = 4096;
+
+    /** Rows per statement of setMany() and unsetMany(). */
+    private const MANY_LIMIT = 1000;
 
     // We're forced to use quoting (just like PDO does internally when using prepares) because native MySQL prepares are extremely slow.
     protected PDO $pdo;
@@ -258,24 +262,84 @@ final class MysqlArray extends SqlArray
     {
         $replacements = [];
         foreach ($params as $key => $value) {
-            if (!\is_string($value)) {
-                $value = (string) $value;
-            } elseif ($key === 'value' && $this->binaryValues
-                // A hex literal doubles the value, quote() barely grows it (binary data has few bytes to
-                // escape): it's only used if the statement still fits in a packet.
-                && 2 * \strlen($value) + \strlen($sql) + self::STATEMENT_OVERHEAD <= $this->maxAllowedPacket
-            ) {
-                // Exact for a binary column, and much cheaper than quote(), which escapes
-                // (and validates as utf8mb4) the serialized value byte by byte.
-                $value = "X'".\bin2hex($value)."'";
-            } else {
-                $value = $this->pdo->quote($value);
-            }
-            $replacements[":$key"] = $value;
+            $replacements[":$key"] = $this->literal($value, $key === 'value', \strlen($sql));
         }
 
         // One pass: a replaced value is never scanned again for another placeholder.
         return $this->db->query(\strtr($sql, $replacements));
+    }
+
+    /**
+     * The SQL literal of a value, in a statement of $sqlLength bytes (without it).
+     *
+     * @param scalar $value
+     */
+    private function literal(mixed $value, bool $isValue, int $sqlLength): string
+    {
+        if (!\is_string($value)) {
+            return (string) $value;
+        }
+        if ($isValue && $this->binaryValues
+            // A hex literal doubles the value, quote() barely grows it (binary data has few bytes to
+            // escape): it's only used if the statement still fits in a packet.
+            && 2 * \strlen($value) + $sqlLength + self::STATEMENT_OVERHEAD <= $this->maxAllowedPacket
+        ) {
+            // Exact for a binary column, and much cheaper than quote(), which escapes
+            // (and validates as utf8mb4) the serialized value byte by byte.
+            return "X'".\bin2hex($value)."'";
+        }
+        return $this->pdo->quote($value);
+    }
+
+    /**
+     * Run statements made of $prefix and as many comma-separated items as fit in a packet,
+     * at most self::MANY_LIMIT each.
+     *
+     * @param iterable<string> $items
+     */
+    private function executeMany(string $prefix, string $suffix, iterable $items): void
+    {
+        $batch = [];
+        $length = \strlen($prefix) + \strlen($suffix);
+        foreach ($items as $item) {
+            if ($batch && (
+                \count($batch) === self::MANY_LIMIT
+                || $length + \strlen($item) + 1 + self::STATEMENT_OVERHEAD > $this->maxAllowedPacket
+            )) {
+                $this->db->query($prefix.\implode(',', $batch).$suffix);
+                $batch = [];
+                $length = \strlen($prefix) + \strlen($suffix);
+            }
+            $batch []= $item;
+            $length += \strlen($item) + 1;
+        }
+        if ($batch) {
+            $this->db->query($prefix.\implode(',', $batch).$suffix);
+        }
+    }
+
+    #[\Override]
+    public function setMany(array $values): void
+    {
+        $prefix = "REPLACE INTO `{$this->config->table}` (`key`, `value`) VALUES ";
+        $this->executeMany($prefix, '', (function () use ($values, $prefix): \Generator {
+            foreach ($values as $key => $value) {
+                /** @var scalar */
+                $value = $this->serializer->serialize($value);
+                // A value is sent as a hex literal only if it alone fits in a statement.
+                yield '('.$this->pdo->quote((string) $key).','.$this->literal($value, true, \strlen($prefix)).')';
+            }
+        })());
+    }
+
+    #[\Override]
+    public function unsetMany(array $keys): void
+    {
+        $this->executeMany(
+            "DELETE FROM `{$this->config->table}` WHERE `key` IN (",
+            ')',
+            \array_map(fn (string|int $key): string => $this->pdo->quote((string) $key), $keys),
+        );
     }
 
     #[\Override]

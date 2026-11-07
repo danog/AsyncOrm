@@ -20,6 +20,7 @@ namespace danog\AsyncOrm\Internal\Containers;
 
 use Amp\Sync\LocalMutex;
 use danog\AsyncOrm\DbArray;
+use danog\AsyncOrm\Internal\Driver\BatchWrites;
 use Revolt\EventLoop;
 use Traversable;
 
@@ -165,18 +166,36 @@ final class CacheContainer
             $updatedValues = [];
             $newValues = [];
             $newTtl = [];
+            $set = [];
+            $unset = [];
             $now = \time();
             foreach ($this->ttl as $key => $ttl) {
                 if ($ttl === true) {
                     $updatedValues[$key] = $this->cache[$key];
                     if ($this->cache[$key] === null) {
-                        $this->inner->unset($key);
+                        $unset []= $key;
                     } else {
-                        $this->inner->set($key, $this->cache[$key]);
+                        $set[$key] = $this->cache[$key];
                     }
                 } elseif ($ttl > $now) {
                     $newTtl[$key] = $ttl;
                     $newValues[$key] = $this->cache[$key];
+                }
+            }
+            if ($this->inner instanceof BatchWrites) {
+                // In as few queries as the backend can: one per key costs a round trip each.
+                if ($unset) {
+                    $this->inner->unsetMany($unset);
+                }
+                if ($set) {
+                    $this->inner->setMany($set);
+                }
+            } else {
+                foreach ($unset as $key) {
+                    $this->inner->unset($key);
+                }
+                foreach ($set as $key => $value) {
+                    $this->inner->set($key, $value);
                 }
             }
             foreach ($updatedValues as $key => $value) {

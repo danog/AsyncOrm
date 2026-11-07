@@ -44,8 +44,9 @@ use danog\AsyncOrm\ValueType;
  * @template TKey as array-key
  * @template TValue
  * @extends SqlArray<TKey, TValue>
+ * @implements BatchWrites<TKey, TValue>
  */
-final class PostgresArray extends SqlArray
+final class PostgresArray extends SqlArray implements BatchWrites
 {
     /** @var array<PostgresConnectionPool> */
     private static array $connections = [];
@@ -167,6 +168,45 @@ final class PostgresArray extends SqlArray
                 $connection->query("ALTER TABLE \"bytea_{$config->table}\" ALTER COLUMN \"$key\" SET NOT NULL");
                 // @codeCoverageIgnoreEnd
             }
+        }
+    }
+
+    /** Rows per statement of setMany() and unsetMany() (a statement takes at most 65535 parameters). */
+    private const MANY_LIMIT = 1000;
+
+    #[\Override]
+    public function setMany(array $values): void
+    {
+        foreach (\array_chunk($values, self::MANY_LIMIT, true) as $chunk) {
+            $rows = [];
+            $params = [];
+            foreach ($chunk as $key => $value) {
+                $i = \count($rows);
+                $rows []= "(:k$i, :v$i)";
+                $params["k$i"] = (string) $key;
+                /** @var scalar */
+                $params["v$i"] = $this->serializer->serialize($value);
+            }
+            $this->execute(
+                "INSERT INTO \"bytea_{$this->config->table}\" (key, value) VALUES ".\implode(',', $rows)
+                    .' ON CONFLICT (key) DO UPDATE SET value = excluded.value',
+                $params,
+            );
+        }
+    }
+
+    #[\Override]
+    public function unsetMany(array $keys): void
+    {
+        foreach (\array_chunk($keys, self::MANY_LIMIT) as $chunk) {
+            $params = [];
+            foreach ($chunk as $i => $key) {
+                $params["k$i"] = (string) $key;
+            }
+            $this->execute(
+                "DELETE FROM \"bytea_{$this->config->table}\" WHERE key IN (:".\implode(', :', \array_keys($params)).')',
+                $params,
+            );
         }
     }
 
