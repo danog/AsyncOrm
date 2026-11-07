@@ -351,6 +351,12 @@ final class OrmTest extends TestCase
         $orm = (new DbArrayBuilder($table, $settings, KeyType::STRING, ValueType::INT))->build();
         $orm->clear();
         $orm['key'] = 123;
+        // A serialized array holds no cache: flush it first, like a session save does.
+        // (Otherwise the write only reaches the old database if the flush queued by the
+        // destructor of the original happens to run before the copy.)
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
         $orm = \unserialize(\serialize($orm));
 
         $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
