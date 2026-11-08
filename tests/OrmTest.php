@@ -821,6 +821,39 @@ final class OrmTest extends TestCase
         $orm->clear();
     }
 
+    /** Keys unset while iterating, after the iterator listed them, are skipped, not yielded as null or a failure. */
+    #[DataProvider('provideSettings')]
+    public function testUnsetWhileIterating(int $tablePostfix, Settings $settings): void
+    {
+        if (!$settings instanceof DriverSettings) {
+            $this->assertTrue(true);
+            return;
+        }
+        $orm = (new DbArrayBuilder("testUnsetWhileIterating_$tablePostfix", new ($settings::class)(...match (true) {
+            $settings instanceof RedisSettings, $settings instanceof PostgresSettings, $settings instanceof MysqlSettings => [$settings->config, $settings->serializer, 0],
+            $settings instanceof SqliteSettings => [$settings->path, $settings->serializer, 0],
+        }), KeyType::INT, ValueType::SCALAR))->build();
+        $orm->clear();
+        for ($x = 0; $x < 100; $x++) {
+            $orm[$x] = "value $x";
+        }
+
+        $seen = 0;
+        foreach ($orm as $k => $v) {
+            if ($seen++ === 0) {
+                for ($x = 0; $x < 100; $x++) {
+                    if ($x !== $k) {
+                        unset($orm[$x]);
+                    }
+                }
+            }
+            $this->assertSame("value $k", $v);
+        }
+        $this->assertCount(1, $orm);
+
+        $orm->clear();
+    }
+
     /** Values that don't all fit in one packet (16 MiB by default) are flushed by several statements. */
     #[DataProvider('provideMysqlSettings')]
     public function testSetManyLargerThanAPacket(int $tablePostfix, MysqlSettings $settings): void
