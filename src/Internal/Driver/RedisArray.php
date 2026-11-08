@@ -159,11 +159,16 @@ final class RedisArray extends DriverArray implements BatchWrites
 
         $len = \strlen($this->config->table)+1;
         foreach ($request as $key) {
+            // SCAN and GET are separate commands: a key listed by SCAN may be deleted before its GET.
+            $value = $this->db->get($key);
+            if ($value === null) {
+                continue;
+            }
             $sub = \substr($key, $len);
             if ($this->castToInt) {
                 $sub = (int) $sub;
             }
-            yield $sub => $this->serializer->deserialize($this->db->get($key));
+            yield $sub => $this->serializer->deserialize($value);
         }
     }
 
