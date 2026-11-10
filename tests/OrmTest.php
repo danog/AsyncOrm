@@ -56,6 +56,7 @@ use danog\AsyncOrm\Settings\MemorySettings;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
+use danog\AsyncOrm\Settings\SqlSettings;
 use danog\AsyncOrm\Settings\SqliteSettings;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
@@ -367,6 +368,40 @@ final class OrmTest extends TestCase
         $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
         $this->assertSame(123, $other['key']);
         $this->assertCount(1, $other);
+
+        $other->clear();
+    }
+
+    /**
+     * More rows than a batch of the copy: all of them reach the new database, and the old
+     * ones are deleted once all were copied.
+     */
+    #[DataProvider('provideSqlSettingsOtherDatabase')]
+    public function testMigrationToOtherDatabaseDeletesOldAfterCopy(int $tablePostfix, Settings $settings, Settings $otherSettings): void
+    {
+        $table = 'testMigrationToOtherDatabaseDeletesOldAfterCopy_'.$tablePostfix;
+        // The copy runs a batch of writes at once, growing the pools to their size: with the default
+        // 100 connections, the pools of this test (which stay open) would exceed what Postgres accepts.
+        if ($settings instanceof SqlSettings) {
+            $settings = new $settings(...\array_merge((array) $settings, ['maxConnections' => 2]));
+            $otherSettings = new $otherSettings(...\array_merge((array) $otherSettings, ['maxConnections' => 2]));
+        }
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build();
+        $orm->clear();
+        for ($x = 0; $x < 1200; $x++) {
+            $orm[$x] = $x * 2;
+        }
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
+
+        $other = (new DbArrayBuilder($table, $otherSettings, KeyType::INT, ValueType::INT))->build($orm);
+        $this->assertCount(1200, $other);
+        $this->assertSame(0, $other[0]);
+        $this->assertSame(2398, $other[1199]);
+
+        $old = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build();
+        $this->assertCount(0, $old);
 
         $other->clear();
     }
