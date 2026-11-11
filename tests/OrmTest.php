@@ -373,6 +373,21 @@ final class OrmTest extends TestCase
     }
 
     /**
+     * The same settings for a database of their own (created if missing), whose pool has 2 connections.
+     *
+     * @template T as SqlSettings
+     * @param T $settings
+     * @return T
+     */
+    private static function withOwnPool(SqlSettings $settings): SqlSettings
+    {
+        return new $settings(...\array_merge((array) $settings, [
+            'config' => $settings->config->withDatabase($settings->config->getDatabase().'_copy'),
+            'maxConnections' => 2,
+        ]));
+    }
+
+    /**
      * More rows than a batch of the copy: all of them reach the new database, and the old
      * ones are deleted once all were copied.
      */
@@ -381,10 +396,13 @@ final class OrmTest extends TestCase
     {
         $table = 'testMigrationToOtherDatabaseDeletesOldAfterCopy_'.$tablePostfix;
         // The copy runs a batch of writes at once, growing the pools to their size: with the default
-        // 100 connections, the pools of this test (which stay open) would exceed what Postgres accepts.
+        // 100 connections, the pools (which stay open) would exceed what Postgres accepts. A pool is
+        // shared by all the arrays of a database, with the settings of the first one: databases of
+        // this test's own, so its pools are created with 2 connections.
         if ($settings instanceof SqlSettings) {
-            $settings = new $settings(...\array_merge((array) $settings, ['maxConnections' => 2]));
-            $otherSettings = new $otherSettings(...\array_merge((array) $otherSettings, ['maxConnections' => 2]));
+            $settings = self::withOwnPool($settings);
+            \assert($otherSettings instanceof SqlSettings);
+            $otherSettings = self::withOwnPool($otherSettings);
         }
         $orm = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build();
         $orm->clear();
