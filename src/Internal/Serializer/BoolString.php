@@ -53,7 +53,6 @@ final class BoolString implements Serializer
     #[\Override]
     public function deserialize(mixed $value): mixed
     {
-        /** @psalm-suppress UnhandledMatchCondition Intentional */
         return match ($value) {
             '1' => true,
             '0' => false,
