@@ -18,7 +18,18 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-versions }}
-          extensions: mbstring, intl, sockets
+          extensions: mbstring, intl, sockets, :mongodb
+          tools: pie
+
+      # The MongoDB backend's tests run with danog/mongo-php-async-driver (the mongodb extension, with revolt-rs
+      # built in, so every test runs on its native event loop). PIE downloads its pre-built binary, or builds it
+      # from source (with cargo and libclang) for the versions that have none.
+      - name: Install the mongodb extension
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libclang-dev
+          pie install --no-interaction danog/mongo-php-async-driver
+          php -r 'if ((new ReflectionClass(Revolt\EventLoop::class))->getExtensionName() !== "mongodb") { exit(1); }'
 
       - name: Check environment
         run: |

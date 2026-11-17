@@ -53,6 +53,7 @@ use danog\AsyncOrm\Serializer\Native;
 use danog\AsyncOrm\Settings;
 use danog\AsyncOrm\Settings\DriverSettings;
 use danog\AsyncOrm\Settings\MemorySettings;
+use danog\AsyncOrm\Settings\MongoSettings;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
@@ -101,7 +102,7 @@ final class OrmTest extends TestCase
         \fwrite($lockFile, "done\n");
 
         $f = [];
-        foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432] as $image => $port) {
+        foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432, 'mongo' => 27017] as $image => $port) {
             $f []= async(function () use ($image, $port) {
                 self::shellExec("docker rm -f test_$image 2>/dev/null");
 
@@ -151,6 +152,7 @@ final class OrmTest extends TestCase
             $ready = match (true) {
                 \stripos($line, 'database system is ready to accept connections') !== false => $postgresListening,
                 \stripos($line, 'ready to ') !== false,
+                \stripos($line, '"Waiting for connections"') !== false,
                 \stripos($line, "socket: '/run/mysqld/mysqld.sock'  port: 3306") !== false => true,
                 default => false,
             };
@@ -337,6 +339,17 @@ final class OrmTest extends TestCase
                     $ttl,
                 ), new MysqlSettings(
                     MysqlConfig::fromString('host=127.0.0.1:3306 user=root db=test_other'),
+                    $serializer,
+                    $ttl,
+                )];
+                yield [$key++, new MongoSettings(
+                    'mongodb://127.0.0.1:27017',
+                    'test',
+                    $serializer,
+                    $ttl,
+                ), new MongoSettings(
+                    'mongodb://127.0.0.1:27017',
+                    'test_other',
                     $serializer,
                     $ttl,
                 )];
@@ -797,6 +810,7 @@ final class OrmTest extends TestCase
         $uncached = new DbArrayBuilder($table, new ($settings::class)(...match (true) {
             $settings instanceof RedisSettings, $settings instanceof PostgresSettings, $settings instanceof MysqlSettings => [$settings->config, $settings->serializer, 0],
             $settings instanceof SqliteSettings => [$settings->path, $settings->serializer, 0],
+            $settings instanceof MongoSettings => [$settings->uri, $settings->database, $settings->serializer, 0],
         }), KeyType::INT, ValueType::SCALAR);
         $orm = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::SCALAR))->build();
         $orm->clear();
@@ -821,6 +835,51 @@ final class OrmTest extends TestCase
         $orm->clear();
     }
 
+    /**
+     * A collection has no column types to migrate: the values stored as another value type are converted
+     * when read.
+     */
+    public function testMongoValueTypeChange(): void
+    {
+        $settings = new MongoSettings('mongodb://127.0.0.1:27017', 'test', cacheTtl: 0);
+        $build = static fn (ValueType $type): DbArray => (new DbArrayBuilder('testMongoValueTypeChange', $settings, KeyType::INT, $type))->build();
+        $orm = $build(ValueType::INT);
+        $orm->clear();
+        $orm[1] = 123;
+
+        $this->assertSame(123.0, $build(ValueType::FLOAT)[1]);
+        $this->assertSame('123', $build(ValueType::STRING)[1]);
+        $this->assertTrue($build(ValueType::BOOL)[1]);
+
+        $orm = $build(ValueType::STRING);
+        $orm[2] = '456';
+        $this->assertSame(['1' => '123', '2' => '456'], $orm->getArrayCopy());
+        $orm = $build(ValueType::INT);
+        $this->assertSame([1 => 123, 2 => 456], $orm->getArrayCopy());
+
+        $orm->clear();
+    }
+
+    /** A rename to a collection whose source was never written (MongoDB creates collections on the first write) empties it. */
+    public function testMongoRenameFromEmpty(): void
+    {
+        $settings = new MongoSettings('mongodb://127.0.0.1:27017', 'test', cacheTtl: 0);
+        $build = static fn (string $table, ?DbArray $previous = null): DbArray => (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build($previous);
+        $target = $build('testMongoRenameFromEmpty_target');
+        $target[1] = 1;
+        $source = $build('testMongoRenameFromEmpty_source');
+        $source->clear();
+        $orm = $build('testMongoRenameFromEmpty_target', $source);
+        $this->assertCount(0, $orm);
+
+        $source = $build('testMongoRenameFromEmpty_source');
+        $source[2] = 2;
+        $orm = $build('testMongoRenameFromEmpty_target', $source);
+        $this->assertSame([2 => 2], $orm->getArrayCopy());
+        $this->assertCount(0, $build('testMongoRenameFromEmpty_source'));
+        $orm->clear();
+    }
+
     /** Keys unset while iterating, after the iterator listed them, are skipped, not yielded as null or a failure. */
     #[DataProvider('provideSettings')]
     public function testUnsetWhileIterating(int $tablePostfix, Settings $settings): void
@@ -832,6 +891,7 @@ final class OrmTest extends TestCase
         $orm = (new DbArrayBuilder("testUnsetWhileIterating_$tablePostfix", new ($settings::class)(...match (true) {
             $settings instanceof RedisSettings, $settings instanceof PostgresSettings, $settings instanceof MysqlSettings => [$settings->config, $settings->serializer, 0],
             $settings instanceof SqliteSettings => [$settings->path, $settings->serializer, 0],
+            $settings instanceof MongoSettings => [$settings->uri, $settings->database, $settings->serializer, 0],
         }), KeyType::INT, ValueType::SCALAR))->build();
         $orm->clear();
         for ($x = 0; $x < 100; $x++) {
@@ -1359,6 +1419,12 @@ final class OrmTest extends TestCase
                     )],
                     [$key++, new SqliteSettings(
                         self::sqlitePath('test'),
+                        $serializer,
+                        $ttl,
+                    )],
+                    [$key++, new MongoSettings(
+                        'mongodb://127.0.0.1:27017',
+                        'test',
                         $serializer,
                         $ttl,
                     )],

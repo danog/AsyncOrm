@@ -27,6 +27,7 @@ namespace danog\AsyncOrm\Driver;
 
 use danog\AsyncOrm\DbArray;
 use danog\AsyncOrm\DbArrayBuilder;
+use danog\AsyncOrm\Internal\Driver\MongoArray;
 use danog\AsyncOrm\Internal\Driver\SqliteArray;
 use danog\AsyncOrm\Serializer;
 use danog\AsyncOrm\Settings\DriverSettings;
@@ -90,13 +91,13 @@ abstract class DriverArray extends DbArray
             return $instance;
         }
 
-        // Drivers keeping each array in a table of a database.
+        // Drivers keeping each array in a table of a database (or a collection).
         /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
-        $sameDriver = ($instance instanceof SqlArray || $instance instanceof SqliteArray)
+        $sameDriver = ($instance instanceof SqlArray || $instance instanceof SqliteArray || $instance instanceof MongoArray)
             && $previous::class === $instance::class;
         if ($sameDriver) {
             /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
-            \assert($previous instanceof SqlArray || $previous instanceof SqliteArray);
+            \assert($previous instanceof SqlArray || $previous instanceof SqliteArray || $previous instanceof MongoArray);
             \assert($previous->config->settings instanceof DriverSettings);
             // The same address (host, port and database; or file).
             if ($config->settings->getDbIdentifier() === $previous->config->settings->getDbIdentifier()) {
@@ -119,9 +120,9 @@ abstract class DriverArray extends DbArray
         $deleteOld = $previous::class !== $instance::class;
         if ($sameDriver) {
             /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
-            \assert($previous instanceof SqlArray || $previous instanceof SqliteArray);
-            /** @psalm-suppress RedundantCondition Psalm only narrows it to one of the two */
-            \assert($instance instanceof SqlArray || $instance instanceof SqliteArray);
+            \assert($previous instanceof SqlArray || $previous instanceof SqliteArray || $previous instanceof MongoArray);
+            /** @psalm-suppress RedundantCondition Psalm only narrows it to one of the three */
+            \assert($instance instanceof SqlArray || $instance instanceof SqliteArray || $instance instanceof MongoArray);
             // The same server and database under another address (e.g. TCP and a unix
             // socket, or another path to the same file): copying the rows would read and
             // rewrite the very same table.
@@ -160,11 +161,11 @@ abstract class DriverArray extends DbArray
      *
      * @template TTKey as array-key
      * @template TTValue
-     * @template T as SqlArray<TTKey, TTValue>|SqliteArray<TTKey, TTValue>
+     * @template T as SqlArray<TTKey, TTValue>|SqliteArray<TTKey, TTValue>|MongoArray<TTKey, TTValue>
      * @param T $instance
      * @return T
      */
-    private static function sameDatabase(SqlArray|SqliteArray $instance, SqlArray|SqliteArray $previous): SqlArray|SqliteArray
+    private static function sameDatabase(SqlArray|SqliteArray|MongoArray $instance, SqlArray|SqliteArray|MongoArray $previous): SqlArray|SqliteArray|MongoArray
     {
         if ($instance->config->table !== $previous->config->table) {
             $instance->importFromTable($previous->config->table);

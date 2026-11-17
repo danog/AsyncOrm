@@ -34,7 +34,8 @@
         "symfony/polyfill-php83": "^1.32"
     },
     "suggest": {
-        "ext-pdo_sqlite": "For the SQLite backend"
+        "ext-pdo_sqlite": "For the SQLite backend",
+        "ext-mongodb": "For the MongoDB backend: the async danog/mongo-php-async-driver (pie install danog/mongo-php-async-driver)"
     },
     "require-dev": {
         "vimeo/psalm": "^7",
