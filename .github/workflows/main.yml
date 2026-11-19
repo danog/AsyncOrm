@@ -32,8 +32,8 @@ jobs:
           # PIE needs root to write the extension dir, and can't prompt for it: run it with sudo, keeping the
           # runner's PATH and HOME for cargo (source builds).
           sudo env "PATH=$PATH" "HOME=$HOME" "$(command -v pie)" install --no-interaction danog/mongo-php-async-driver
-          php --ini
-          grep -rn mongodb "$(php -r 'echo php_ini_loaded_file();')" "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')" || true
+          grep -rn mongodb /etc/php/${{ matrix.php-versions }}/ || true
+          ls -la /etc/php/${{ matrix.php-versions }}/cli/conf.d/ | grep -i -e mongo -e pecl
           php -r 'if ((new ReflectionClass(Revolt\EventLoop::class))->getExtensionName() !== "mongodb") { exit(1); }'
 
       - name: Check environment
