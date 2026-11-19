@@ -98,7 +98,7 @@ final class CacheContainer
         }
 
         $result = $this->inner->get($index);
-        /** @psalm-suppress ParadoxicalCondition Concurrency */
+        /** @psalm-suppress ParadoxicalCondition, RedundantCondition Concurrency */
         if (isset($this->ttl[$index])) {
             if ($this->ttl[$index] !== true) {
                 $this->ttl[$index] = \time() + $this->cacheTtl;

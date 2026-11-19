@@ -29,6 +29,7 @@ Async ORM based on AMPHP v3 and fibers.
 * [\danog\AsyncOrm\Serializer\Json: JSON serializer.](danog/AsyncOrm/Serializer/Json.md)
 * [\danog\AsyncOrm\Serializer\Native: Native serializer.](danog/AsyncOrm/Serializer/Native.md)
 * [\danog\AsyncOrm\Settings\MemorySettings: MemorySettings backend settings.](danog/AsyncOrm/Settings/MemorySettings.md)
+* [\danog\AsyncOrm\Settings\MongoSettings: MongoDB backend settings.](danog/AsyncOrm/Settings/MongoSettings.md)
 * [\danog\AsyncOrm\Settings\MysqlSettings: MySQL backend settings.](danog/AsyncOrm/Settings/MysqlSettings.md)
 * [\danog\AsyncOrm\Settings\PostgresSettings: Postgres backend settings.](danog/AsyncOrm/Settings/PostgresSettings.md)
 * [\danog\AsyncOrm\Settings\RedisSettings: Redis backend settings.](danog/AsyncOrm/Settings/RedisSettings.md)

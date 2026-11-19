@@ -16,4 +16,9 @@
             <directory name="vendor" />
         </ignoreFiles>
     </projectFiles>
+    <stubs>
+        <!-- The mongodb extension (danog/mongo-php-async-driver) registers Revolt's classes itself:
+             analysed from the extension's reflection, their methods would return mixed. -->
+        <file name="vendor/revolt/event-loop/src/EventLoop.php" />
+    </stubs>
 </psalm>

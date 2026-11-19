@@ -7,7 +7,7 @@
 
 Async PHP ORM based on AMPHP v3 and fibers, created by Daniil Gentili (https://daniil.it) and Alexander Pankratov (https://github.com/xtrime-ru).  
 
-Supports MySQL, Redis, Postgres, SQLite.  
+Supports MySQL, Redis, Postgres, SQLite, MongoDB.  
 
 Features read and write-back caching, type-specific optimizations, and much more!  
 
@@ -44,6 +44,7 @@ use danog\AsyncOrm\DbAutoProperties;
 use danog\AsyncOrm\DbObject;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Settings;
+use danog\AsyncOrm\Settings\MongoSettings;
 use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
@@ -78,6 +79,12 @@ $settings = new RedisSettings(
 );
 $settings = new SqliteSettings(
     __DIR__.'/database.sqlite',
+    cacheTtl: 100
+);
+// Needs danog/mongo-php-async-driver: pie install danog/mongo-php-async-driver
+$settings = new MongoSettings(
+    'mongodb://127.0.0.1:27017',
+    'database',
     cacheTtl: 100
 );
 
@@ -177,6 +184,7 @@ As specified in the examples above, there are multiple settings classes that can
 * [PostgresSettings: Postgres backend settings.](https://github.com/danog/AsyncOrm/blob/master/docs/docs/danog/AsyncOrm/Settings/PostgresSettings.md)
 * [RedisSettings: Redis backend settings.](https://github.com/danog/AsyncOrm/blob/master/docs/docs/danog/AsyncOrm/Settings/RedisSettings.md)
 * [SqliteSettings: SQLite backend settings.](https://github.com/danog/AsyncOrm/blob/master/docs/docs/danog/AsyncOrm/Settings/SqliteSettings.md)
+* [MongoSettings: MongoDB backend settings.](https://github.com/danog/AsyncOrm/blob/master/docs/docs/danog/AsyncOrm/Settings/MongoSettings.md)
 
 All these classes have multiple fields, described in their respective documentation (click on each class name to view it).  
 
