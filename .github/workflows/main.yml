@@ -28,7 +28,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y libclang-dev
-          pie install --no-interaction danog/mongo-php-async-driver
+          # PIE needs root to write the extension dir, and can't prompt for it: run it with sudo, keeping the
+          # runner's PATH and HOME for cargo (source builds).
+          sudo env "PATH=$PATH" "HOME=$HOME" "$(command -v pie)" install --no-interaction danog/mongo-php-async-driver
           php -r 'if ((new ReflectionClass(Revolt\EventLoop::class))->getExtensionName() !== "mongodb") { exit(1); }'
 
       - name: Check environment
