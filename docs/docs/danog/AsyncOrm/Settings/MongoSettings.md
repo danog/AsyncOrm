@@ -1,6 +1,6 @@
 ---
 title: "danog\\AsyncOrm\\Settings\\MongoSettings: MongoDB backend settings."
-description: "\nRequires the mongodb extension of [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver)\n(`pie install danog/mongo-php-async-driver`), whose queries suspend only the calling fiber: the official\next-mongodb, which blocks the event loop for every query, is refused.\n\nEach array is a collection of the database, with one document per element: a value can't be larger than a\nBSON document (16 MiB), and string keys must be valid UTF-8.\n"
+description: "\nRequires the mongodb extension of [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver)\n(`pie install danog/mongo-php-async-driver`), whose queries suspend only the calling fiber: the official\next-mongodb, which blocks the event loop for every query, is refused.\n\nEach array is a collection of the database, with one document per element: a value can't be larger than a\nBSON document (16 MiB), and string keys must be valid UTF-8. The `_asyncorm` collection holds the database's\nidentity, which tells whether other settings reach the same database (see DbArrayBuilder::build()).\n"
 
 ---
 # `danog\AsyncOrm\Settings\MongoSettings`
@@ -18,7 +18,8 @@ Requires the mongodb extension of [danog/mongo-php-async-driver](https://github.
 ext-mongodb, which blocks the event loop for every query, is refused.
 
 Each array is a collection of the database, with one document per element: a value can't be larger than a
-BSON document (16 MiB), and string keys must be valid UTF-8.
+BSON document (16 MiB), and string keys must be valid UTF-8. The `_asyncorm` collection holds the database's
+identity, which tells whether other settings reach the same database (see DbArrayBuilder::build()).
 
 
 

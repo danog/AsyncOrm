@@ -44,6 +44,7 @@ use danog\AsyncOrm\Internal\Containers\CacheContainer;
 use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Internal\Driver\BatchWrites;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
+use danog\AsyncOrm\Internal\Driver\MongoArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
 use danog\AsyncOrm\Internal\Driver\SqliteCheckpointTask;
 use danog\AsyncOrm\Internal\Driver\SqliteConnection;
@@ -61,6 +62,8 @@ use danog\AsyncOrm\Settings\RedisSettings;
 use danog\AsyncOrm\Settings\SqliteSettings;
 use danog\AsyncOrm\Settings\SqlSettings;
 use danog\AsyncOrm\ValueType;
+use MongoDB\Driver\BulkWrite;
+use MongoDB\Driver\Manager;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 use ReflectionProperty;
@@ -939,6 +942,43 @@ final class OrmTest extends TestCase
         $this->assertSame([2 => 2], $orm->getArrayCopy());
         $this->assertCount(0, $build('testMongoRenameFromEmpty_source'));
         $orm->clear();
+    }
+
+    /**
+     * A database has one identity, whatever address reaches it: the same database under other settings is neither
+     * copied onto itself nor cleared, another database is.
+     */
+    public function testMongoDatabaseIdentity(): void
+    {
+        $settings = new MongoSettings('mongodb://127.0.0.1:27017', 'test_identity', cacheTtl: 0);
+        // The same database, under another identifier.
+        $sameDatabase = new MongoSettings('mongodb://127.0.0.1:27017/?appname=other', 'test_identity', cacheTtl: 0);
+        $otherDatabase = new MongoSettings('mongodb://127.0.0.1:27017', 'test_identity_other', cacheTtl: 0);
+        $build = static fn (Settings $settings, ?DbArray $previous = null): DbArray => (new DbArrayBuilder('testMongoDatabaseIdentity', $settings, KeyType::INT, ValueType::INT))->build($previous);
+        $identity = static fn (DbArray $array): ?string => (new \ReflectionMethod(MongoArray::class, 'getDatabaseIdentity'))->invoke($array);
+
+        // Made anew: the first requests are concurrent.
+        $bulk = new BulkWrite;
+        $bulk->delete([], ['limit' => 0]);
+        (new Manager($settings->uri))->executeBulkWrite('test_identity._asyncorm', $bulk);
+
+        $orm = $build($settings);
+        $orm->clear();
+        $orm[1] = 2;
+        // Concurrent first requests agree.
+        $ids = await([async($identity, $orm), async($identity, $build($sameDatabase)), async($identity, $build($settings))]);
+        $this->assertNotNull($ids[0]);
+        $this->assertSame([$ids[0], $ids[0]], [$ids[1], $ids[2]]);
+        $this->assertNotSame($ids[0], $identity($build($otherDatabase)));
+
+        $moved = $build($sameDatabase, $orm);
+        $this->assertSame([1 => 2], $moved->getArrayCopy());
+        $this->assertSame([1 => 2], $build($settings)->getArrayCopy());
+
+        $moved = $build($otherDatabase, $moved);
+        $this->assertSame([1 => 2], $moved->getArrayCopy());
+        $this->assertCount(0, $build($settings));
+        $moved->clear();
     }
 
     /** Keys unset while iterating, after the iterator listed them, are skipped, not yielded as null or a failure. */
