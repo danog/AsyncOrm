@@ -1,6 +1,6 @@
 ---
 title: "danog\\AsyncOrm\\Settings\\MongoSettings: MongoDB backend settings."
-description: "\nRequires the mongodb extension: [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver),\nwhose queries suspend only the calling fiber. The official ext-mongodb works too, but blocks the event loop\nfor every query.\n\nEach array is a collection of the database, with one document per element: a value can't be larger than a\nBSON document (16 MiB), and string keys must be valid UTF-8.\n"
+description: "\nRequires the mongodb extension of [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver)\n(`pie install danog/mongo-php-async-driver`), whose queries suspend only the calling fiber: the official\next-mongodb, which blocks the event loop for every query, is refused.\n\nEach array is a collection of the database, with one document per element: a value can't be larger than a\nBSON document (16 MiB), and string keys must be valid UTF-8.\n"
 
 ---
 # `danog\AsyncOrm\Settings\MongoSettings`
@@ -13,9 +13,9 @@ description: "\nRequires the mongodb extension: [danog/mongo-php-async-driver](h
 MongoDB backend settings.  
 
 
-Requires the mongodb extension: [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver),
-whose queries suspend only the calling fiber. The official ext-mongodb works too, but blocks the event loop
-for every query.
+Requires the mongodb extension of [danog/mongo-php-async-driver](https://github.com/danog/mongo-php-async-driver)
+(`pie install danog/mongo-php-async-driver`), whose queries suspend only the calling fiber: the official
+ext-mongodb, which blocks the event loop for every query, is refused.
 
 Each array is a collection of the database, with one document per element: a value can't be larger than a
 BSON document (16 MiB), and string keys must be valid UTF-8.

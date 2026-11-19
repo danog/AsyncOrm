@@ -23,6 +23,7 @@
 
 namespace danog\AsyncOrm\Internal\Driver;
 
+use AssertionError;
 use danog\AsyncOrm\DbArrayBuilder;
 use danog\AsyncOrm\Driver\DriverArray;
 use danog\AsyncOrm\Internal\Serializer\BsonValue;
@@ -34,6 +35,8 @@ use MongoDB\Driver\Command;
 use MongoDB\Driver\Exception\CommandException;
 use MongoDB\Driver\Manager;
 use MongoDB\Driver\Query;
+use ReflectionExtension;
+use Revolt\EventLoop;
 
 /**
  * MongoDB database backend.
@@ -41,7 +44,8 @@ use MongoDB\Driver\Query;
  * Each array is a collection, with one document {_id: key, v: value} per element. Keys are always stored as
  * strings (as with Redis), so that changing the key type of an array needs no migration.
  *
- * With danog/mongo-php-async-driver, every query suspends only the calling fiber.
+ * Only with danog/mongo-php-async-driver, whose queries suspend only the calling fiber: the official extension,
+ * which blocks the event loop for every query, is refused.
  *
  * @internal
  *
@@ -60,6 +64,8 @@ final class MongoArray extends DriverArray implements BatchWrites
 
     /** @var array<string, Manager> */
     private static array $managers = [];
+    /** Whether the mongodb extension is danog/mongo-php-async-driver's (see isAsyncDriver()). */
+    private static ?bool $async = null;
 
     private readonly Manager $db;
     private readonly string $database;
@@ -80,6 +86,14 @@ final class MongoArray extends DriverArray implements BatchWrites
         $this->database = $settings->database;
         $this->ns = "{$settings->database}.{$config->table}";
 
+        self::$async ??= self::isAsyncDriver();
+        if (!self::$async) {
+            throw new AssertionError(
+                "The MongoDB backend needs the mongodb extension of danog/mongo-php-async-driver "
+                ."(pie install danog/mongo-php-async-driver): the official one blocks the event loop for every query!"
+            );
+        }
+
         $key = $settings->getDbIdentifier()."\0".\serialize($settings->uriOptions);
         if (!isset(self::$managers[$key])) {
             // Connecting is lazy: fail here, as the other backends do, rather than at the first query.
@@ -88,6 +102,30 @@ final class MongoArray extends DriverArray implements BatchWrites
             self::$managers[$key] = $manager;
         }
         $this->db = self::$managers[$key];
+    }
+
+    /**
+     * Whether the mongodb extension is danog/mongo-php-async-driver, whose queries suspend only the calling fiber,
+     * rather than the official one, of the same name and API, which blocks the event loop.
+     */
+    private static function isAsyncDriver(): bool
+    {
+        if (!\extension_loaded('mongodb')) {
+            return false;
+        }
+        $extension = new ReflectionExtension('mongodb');
+        // It registers Revolt's classes (revolt-rs, built in), unless the revolt extension did first.
+        if (\in_array(EventLoop::class, $extension->getClassNames(), true)) {
+            return true;
+        }
+        // Its information names its TLS library, rustls: the official one uses OpenSSL (or the system's).
+        \ob_start();
+        try {
+            $extension->info();
+        } finally {
+            $info = (string) \ob_get_clean();
+        }
+        return \str_contains($info, 'rustls');
     }
 
     #[\Override]
