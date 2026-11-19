@@ -34,7 +34,8 @@ use danog\AsyncOrm\Serializer;
  * ext-mongodb, which blocks the event loop for every query, is refused.
  *
  * Each array is a collection of the database, with one document per element: a value can't be larger than a
- * BSON document (16 MiB), and string keys must be valid UTF-8.
+ * BSON document (16 MiB), and string keys must be valid UTF-8. The `_asyncorm` collection holds the database's
+ * identity, which tells whether other settings reach the same database (see DbArrayBuilder::build()).
  */
 final readonly class MongoSettings extends DriverSettings
 {

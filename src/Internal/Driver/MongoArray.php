@@ -60,6 +60,10 @@ final class MongoArray extends DriverArray implements BatchWrites
     private const UNSET_MANY_LIMIT = 1000;
     /** The NamespaceNotFound error code. */
     private const NAMESPACE_NOT_FOUND = 26;
+    /** The DuplicateKey error code. */
+    private const DUPLICATE_KEY = 11000;
+    /** The collection of the database's identity (see getDatabaseIdentity()). */
+    private const IDENTITY_COLLECTION = '_asyncorm';
     private const TYPE_MAP = ['root' => 'array', 'document' => 'array', 'array' => 'array'];
 
     /** @var array<string, Manager> */
@@ -269,12 +273,39 @@ final class MongoArray extends DriverArray implements BatchWrites
     }
 
     /**
-     * A MongoDB deployment has no identifier telling it apart whatever address reaches it.
+     * A random identifier stored in the database itself, made by the first array that asks for it: a deployment
+     * has none that whatever address reaches it reports, so that's how two settings reaching the same database
+     * (another address, or the same one written differently) are told from two databases.
      *
      * @internal
      */
     protected function getDatabaseIdentity(): ?string
     {
-        return null;
+        // An upsert that only sets the identifier when it inserts: whichever array asks first makes it, the others
+        // read it.
+        $command = new Command([
+            'findAndModify' => self::IDENTITY_COLLECTION,
+            'query' => ['_id' => 'identity'],
+            'update' => ['$setOnInsert' => ['id' => \bin2hex(\random_bytes(16))]],
+            'upsert' => true,
+            'new' => true,
+        ]);
+        try {
+            $cursor = $this->db->executeCommand($this->database, $command);
+        } catch (CommandException $e) {
+            if ($e->getCode() !== self::DUPLICATE_KEY) {
+                throw $e;
+            }
+            // A concurrent upsert inserted it first: it's there now.
+            $cursor = $this->db->executeCommand($this->database, $command);
+        }
+        $cursor->setTypeMap(self::TYPE_MAP);
+        foreach ($cursor as $result) {
+            \assert(\is_array($result) && \is_array($result['value']) && \is_string($result['value']['id']));
+            return $result['value']['id'];
+        }
+        // @codeCoverageIgnoreStart
+        throw new AssertionError("findAndModify returned nothing!");
+        // @codeCoverageIgnoreEnd
     }
 }
