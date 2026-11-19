@@ -133,14 +133,14 @@ abstract class DriverArray extends DbArray
             $deleteOld = $id !== null && $prevId !== null;
         }
 
+        // Every row is copied before the old ones are deleted, all at once: if this is
+        // interrupted, the old array is still whole, and the copy starts over. Deleting
+        // each row once copied took a query (and a commit) per row, while the rows were
+        // read from a single query: MySQL closes a connection whose rows aren't read for
+        // net_write_timeout (60 seconds), in the middle of the copy.
         $promises = [];
         foreach ($previous->getIterator() as $key => $value) {
-            // The new copy first: if this is interrupted, a row is at worst in both.
-            $f = async($instance->set(...), $key, $value);
-            if ($deleteOld) {
-                $f = $f->map(static fn () => $previous->unset($key));
-            }
-            $promises []= $f;
+            $promises []= async($instance->set(...), $key, $value);
             if (\count($promises) % 500 === 0) {
                 // @codeCoverageIgnoreStart
                 await($promises);
@@ -150,6 +150,9 @@ abstract class DriverArray extends DbArray
         }
         if ($promises) {
             await($promises);
+        }
+        if ($deleteOld) {
+            $previous->clear();
         }
 
         return $instance;

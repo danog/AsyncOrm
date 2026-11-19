@@ -57,6 +57,7 @@ use danog\AsyncOrm\Settings\MysqlSettings;
 use danog\AsyncOrm\Settings\PostgresSettings;
 use danog\AsyncOrm\Settings\RedisSettings;
 use danog\AsyncOrm\Settings\SqliteSettings;
+use danog\AsyncOrm\Settings\SqlSettings;
 use danog\AsyncOrm\ValueType;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
@@ -367,6 +368,58 @@ final class OrmTest extends TestCase
         $other = (new DbArrayBuilder($table, $otherSettings, KeyType::STRING, ValueType::INT))->build($orm);
         $this->assertSame(123, $other['key']);
         $this->assertCount(1, $other);
+
+        $other->clear();
+    }
+
+    /**
+     * The same settings for a database of their own (created if missing), whose pool has 2 connections.
+     *
+     * @template T as SqlSettings
+     * @param T $settings
+     * @return T
+     */
+    private static function withOwnPool(SqlSettings $settings): SqlSettings
+    {
+        return new $settings(...\array_merge((array) $settings, [
+            'config' => $settings->config->withDatabase($settings->config->getDatabase().'_copy'),
+            'maxConnections' => 2,
+        ]));
+    }
+
+    /**
+     * More rows than a batch of the copy: all of them reach the new database, and the old
+     * ones are deleted once all were copied.
+     */
+    #[DataProvider('provideSqlSettingsOtherDatabase')]
+    public function testMigrationToOtherDatabaseDeletesOldAfterCopy(int $tablePostfix, Settings $settings, Settings $otherSettings): void
+    {
+        $table = 'testMigrationToOtherDatabaseDeletesOldAfterCopy_'.$tablePostfix;
+        // The copy runs a batch of writes at once, growing the pools to their size: with the default
+        // 100 connections, the pools (which stay open) would exceed what Postgres accepts. A pool is
+        // shared by all the arrays of a database, with the settings of the first one: databases of
+        // this test's own, so its pools are created with 2 connections.
+        if ($settings instanceof SqlSettings) {
+            $settings = self::withOwnPool($settings);
+            \assert($otherSettings instanceof SqlSettings);
+            $otherSettings = self::withOwnPool($otherSettings);
+        }
+        $orm = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build();
+        $orm->clear();
+        for ($x = 0; $x < 1200; $x++) {
+            $orm[$x] = $x * 2;
+        }
+        if ($orm instanceof CachedArray) {
+            $orm->flushCache();
+        }
+
+        $other = (new DbArrayBuilder($table, $otherSettings, KeyType::INT, ValueType::INT))->build($orm);
+        $this->assertCount(1200, $other);
+        $this->assertSame(0, $other[0]);
+        $this->assertSame(2398, $other[1199]);
+
+        $old = (new DbArrayBuilder($table, $settings, KeyType::INT, ValueType::INT))->build();
+        $this->assertCount(0, $old);
 
         $other->clear();
     }
