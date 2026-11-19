@@ -8,7 +8,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
+        # ubuntu-24.04: on ubuntu-latest (26.04, clang 21) the source build of the mongodb extension
+        # (PHP 8.6, which has no pre-built binary) fails to generate its Zend bindings
+        os: [ubuntu-24.04]
         php-versions: ["8.2", "8.3", "8.4", "8.5", "8.6"]
     name: PHP ${{ matrix.php-versions }} Test on ${{ matrix.os }}
     steps:
@@ -27,14 +29,18 @@ jobs:
       # from source (with cargo and libclang) for the versions that have none.
       - name: Install the mongodb extension
         run: |
-          # The runner image has clang and libclang: an older libclang-dev next to them fails the bindings.
+          # libclang, for the source builds (bindgen); the runner image usually has one
           ls /usr/lib/llvm-*/lib/libclang.so* >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y libclang-dev; }
           # PIE needs root to write the extension dir, and can't prompt for it: run it with sudo, keeping the
-          # runner's PATH and HOME for cargo (source builds).
-          sudo env "PATH=$PATH" "HOME=$HOME" "$(command -v pie)" install --no-interaction danog/mongo-php-async-driver
-          grep -rn mongodb /etc/php/${{ matrix.php-versions }}/ || true
-          ls -la /etc/php/${{ matrix.php-versions }}/cli/conf.d/ | grep -i -e mongo -e pecl
+          # runner's PATH and HOME for cargo (source builds), then give the runner back what root made there.
+          # Enabled here, once: PIE would add its line to the mods-available ini of the runner's ext-mongodb,
+          # which already loads mongodb.so (the file PIE replaces), and load it twice.
+          sudo env "PATH=$PATH" "HOME=$HOME" "$(command -v pie)" install --no-interaction --skip-enable-extension danog/mongo-php-async-driver
+          sudo chown -R "$(id -u):$(id -g)" "$HOME"
+          echo extension=mongodb | sudo tee "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')/99-mongodb.ini"
           php -r 'if ((new ReflectionClass(Revolt\EventLoop::class))->getExtensionName() !== "mongodb") { exit(1); }'
+          # (loaded twice, PHP warns at every startup)
+          ! php -r '' 2>&1 | grep .
 
       - name: Check environment
         run: |

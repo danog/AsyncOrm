@@ -45,6 +45,7 @@ use danog\AsyncOrm\Internal\Containers\ObjectContainer;
 use danog\AsyncOrm\Internal\Driver\BatchWrites;
 use danog\AsyncOrm\Internal\Driver\CachedArray;
 use danog\AsyncOrm\Internal\Driver\ObjectArray;
+use danog\AsyncOrm\Internal\Driver\SqliteCheckpointTask;
 use danog\AsyncOrm\Internal\Driver\SqliteConnection;
 use danog\AsyncOrm\KeyType;
 use danog\AsyncOrm\Serializer\Igbinary;
@@ -105,6 +106,8 @@ final class OrmTest extends TestCase
         foreach (['redis' => 6379, 'mariadb' => 3306, 'postgres' => 5432, 'mongo' => 27017] as $image => $port) {
             $f []= async(function () use ($image, $port) {
                 self::shellExec("docker rm -f test_$image 2>/dev/null");
+                // Downloaded first: the startup timeout below is for the servers alone.
+                self::shellExec("docker pull -q $image >/dev/null");
 
                 $args = match ($image) {
                     'postgres' => '-e POSTGRES_HOST_AUTH_METHOD=trust',
@@ -686,15 +689,20 @@ final class OrmTest extends TestCase
 
         $submitted = 0;
         $pool = workerPool();
-        workerPool(new class($submitted, $path) implements WorkerPool {
-            public function __construct(private int &$submitted, private string $path)
+        workerPool(new class($submitted, $path, $pool) implements WorkerPool {
+            public function __construct(private int &$submitted, private string $path, private WorkerPool $pool)
             {
             }
             public function submit(Task $task, ?Cancellation $cancellation = null): Execution
             {
-                if ((new ReflectionProperty($task, 'path'))->getValue($task) === $this->path) {
-                    $this->submitted++;
+                if (!$task instanceof SqliteCheckpointTask
+                    || (new ReflectionProperty($task, 'path'))->getValue($task) !== $this->path
+                ) {
+                    // A checkpoint of another test's connection: rejected, it wouldn't use
+                    // workers again for a minute.
+                    return $this->pool->submit($task, $cancellation);
                 }
+                $this->submitted++;
                 throw new WorkerException('No workers here');
             }
             public function isRunning(): bool
