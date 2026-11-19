@@ -105,7 +105,6 @@ abstract class DriverArray extends DbArray
             }
         }
 
-        /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
         if ($previous instanceof self && !$previous->inited) {
             // Unserialized (e.g. from a session) and not woken up yet: it has its settings,
             // but no connection or queries. Bring it up from its own settings to read it.
@@ -119,7 +118,6 @@ abstract class DriverArray extends DbArray
         // (another address, cache TTL or serializer), and the copy rewrites its rows in place.
         $deleteOld = $previous::class !== $instance::class;
         if ($sameDriver) {
-            /** @psalm-suppress DocblockTypeContradiction TODO fix in psalm */
             \assert($previous instanceof SqlArray || $previous instanceof SqliteArray || $previous instanceof MongoArray);
             /** @psalm-suppress RedundantCondition Psalm only narrows it to one of the three */
             \assert($instance instanceof SqlArray || $instance instanceof SqliteArray || $instance instanceof MongoArray);
@@ -135,6 +133,7 @@ abstract class DriverArray extends DbArray
         }
 
         $promises = [];
+        /** @var TTValue $value */
         foreach ($previous->getIterator() as $key => $value) {
             // The new copy first: if this is interrupted, a row is at worst in both.
             $f = async($instance->set(...), $key, $value);

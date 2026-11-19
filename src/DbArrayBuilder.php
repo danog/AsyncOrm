@@ -75,7 +75,9 @@ final readonly class DbArrayBuilder
                 throw new AssertionError("The JSON backend cannot be used when serializing objects!");
             }
             /** @psalm-suppress MixedArgumentTypeCoercion */
-            return ObjectArray::getInstance($this, $previous);
+            $array = ObjectArray::getInstance($this, $previous);
+            /** @var DbArray<TKey, TValue> $array TValue is a DbObject here */
+            return $array;
         }
         if ($this->settings instanceof MemorySettings
             || (
