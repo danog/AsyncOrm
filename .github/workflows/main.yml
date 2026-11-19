@@ -6,6 +6,7 @@ jobs:
   run:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest]
         php-versions: ["8.2", "8.3", "8.4", "8.5", "8.6"]
@@ -26,11 +27,13 @@ jobs:
       # from source (with cargo and libclang) for the versions that have none.
       - name: Install the mongodb extension
         run: |
-          sudo apt-get update
-          sudo apt-get install -y libclang-dev
+          # The runner image has clang and libclang: an older libclang-dev next to them fails the bindings.
+          ls /usr/lib/llvm-*/lib/libclang.so* >/dev/null 2>&1 || { sudo apt-get update && sudo apt-get install -y libclang-dev; }
           # PIE needs root to write the extension dir, and can't prompt for it: run it with sudo, keeping the
           # runner's PATH and HOME for cargo (source builds).
           sudo env "PATH=$PATH" "HOME=$HOME" "$(command -v pie)" install --no-interaction danog/mongo-php-async-driver
+          php --ini
+          grep -rn mongodb "$(php -r 'echo php_ini_loaded_file();')" "$(php -r 'echo PHP_CONFIG_FILE_SCAN_DIR;')" || true
           php -r 'if ((new ReflectionClass(Revolt\EventLoop::class))->getExtensionName() !== "mongodb") { exit(1); }'
 
       - name: Check environment
